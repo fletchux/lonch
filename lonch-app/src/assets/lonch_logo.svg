@@ -1,0 +1,36 @@
+<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mask to show only the center circle of the "o" -->
+    <mask id="oCenter">
+      <circle cx="115" cy="72" r="14" fill="white"/>
+    </mask>
+  </defs>
+  
+  <!-- White background -->
+  <rect width="400" height="150" fill="#ffffff"/>
+  
+  <!-- Box around the logo -->
+  <rect x="60" y="30" width="280" height="90" fill="none" stroke="#2D9B9B" stroke-width="2" rx="5"/>
+  
+  <!-- Letter "l" -->
+  <text x="85" y="95" font-family="Arial, sans-serif" font-size="70" font-weight="300" 
+        fill="#2D9B9B">l</text>
+  
+  <!-- The "o" outline (ring) in teal -->
+  <circle cx="140" cy="72" r="22" fill="none" stroke="#2D9B9B" stroke-width="3"/>
+  
+  <!-- The center of the "o" in teal (reversed knockout effect) -->
+  <circle cx="140" cy="72" r="14" fill="#2D9B9B"/>
+  
+  <!-- Letter "n" -->
+  <text x="185" y="95" font-family="Arial, sans-serif" font-size="70" font-weight="300" 
+        fill="#2D9B9B">n</text>
+  
+  <!-- Letter "c" -->
+  <text x="240" y="95" font-family="Arial, sans-serif" font-size="70" font-weight="300" 
+        fill="#2D9B9B">c</text>
+  
+  <!-- Letter "h" -->
+  <text x="285" y="95" font-family="Arial, sans-serif" font-size="70" font-weight="300" 
+        fill="#2D9B9B">h</text>
+</svg>
