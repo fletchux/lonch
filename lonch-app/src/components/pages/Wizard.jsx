@@ -1,6 +1,8 @@
 import { FileText, CheckSquare, Users } from '../icons';
 import { templates } from '../../data/templates';
 import DocumentUpload from '../DocumentUpload';
+import ExtractionIndicator from '../ExtractionIndicator';
+import { mergeExtractedData, mapToProjectData } from '../../services/documentExtraction';
 
 export default function Wizard({ projectData, setProjectData, step, setStep, onCancel, onSave }) {
   const handleNext = () => {
@@ -59,7 +61,19 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
             <DocumentUpload
               projectId={projectData.id || 'temp'}
               onFilesSelected={(files) => {
-                setProjectData({ ...projectData, uploadedFiles: files });
+                setProjectData({ ...projectData, documents: files });
+              }}
+              onExtractionComplete={(result) => {
+                // Store extraction results for all documents
+                const allResults = [...(projectData.documents || []), result];
+                const { mergedData, conflicts, hasConflicts } = mergeExtractedData(allResults);
+                const mappedData = mapToProjectData(mergedData);
+
+                setProjectData({
+                  ...projectData,
+                  extractedData: mappedData,
+                  extractionConflicts: hasConflicts ? conflicts : null
+                });
               }}
             />
           )}
@@ -69,24 +83,57 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
               <h3 className="text-xl font-bold text-gray-900 mb-4">Project Basics</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     Project Name
+                    {projectData.extractedData?.name && !projectData.manuallyEditedFields?.includes('name') && (
+                      <ExtractionIndicator
+                        source={projectData.extractedData.source}
+                        hasConflict={projectData.extractionConflicts?.name}
+                      />
+                    )}
                   </label>
                   <input
                     type="text"
-                    value={projectData.name}
-                    onChange={(e) => setProjectData({ ...projectData, name: e.target.value })}
+                    value={
+                      projectData.name ||
+                      (projectData.extractedData?.name && !projectData.manuallyEditedFields?.includes('name')
+                        ? projectData.extractedData.name
+                        : '')
+                    }
+                    onChange={(e) => {
+                      setProjectData({
+                        ...projectData,
+                        name: e.target.value,
+                        manuallyEditedFields: [...(projectData.manuallyEditedFields || []), 'name'].filter(
+                          (v, i, a) => a.indexOf(v) === i
+                        )
+                      });
+                    }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
                     placeholder="e.g., Acme Corp - Product Redesign"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     Client Type
+                    {projectData.extractedData?.clientName && !projectData.manuallyEditedFields?.includes('clientType') && (
+                      <ExtractionIndicator
+                        source={projectData.extractedData.source}
+                        hasConflict={projectData.extractionConflicts?.clientName}
+                      />
+                    )}
                   </label>
                   <select
                     value={projectData.clientType}
-                    onChange={(e) => setProjectData({ ...projectData, clientType: e.target.value })}
+                    onChange={(e) => {
+                      setProjectData({
+                        ...projectData,
+                        clientType: e.target.value,
+                        manuallyEditedFields: [...(projectData.manuallyEditedFields || []), 'clientType'].filter(
+                          (v, i, a) => a.indexOf(v) === i
+                        )
+                      });
+                    }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
                   >
                     <option value="">Select client type</option>

@@ -14,7 +14,11 @@ function App() {
     intakeTemplate: null,
     checklistTemplate: null,
     stakeholderTemplate: null,
-    teamTemplate: null
+    teamTemplate: null,
+    documents: [], // Uploaded documents with metadata
+    extractedData: null, // AI-extracted data from documents
+    extractionConflicts: null, // Conflicts from multiple documents
+    manuallyEditedFields: [] // Track which fields user has manually edited
   });
 
   const startNewProject = () => {
@@ -26,7 +30,11 @@ function App() {
       intakeTemplate: null,
       checklistTemplate: null,
       stakeholderTemplate: null,
-      teamTemplate: null
+      teamTemplate: null,
+      documents: [],
+      extractedData: null,
+      extractionConflicts: null,
+      manuallyEditedFields: []
     });
   };
 

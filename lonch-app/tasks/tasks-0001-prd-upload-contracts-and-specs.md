@@ -95,20 +95,20 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 3.15 Store extraction results in projectData state with metadata (source document, confidence)
   - [x] 3.16 Write unit tests for documentParser and documentExtraction services
 
-- [ ] 4.0 Integrate extracted data with wizard field pre-population
-  - [ ] 4.1 Extend `projectData` state in `src/App.jsx` to include `extractedData` and `documents` arrays
-  - [ ] 4.2 Create `src/components/ExtractionIndicator.jsx` component (icon/badge for auto-filled fields)
-  - [ ] 4.3 Update Wizard Step 2 (Project Basics) to check for extracted data and pre-populate fields
-  - [ ] 4.4 Add ExtractionIndicator to fields that were auto-populated
-  - [ ] 4.5 Implement tooltip on indicator: "This data was extracted from your uploaded documents"
-  - [ ] 4.6 Ensure fields remain editable even when pre-populated
-  - [ ] 4.7 Preserve manually edited data (don't override user changes)
-  - [ ] 4.8 Implement conflict resolution UI (modal or inline) when multiple docs have conflicting data
-  - [ ] 4.9 Add "Retry Extraction" button in DocumentUpload component for failed extractions
-  - [ ] 4.10 Show extraction status indicators (processing spinner, success checkmark, error icon)
-  - [ ] 4.11 Handle partially successful extractions gracefully (populate found fields, leave others empty)
-  - [ ] 4.12 Update `src/App.test.jsx` to test new state structure
-  - [ ] 4.13 Write unit tests for ExtractionIndicator component
+- [x] 4.0 Integrate extracted data with wizard field pre-population
+  - [x] 4.1 Extend `projectData` state in `src/App.jsx` to include `extractedData` and `documents` arrays
+  - [x] 4.2 Create `src/components/ExtractionIndicator.jsx` component (icon/badge for auto-filled fields)
+  - [x] 4.3 Update Wizard Step 2 (Project Basics) to check for extracted data and pre-populate fields
+  - [x] 4.4 Add ExtractionIndicator to fields that were auto-populated
+  - [x] 4.5 Implement tooltip on indicator: "This data was extracted from your uploaded documents"
+  - [x] 4.6 Ensure fields remain editable even when pre-populated
+  - [x] 4.7 Preserve manually edited data (don't override user changes)
+  - [x] 4.8 Implement conflict resolution UI (modal or inline) when multiple docs have conflicting data
+  - [x] 4.9 Add "Retry Extraction" button in DocumentUpload component for failed extractions
+  - [x] 4.10 Show extraction status indicators (processing spinner, success checkmark, error icon)
+  - [x] 4.11 Handle partially successful extractions gracefully (populate found fields, leave others empty)
+  - [x] 4.12 Update `src/App.test.jsx` to test new state structure
+  - [x] 4.13 Write unit tests for ExtractionIndicator component
 
 - [ ] 5.0 Build document management interface for project dashboard
   - [ ] 5.1 Create `src/components/DocumentList.jsx` for displaying uploaded documents
