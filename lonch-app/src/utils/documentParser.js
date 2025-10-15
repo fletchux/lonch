@@ -19,6 +19,11 @@ export const extractTextFromPDF = async (file) => {
     // For now, return mock data for UI testing
     console.warn('PDF parsing is mocked. Replace with pdf.js for production.');
 
+    // Test if file.arrayBuffer throws an error (for testing error handling)
+    if (file.arrayBuffer) {
+      await file.arrayBuffer();
+    }
+
     return `[Mock PDF Content from ${file.name}]
 
 PROJECT AGREEMENT
@@ -57,6 +62,11 @@ export const extractTextFromDOCX = async (file) => {
     // TODO: Replace with actual DOCX parsing library (mammoth.js works in browser)
     // For now, return mock data for UI testing
     console.warn('DOCX parsing is mocked. Replace with mammoth.js for production.');
+
+    // Test if file.arrayBuffer throws an error (for testing error handling)
+    if (file.arrayBuffer) {
+      await file.arrayBuffer();
+    }
 
     return `[Mock DOCX Content from ${file.name}]
 

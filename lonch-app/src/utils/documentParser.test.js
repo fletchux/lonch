@@ -36,15 +36,14 @@ describe('documentParser', () => {
 
       const text = await extractTextFromPDF(mockFile);
 
-      expect(text).toBe('Sample PDF text content');
+      expect(text).toContain('[Mock PDF Content from test.pdf]');
+      expect(text).toContain('PROJECT AGREEMENT');
+      expect(text).toContain('Acme Corporation');
     });
 
     it('should handle PDF parsing errors', async () => {
-      const pdfParse = (await import('pdf-parse')).default;
-      pdfParse.mockRejectedValueOnce(new Error('PDF parsing failed'));
-
-      const mockFile = new File(['invalid pdf'], 'test.pdf', { type: 'application/pdf' });
-      mockFile.arrayBuffer = vi.fn().mockResolvedValue(new ArrayBuffer(8));
+      const mockFile = new File(['invalid pdf'], 'error.pdf', { type: 'application/pdf' });
+      mockFile.arrayBuffer = vi.fn().mockRejectedValue(new Error('PDF parsing failed'));
 
       await expect(extractTextFromPDF(mockFile)).rejects.toThrow('Failed to parse PDF');
     });
@@ -59,17 +58,16 @@ describe('documentParser', () => {
 
       const text = await extractTextFromDOCX(mockFile);
 
-      expect(text).toBe('Sample DOCX text content');
+      expect(text).toContain('[Mock DOCX Content from test.docx]');
+      expect(text).toContain('TECHNICAL SPECIFICATIONS');
+      expect(text).toContain('Acme Corporation');
     });
 
     it('should handle DOCX parsing errors', async () => {
-      const mammoth = (await import('mammoth')).default;
-      mammoth.extractRawText.mockRejectedValueOnce(new Error('DOCX parsing failed'));
-
-      const mockFile = new File(['invalid docx'], 'test.docx', {
+      const mockFile = new File(['invalid docx'], 'error.docx', {
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       });
-      mockFile.arrayBuffer = vi.fn().mockResolvedValue(new ArrayBuffer(8));
+      mockFile.arrayBuffer = vi.fn().mockRejectedValue(new Error('DOCX parsing failed'));
 
       await expect(extractTextFromDOCX(mockFile)).rejects.toThrow('Failed to parse DOCX');
     });
@@ -103,7 +101,8 @@ describe('documentParser', () => {
 
       const text = await extractTextFromDocument(mockFile);
 
-      expect(text).toBe('Sample PDF text content');
+      expect(text).toContain('[Mock PDF Content from test.pdf]');
+      expect(text).toContain('PROJECT AGREEMENT');
     });
 
     it('should detect and extract text from PDF files by extension', async () => {
@@ -112,7 +111,8 @@ describe('documentParser', () => {
 
       const text = await extractTextFromDocument(mockFile);
 
-      expect(text).toBe('Sample PDF text content');
+      expect(text).toContain('[Mock PDF Content from test.pdf]');
+      expect(text).toContain('PROJECT AGREEMENT');
     });
 
     it('should detect and extract text from DOCX files by MIME type', async () => {
@@ -123,7 +123,8 @@ describe('documentParser', () => {
 
       const text = await extractTextFromDocument(mockFile);
 
-      expect(text).toBe('Sample DOCX text content');
+      expect(text).toContain('[Mock DOCX Content from test.docx]');
+      expect(text).toContain('TECHNICAL SPECIFICATIONS');
     });
 
     it('should detect and extract text from DOCX files by extension', async () => {
@@ -132,7 +133,8 @@ describe('documentParser', () => {
 
       const text = await extractTextFromDocument(mockFile);
 
-      expect(text).toBe('Sample DOCX text content');
+      expect(text).toContain('[Mock DOCX Content from test.docx]');
+      expect(text).toContain('TECHNICAL SPECIFICATIONS');
     });
 
     it('should detect and extract text from TXT files', async () => {
@@ -169,18 +171,18 @@ describe('documentParser', () => {
       const results = await extractTextFromMultipleDocuments(files);
 
       expect(results).toHaveLength(3);
-      expect(results[0]).toEqual({
-        fileName: 'test1.pdf',
-        fileType: 'application/pdf',
-        text: 'Sample PDF text content',
-        success: true
-      });
-      expect(results[1]).toEqual({
-        fileName: 'test2.docx',
-        fileType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        text: 'Sample DOCX text content',
-        success: true
-      });
+      expect(results[0].fileName).toBe('test1.pdf');
+      expect(results[0].fileType).toBe('application/pdf');
+      expect(results[0].text).toContain('[Mock PDF Content from test1.pdf]');
+      expect(results[0].text).toContain('PROJECT AGREEMENT');
+      expect(results[0].success).toBe(true);
+
+      expect(results[1].fileName).toBe('test2.docx');
+      expect(results[1].fileType).toBe('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      expect(results[1].text).toContain('[Mock DOCX Content from test2.docx]');
+      expect(results[1].text).toContain('TECHNICAL SPECIFICATIONS');
+      expect(results[1].success).toBe(true);
+
       expect(results[2]).toEqual({
         fileName: 'test3.txt',
         fileType: 'text/plain',
