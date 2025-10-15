@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 /**
  * DocumentList Component
  * Displays uploaded documents in a table/list view with management capabilities
  */
-export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew }) {
+export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [selectedDocuments, setSelectedDocuments] = useState(new Set());
+  const [bulkCategory, setBulkCategory] = useState('');
+  const headerCheckboxRef = useRef(null);
 
   // Filter documents by category
   const filteredDocuments = selectedCategory === 'all'
@@ -71,6 +74,50 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
     }
   };
 
+  // Update header checkbox state based on selection
+  useEffect(() => {
+    if (headerCheckboxRef.current && filteredDocuments.length > 0) {
+      const allSelected = filteredDocuments.every(doc => selectedDocuments.has(doc.id));
+      const someSelected = filteredDocuments.some(doc => selectedDocuments.has(doc.id));
+
+      headerCheckboxRef.current.checked = allSelected;
+      headerCheckboxRef.current.indeterminate = someSelected && !allSelected;
+    }
+  }, [selectedDocuments, filteredDocuments]);
+
+  // Toggle individual document selection
+  const toggleDocumentSelection = (docId) => {
+    setSelectedDocuments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(docId)) {
+        newSet.delete(docId);
+      } else {
+        newSet.add(docId);
+      }
+      return newSet;
+    });
+  };
+
+  // Toggle all documents selection
+  const toggleAllDocuments = () => {
+    if (filteredDocuments.every(doc => selectedDocuments.has(doc.id))) {
+      // All selected, deselect all
+      setSelectedDocuments(new Set());
+    } else {
+      // Some or none selected, select all
+      setSelectedDocuments(new Set(filteredDocuments.map(doc => doc.id)));
+    }
+  };
+
+  // Handle bulk category update
+  const handleBulkCategoryUpdate = () => {
+    if (bulkCategory && selectedDocuments.size > 0 && onUpdateCategories) {
+      onUpdateCategories(Array.from(selectedDocuments), bulkCategory);
+      setSelectedDocuments(new Set());
+      setBulkCategory('');
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Header with filter and upload button */}
@@ -104,6 +151,36 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
           </button>
         )}
       </div>
+
+      {/* Bulk actions toolbar */}
+      {selectedDocuments.size > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-blue-900">
+              {selectedDocuments.size} document{selectedDocuments.size > 1 ? 's' : ''} selected
+            </span>
+            <div className="flex items-center space-x-3">
+              <select
+                value={bulkCategory}
+                onChange={(e) => setBulkCategory(e.target.value)}
+                className="px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Select category...</option>
+                <option value="contract">Contract</option>
+                <option value="specifications">Specifications</option>
+                <option value="other">Other</option>
+              </select>
+              <button
+                onClick={handleBulkCategoryUpdate}
+                disabled={!bulkCategory}
+                className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Update Category
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Document table */}
       {filteredDocuments.length === 0 ? (
@@ -141,6 +218,14 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left">
+                  <input
+                    ref={headerCheckboxRef}
+                    type="checkbox"
+                    onChange={toggleAllDocuments}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   File Name
                 </th>
@@ -164,6 +249,14 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredDocuments.map((doc) => (
                 <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedDocuments.has(doc.id)}
+                      onChange={() => toggleDocumentSelection(doc.id)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <svg

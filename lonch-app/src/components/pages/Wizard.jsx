@@ -64,15 +64,45 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                 setProjectData({ ...projectData, documents: files });
               }}
               onExtractionComplete={(result) => {
-                // Store extraction results for all documents
-                const allResults = [...(projectData.documents || []), result];
-                const { mergedData, conflicts, hasConflicts } = mergeExtractedData(allResults);
-                const mappedData = mapToProjectData(mergedData);
+                // Use functional update to get the latest projectData
+                setProjectData((currentData) => {
+                  // Store extraction results for all documents
+                  const allResults = [...(currentData.documents || []), result];
+                  const { mergedData, conflicts, hasConflicts } = mergeExtractedData(allResults);
+                  const mappedData = mapToProjectData(mergedData);
 
-                setProjectData({
-                  ...projectData,
-                  extractedData: mappedData,
-                  extractionConflicts: hasConflicts ? conflicts : null
+                  // Auto-populate project name if not manually edited
+                  const updatedData = {
+                    ...currentData,
+                    extractedData: mappedData,
+                    extractionConflicts: hasConflicts ? conflicts : null
+                  };
+
+                  // If project name hasn't been manually set, use extracted name
+                  if (!currentData.name && mappedData.name) {
+                    updatedData.name = mappedData.name;
+                  }
+
+                  // Auto-select a reasonable client type if budget indicates size
+                  if (!currentData.clientType && mappedData.budget) {
+                    const budgetStr = String(mappedData.budget);
+                    // Extract number from budget string (handles both "$50,000" and "50000")
+                    const amount = parseInt(budgetStr.replace(/[^0-9]/g, ''));
+
+                    if (!isNaN(amount)) {
+                      if (amount >= 100000) {
+                        updatedData.clientType = 'enterprise';
+                      } else if (amount >= 50000) {
+                        updatedData.clientType = 'growth';
+                      } else if (amount >= 20000) {
+                        updatedData.clientType = 'smb';
+                      } else {
+                        updatedData.clientType = 'startup';
+                      }
+                    }
+                  }
+
+                  return updatedData;
                 });
               }}
             />

@@ -32,7 +32,9 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
         id: `${file.name}-${Date.now()}`,
         category: 'other', // Default category
         name: file.name,
-        size: file.size
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: 'You'
       }));
 
       setSelectedFiles(prev => {
@@ -130,9 +132,16 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
 
   // Update category for a file
   const updateFileCategory = (fileId, category) => {
-    setSelectedFiles(prev =>
-      prev.map(f => f.id === fileId ? { ...f, category } : f)
-    );
+    setSelectedFiles(prev => {
+      const updated = prev.map(f => f.id === fileId ? { ...f, category } : f);
+
+      // Notify parent component of the change
+      if (onFilesSelected) {
+        onFilesSelected(updated);
+      }
+
+      return updated;
+    });
   };
 
   // Format file size

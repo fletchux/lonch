@@ -2,24 +2,40 @@ import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
 import DocumentList from '../DocumentList';
 
-export default function ProjectDashboard({ project, onBack }) {
+export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUploadDocument, onUpdateDocumentCategories }) {
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  // Mock handlers for document management
+  // Handle document download
   const handleDownload = (doc) => {
-    console.log('Download document:', doc);
-    // TODO: Implement actual download from Firebase Storage
+    // Create a blob URL from the file object if it exists
+    if (doc.file) {
+      const url = URL.createObjectURL(doc.file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } else {
+      console.warn('Cannot download - file object not available');
+      // TODO: In production, fetch from Firebase Storage URL
+    }
   };
 
+  // Handle document deletion
   const handleDelete = (docId) => {
-    console.log('Delete document:', docId);
-    // TODO: Implement actual deletion from Firebase Storage
+    if (onDeleteDocument) {
+      onDeleteDocument(docId);
+    }
   };
 
+  // Handle uploading new documents
   const handleUploadNew = () => {
     setShowUploadModal(true);
     // TODO: Show DocumentUpload component in a modal
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
       <div className="max-w-6xl mx-auto">
@@ -202,6 +218,7 @@ export default function ProjectDashboard({ project, onBack }) {
               onDownload={handleDownload}
               onDelete={handleDelete}
               onUploadNew={handleUploadNew}
+              onUpdateCategories={onUpdateDocumentCategories}
             />
           </div>
         </div>
