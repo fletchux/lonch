@@ -134,18 +134,18 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 6.8 Implement admin access control (only show to admin users)
   - [x] 6.9 Write unit tests for ExtractionLogs component
 
-- [ ] 7.0 Implement comprehensive testing and validation
-  - [ ] 7.1 Write integration tests for end-to-end upload flow (upload → extract → populate)
-  - [ ] 7.2 Test file validation (reject unsupported formats, show errors)
-  - [ ] 7.3 Test batch upload with multiple files
-  - [ ] 7.4 Test extraction with various document formats and structures
-  - [ ] 7.5 Test conflict resolution when multiple documents have different data
-  - [ ] 7.6 Test wizard navigation with new Step 1 (6 steps total)
-  - [ ] 7.7 Test document management (download, delete, filter)
-  - [ ] 7.8 Test admin extraction logs interface
-  - [ ] 7.9 Test retry extraction functionality
-  - [ ] 7.10 Test partial extraction scenarios (some fields found, others missing)
-  - [ ] 7.11 Perform accessibility testing (keyboard navigation, screen readers)
-  - [ ] 7.12 Run full test suite and ensure all tests pass: `npm test`
-  - [ ] 7.13 Manually test with real contract and specification documents
-  - [ ] 7.14 Verify 50% extraction accuracy threshold is met
+- [x] 7.0 Implement comprehensive testing and validation
+  - [x] 7.1 Write integration tests for end-to-end upload flow (upload → extract → populate)
+  - [x] 7.2 Test file validation (reject unsupported formats, show errors)
+  - [x] 7.3 Test batch upload with multiple files
+  - [x] 7.4 Test extraction with various document formats and structures
+  - [x] 7.5 Test conflict resolution when multiple documents have different data
+  - [x] 7.6 Test wizard navigation with new Step 1 (6 steps total)
+  - [x] 7.7 Test document management (download, delete, filter)
+  - [x] 7.8 Test admin extraction logs interface
+  - [x] 7.9 Test retry extraction functionality
+  - [x] 7.10 Test partial extraction scenarios (some fields found, others missing)
+  - [x] 7.11 Perform accessibility testing (keyboard navigation, screen readers)
+  - [x] 7.12 Run full test suite and ensure all tests pass: `npm test`
+  - [~] 7.13 Manually test with real contract and specification documents (requires production environment)
+  - [~] 7.14 Verify 50% extraction accuracy threshold is met (requires production LLM integration)
