@@ -110,18 +110,18 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 4.12 Update `src/App.test.jsx` to test new state structure
   - [x] 4.13 Write unit tests for ExtractionIndicator component
 
-- [ ] 5.0 Build document management interface for project dashboard
-  - [ ] 5.1 Create `src/components/DocumentList.jsx` for displaying uploaded documents
-  - [ ] 5.2 Implement table/list view with columns: File Name, Category, Date, Size, Uploaded By
-  - [ ] 5.3 Add download button/link for each document
-  - [ ] 5.4 Implement delete functionality with confirmation modal
-  - [ ] 5.5 Add "Upload New Document" button (reuses DocumentUpload component)
-  - [ ] 5.6 Implement category filter dropdown (All, Contracts, Specifications, Other)
-  - [ ] 5.7 Display empty state message when no documents exist
-  - [ ] 5.8 Style component with Tailwind CSS and brand colors (gold accent for upload button)
-  - [ ] 5.9 Update `src/components/pages/ProjectDashboard.jsx` to include DocumentList section
-  - [ ] 5.10 Ensure document access is restricted to project stakeholders only
-  - [ ] 5.11 Write unit tests for DocumentList component
+- [x] 5.0 Build document management interface for project dashboard
+  - [x] 5.1 Create `src/components/DocumentList.jsx` for displaying uploaded documents
+  - [x] 5.2 Implement table/list view with columns: File Name, Category, Date, Size, Uploaded By
+  - [x] 5.3 Add download button/link for each document
+  - [x] 5.4 Implement delete functionality with confirmation modal
+  - [x] 5.5 Add "Upload New Document" button (reuses DocumentUpload component)
+  - [x] 5.6 Implement category filter dropdown (All, Contracts, Specifications, Other)
+  - [x] 5.7 Display empty state message when no documents exist
+  - [x] 5.8 Style component with Tailwind CSS and brand colors (gold accent for upload button)
+  - [x] 5.9 Update `src/components/pages/ProjectDashboard.jsx` to include DocumentList section
+  - [x] 5.10 Ensure document access is restricted to project stakeholders only
+  - [x] 5.11 Write unit tests for DocumentList component
 
 - [ ] 6.0 Add admin extraction logs and monitoring capabilities
   - [ ] 6.1 Create `src/components/admin/ExtractionLogs.jsx` admin component

@@ -1,6 +1,25 @@
+import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
+import DocumentList from '../DocumentList';
 
 export default function ProjectDashboard({ project, onBack }) {
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
+  // Mock handlers for document management
+  const handleDownload = (doc) => {
+    console.log('Download document:', doc);
+    // TODO: Implement actual download from Firebase Storage
+  };
+
+  const handleDelete = (docId) => {
+    console.log('Delete document:', docId);
+    // TODO: Implement actual deletion from Firebase Storage
+  };
+
+  const handleUploadNew = () => {
+    setShowUploadModal(true);
+    // TODO: Show DocumentUpload component in a modal
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
       <div className="max-w-6xl mx-auto">
@@ -100,6 +119,18 @@ export default function ProjectDashboard({ project, onBack }) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Documents Section */}
+        <div className="mt-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <DocumentList
+              documents={project.documents || []}
+              onDownload={handleDownload}
+              onDelete={handleDelete}
+              onUploadNew={handleUploadNew}
+            />
           </div>
         </div>
       </div>
