@@ -1,9 +1,10 @@
 import { FileText, CheckSquare, Users } from '../icons';
 import { templates } from '../../data/templates';
+import DocumentUpload from '../DocumentUpload';
 
 export default function Wizard({ projectData, setProjectData, step, setStep, onCancel, onSave }) {
   const handleNext = () => {
-    if (step < 5) {
+    if (step < 6) {
       setStep(step + 1);
     } else {
       onSave();
@@ -21,14 +22,16 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return projectData.name && projectData.clientType;
+        return true; // Document upload is optional
       case 2:
-        return projectData.intakeTemplate;
+        return projectData.name && projectData.clientType;
       case 3:
-        return projectData.checklistTemplate;
+        return projectData.intakeTemplate;
       case 4:
-        return projectData.stakeholderTemplate;
+        return projectData.checklistTemplate;
       case 5:
+        return projectData.stakeholderTemplate;
+      case 6:
         return projectData.teamTemplate;
       default:
         return false;
@@ -42,17 +45,26 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gray-900">New Project Setup</h2>
-              <span className="text-sm text-gray-600">Step {step} of 5</span>
+              <span className="text-sm text-gray-600">Step {step} of 6</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-accent h-2 rounded-full transition-all"
-                style={{ width: `${(step / 5) * 100}%` }}
+                style={{ width: `${(step / 6) * 100}%` }}
               ></div>
             </div>
           </div>
 
           {step === 1 && (
+            <DocumentUpload
+              projectId={projectData.id || 'temp'}
+              onFilesSelected={(files) => {
+                setProjectData({ ...projectData, uploadedFiles: files });
+              }}
+            />
+          )}
+
+          {step === 2 && (
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Project Basics</h3>
               <div className="space-y-4">
@@ -88,7 +100,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
             </div>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Client Intake Template</h3>
               <p className="text-gray-600 mb-6">Choose a template to structure your client discovery</p>
@@ -116,7 +128,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Kickoff Checklist Template</h3>
               <p className="text-gray-600 mb-6">Select a checklist to track your setup tasks</p>
@@ -144,7 +156,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Stakeholder Map Template</h3>
               <p className="text-gray-600 mb-6">Choose a template for mapping client stakeholders</p>
@@ -172,7 +184,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Consulting Team Template</h3>
               <p className="text-gray-600 mb-6">Select your team structure template</p>
@@ -212,7 +224,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
               disabled={!isStepValid()}
               className="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              {step === 5 ? 'Create Project' : 'Next'}
+              {step === 6 ? 'Create Project' : 'Next'}
             </button>
           </div>
         </div>

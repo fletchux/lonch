@@ -28,16 +28,15 @@ describe('Lonch App', () => {
     fireEvent.click(newProjectButton);
 
     expect(screen.getByText('New Project Setup')).toBeInTheDocument();
-    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Step 1 of 6')).toBeInTheDocument();
   });
 
-  it('wizard has proper form fields in step 1', () => {
+  it('wizard shows document upload in step 1', () => {
     render(<App />);
     const newProjectButton = screen.getAllByText('New Project')[0];
     fireEvent.click(newProjectButton);
 
-    expect(screen.getByText('Project Basics')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('e.g., Acme Corp - Product Redesign')).toBeInTheDocument();
-    expect(screen.getByText('Client Type')).toBeInTheDocument();
+    expect(screen.getByText('Upload Documents')).toBeInTheDocument();
+    expect(screen.getByText('Choose Files')).toBeInTheDocument();
   });
 });

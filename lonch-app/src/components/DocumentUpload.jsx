@@ -1,0 +1,251 @@
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+
+export default function DocumentUpload({ onFilesSelected, onUploadComplete, projectId }) {
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [errors, setErrors] = useState([]);
+
+  // Handle file drop or selection
+  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
+    // Clear previous errors
+    setErrors([]);
+
+    // Handle rejected files (invalid types)
+    if (rejectedFiles.length > 0) {
+      const errorMessages = rejectedFiles.map(({ file, errors }) => {
+        const errorTypes = errors.map(e => e.code);
+        if (errorTypes.includes('file-invalid-type')) {
+          return `${file.name}: Invalid file type. Only PDF, DOCX, and TXT files are allowed.`;
+        }
+        return `${file.name}: Upload error`;
+      });
+      setErrors(errorMessages);
+    }
+
+    // Add accepted files to selected files list
+    if (acceptedFiles.length > 0) {
+      const filesWithMetadata = acceptedFiles.map(file => ({
+        file,
+        id: `${file.name}-${Date.now()}`,
+        category: 'other', // Default category
+        name: file.name,
+        size: file.size
+      }));
+
+      setSelectedFiles(prev => [...prev, ...filesWithMetadata]);
+
+      // Notify parent component
+      if (onFilesSelected) {
+        onFilesSelected(filesWithMetadata);
+      }
+    }
+  }, [onFilesSelected]);
+
+  // Configure dropzone
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'application/msword': ['.doc'],
+      'text/plain': ['.txt']
+    },
+    multiple: true
+  });
+
+  // Remove file from selection
+  const removeFile = (fileId) => {
+    setSelectedFiles(prev => prev.filter(f => f.id !== fileId));
+    setUploadProgress(prev => {
+      const newProgress = { ...prev };
+      delete newProgress[fileId];
+      return newProgress;
+    });
+  };
+
+  // Update category for a file
+  const updateFileCategory = (fileId, category) => {
+    setSelectedFiles(prev =>
+      prev.map(f => f.id === fileId ? { ...f, category } : f)
+    );
+  };
+
+  // Format file size
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-xl font-bold text-gray-900 mb-4">Upload Documents</h3>
+        <p className="text-gray-600 mb-6">
+          Upload your project contracts, specifications, and related documents.
+          We'll extract key information to help pre-fill your project details.
+        </p>
+      </div>
+
+      {/* Drag and Drop Zone */}
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+          isDragActive
+            ? 'border-primary bg-primary/10'
+            : 'border-gray-300 hover:border-primary/50 hover:bg-gray-50'
+        }`}
+      >
+        <input {...getInputProps()} />
+
+        <div className="flex flex-col items-center space-y-3">
+          {/* Upload Icon */}
+          <svg
+            className="w-12 h-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
+
+          {isDragActive ? (
+            <p className="text-lg font-medium text-primary">Drop files here...</p>
+          ) : (
+            <>
+              <p className="text-lg font-medium text-gray-900">
+                Drag and drop files here
+              </p>
+              <p className="text-sm text-gray-500">or</p>
+              <button
+                type="button"
+                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors"
+              >
+                Choose Files
+              </button>
+            </>
+          )}
+
+          <p className="text-xs text-gray-500 mt-2">
+            Supported formats: PDF, DOCX, TXT
+          </p>
+        </div>
+      </div>
+
+      {/* Error Messages */}
+      {errors.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h4 className="text-sm font-semibold text-red-800 mb-2">Upload Errors:</h4>
+          <ul className="list-disc list-inside space-y-1">
+            {errors.map((error, index) => (
+              <li key={index} className="text-sm text-red-700">{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Selected Files List */}
+      {selectedFiles.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="font-medium text-gray-900">Selected Files ({selectedFiles.length})</h4>
+
+          {selectedFiles.map((fileData) => (
+            <div
+              key={fileData.id}
+              className="border border-gray-200 rounded-lg p-4 bg-white"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-3">
+                    {/* File Icon */}
+                    <svg
+                      className="w-8 h-8 text-gray-400 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {fileData.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatFileSize(fileData.size)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Category Selection */}
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={fileData.category}
+                      onChange={(e) => updateFileCategory(fileData.id, e.target.value)}
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                    >
+                      <option value="contract">Contract</option>
+                      <option value="specifications">Specifications</option>
+                      <option value="other">Other Documents</option>
+                    </select>
+                  </div>
+
+                  {/* Upload Progress */}
+                  {uploadProgress[fileData.id] !== undefined && (
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                        <span>Uploading...</span>
+                        <span>{Math.round(uploadProgress[fileData.id])}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all"
+                          style={{ width: `${uploadProgress[fileData.id]}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Remove Button */}
+                <button
+                  onClick={() => removeFile(fileData.id)}
+                  className="ml-4 p-1 text-gray-400 hover:text-red-600 transition-colors"
+                  aria-label="Remove file"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

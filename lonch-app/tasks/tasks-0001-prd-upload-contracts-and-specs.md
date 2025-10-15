@@ -53,7 +53,7 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
 
 ## Tasks
 
-- [ ] 1.0 Set up file upload infrastructure and document storage
+- [x] 1.0 Set up file upload infrastructure and document storage
   - [x] 1.1 Research and select cloud storage solution (Firebase Storage, AWS S3, or Supabase Storage)
   - [x] 1.2 Install required dependencies (storage SDK, file upload library)
   - [x] 1.3 Configure storage service credentials and initialization
@@ -63,19 +63,19 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 1.7 Write unit tests for fileStorage service
 
 - [ ] 2.0 Create document upload UI component for wizard Step 1
-  - [ ] 2.1 Create `src/components/DocumentUpload.jsx` with drag-and-drop zone
-  - [ ] 2.2 Implement "Choose Files" button as alternative to drag-and-drop
-  - [ ] 2.3 Add category selection dropdown (Contract, Specifications, Other Documents)
-  - [ ] 2.4 Create `src/utils/fileValidation.js` to validate file types (PDF, DOCX, TXT)
-  - [ ] 2.5 Display upload progress indicators for each file
-  - [ ] 2.6 Show file list with name, size, category, and remove option before upload
-  - [ ] 2.7 Implement batch upload functionality (multiple files simultaneously)
-  - [ ] 2.8 Add clear error messages for invalid file types
-  - [ ] 2.9 Style component with Tailwind CSS matching brand guidelines
-  - [ ] 2.10 Update `src/components/pages/Wizard.jsx` to insert DocumentUpload as new Step 1
-  - [ ] 2.11 Shift existing wizard steps from 1-5 to 2-6 (update step validation logic)
-  - [ ] 2.12 Update progress indicator to show "Step X of 6" instead of "Step X of 5"
-  - [ ] 2.13 Write unit tests for DocumentUpload component
+  - [x] 2.1 Create `src/components/DocumentUpload.jsx` with drag-and-drop zone
+  - [x] 2.2 Implement "Choose Files" button as alternative to drag-and-drop
+  - [x] 2.3 Add category selection dropdown (Contract, Specifications, Other Documents)
+  - [x] 2.4 Create `src/utils/fileValidation.js` to validate file types (PDF, DOCX, TXT)
+  - [x] 2.5 Display upload progress indicators for each file
+  - [x] 2.6 Show file list with name, size, category, and remove option before upload
+  - [x] 2.7 Implement batch upload functionality (multiple files simultaneously)
+  - [x] 2.8 Add clear error messages for invalid file types
+  - [x] 2.9 Style component with Tailwind CSS matching brand guidelines
+  - [x] 2.10 Update `src/components/pages/Wizard.jsx` to insert DocumentUpload as new Step 1
+  - [x] 2.11 Shift existing wizard steps from 1-5 to 2-6 (update step validation logic)
+  - [x] 2.12 Update progress indicator to show "Step X of 6" instead of "Step X of 5"
+  - [x] 2.13 Write unit tests for DocumentUpload component
 
 - [ ] 3.0 Implement AI-powered data extraction system
   - [ ] 3.1 Research and select LLM provider (OpenAI GPT-4, Claude API, or other)
