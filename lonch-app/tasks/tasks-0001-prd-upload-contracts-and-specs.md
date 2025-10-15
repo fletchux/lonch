@@ -123,16 +123,16 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 5.10 Ensure document access is restricted to project stakeholders only
   - [x] 5.11 Write unit tests for DocumentList component
 
-- [ ] 6.0 Add admin extraction logs and monitoring capabilities
-  - [ ] 6.1 Create `src/components/admin/ExtractionLogs.jsx` admin component
-  - [ ] 6.2 Design data structure for extraction logs (document name, timestamp, extracted fields, raw LLM response, success/failure status)
-  - [ ] 6.3 Store extraction logs in projectData or separate admin data store
-  - [ ] 6.4 Display log entries in table format with filters (date range, status, project)
-  - [ ] 6.5 Show extracted fields and values for each log entry
-  - [ ] 6.6 Include raw LLM response for troubleshooting
-  - [ ] 6.7 Add search functionality to find specific extractions
-  - [ ] 6.8 Implement admin access control (only show to admin users)
-  - [ ] 6.9 Write unit tests for ExtractionLogs component
+- [x] 6.0 Add admin extraction logs and monitoring capabilities
+  - [x] 6.1 Create `src/components/admin/ExtractionLogs.jsx` admin component
+  - [x] 6.2 Design data structure for extraction logs (document name, timestamp, extracted fields, raw LLM response, success/failure status)
+  - [x] 6.3 Store extraction logs in projectData or separate admin data store
+  - [x] 6.4 Display log entries in table format with filters (date range, status, project)
+  - [x] 6.5 Show extracted fields and values for each log entry
+  - [x] 6.6 Include raw LLM response for troubleshooting
+  - [x] 6.7 Add search functionality to find specific extractions
+  - [x] 6.8 Implement admin access control (only show to admin users)
+  - [x] 6.9 Write unit tests for ExtractionLogs component
 
 - [ ] 7.0 Implement comprehensive testing and validation
   - [ ] 7.1 Write integration tests for end-to-end upload flow (upload → extract → populate)
