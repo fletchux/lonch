@@ -35,7 +35,12 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
         size: file.size
       }));
 
-      setSelectedFiles(prev => [...prev, ...filesWithMetadata]);
+      setSelectedFiles(prev => {
+        const updated = [...prev, ...filesWithMetadata];
+        // Auto-trigger extraction for newly added files
+        setTimeout(() => extractFiles(filesWithMetadata), 100);
+        return updated;
+      });
 
       // Notify parent component
       if (onFilesSelected) {
@@ -56,11 +61,9 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
     multiple: true
   });
 
-  // Trigger AI extraction for uploaded files
-  const startExtraction = useCallback(async () => {
-    const filesToExtract = selectedFiles.filter(f => f.file);
-
-    for (const fileData of filesToExtract) {
+  // Extract specific files (used for auto-extraction)
+  const extractFiles = useCallback(async (filesToProcess) => {
+    for (const fileData of filesToProcess) {
       const { id, file } = fileData;
 
       // Set extraction status to processing
@@ -102,7 +105,13 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
           }));
       }
     }
-  }, [selectedFiles, onExtractionComplete]);
+  }, [onExtractionComplete]);
+
+  // Trigger AI extraction for uploaded files
+  const startExtraction = useCallback(async () => {
+    const filesToExtract = selectedFiles.filter(f => f.file);
+    await extractFiles(filesToExtract);
+  }, [selectedFiles, extractFiles]);
 
   // Remove file from selection
   const removeFile = (fileId) => {

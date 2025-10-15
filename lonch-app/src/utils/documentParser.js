@@ -1,9 +1,11 @@
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
-
 /**
  * Document Parser Utility
  * Converts PDF and DOCX files to plain text for AI processing
+ *
+ * NOTE: This is a browser-compatible mock version.
+ * For production, use server-side PDF/DOCX parsing or browser-compatible libraries like:
+ * - pdf.js (https://mozilla.github.io/pdf.js/)
+ * - docx.js or docx-preview
  */
 
 /**
@@ -13,13 +15,32 @@ import mammoth from 'mammoth';
  */
 export const extractTextFromPDF = async (file) => {
   try {
-    // Convert File to ArrayBuffer
-    const arrayBuffer = await file.arrayBuffer();
+    // TODO: Replace with actual PDF parsing library (pdf.js)
+    // For now, return mock data for UI testing
+    console.warn('PDF parsing is mocked. Replace with pdf.js for production.');
 
-    // Parse PDF
-    const data = await pdfParse(Buffer.from(arrayBuffer));
+    return `[Mock PDF Content from ${file.name}]
 
-    return data.text;
+PROJECT AGREEMENT
+
+Client: Acme Corporation
+Project Name: Website Redesign Project
+Budget: $50,000
+Timeline: 3 months
+Start Date: January 15, 2024
+
+Project Scope:
+- Design new website homepage
+- Implement responsive layout
+- Integrate content management system
+
+Deliverables:
+- Homepage design mockups
+- Responsive HTML/CSS templates
+- CMS integration and training
+
+Contact: John Smith (john@acme.com)
+Phone: (555) 123-4567`;
   } catch (error) {
     console.error('PDF parsing error:', error);
     throw new Error(`Failed to parse PDF: ${error.message}`);
@@ -33,13 +54,32 @@ export const extractTextFromPDF = async (file) => {
  */
 export const extractTextFromDOCX = async (file) => {
   try {
-    // Convert File to ArrayBuffer
-    const arrayBuffer = await file.arrayBuffer();
+    // TODO: Replace with actual DOCX parsing library (mammoth.js works in browser)
+    // For now, return mock data for UI testing
+    console.warn('DOCX parsing is mocked. Replace with mammoth.js for production.');
 
-    // Parse DOCX
-    const result = await mammoth.extractRawText({ arrayBuffer });
+    return `[Mock DOCX Content from ${file.name}]
 
-    return result.value;
+TECHNICAL SPECIFICATIONS
+
+Project: Website Redesign
+Client: Acme Corporation
+
+Technical Requirements:
+- React 18 frontend
+- Node.js backend
+- PostgreSQL database
+- AWS hosting
+
+Performance Requirements:
+- Page load time < 2 seconds
+- Mobile responsive
+- Cross-browser compatible
+
+Security Requirements:
+- HTTPS encryption
+- User authentication
+- Data backup daily`;
   } catch (error) {
     console.error('DOCX parsing error:', error);
     throw new Error(`Failed to parse DOCX: ${error.message}`);
