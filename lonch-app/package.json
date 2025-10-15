@@ -13,7 +13,10 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
     "firebase": "^12.4.0",
+    "mammoth": "^1.11.0",
+    "pdf-parse": "^2.3.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-dropzone": "^14.3.8"

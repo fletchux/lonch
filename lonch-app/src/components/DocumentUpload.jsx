@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { extractDataFromDocument } from '../services/documentExtraction';
 
-export default function DocumentUpload({ onFilesSelected, onUploadComplete, projectId }) {
+export default function DocumentUpload({ onFilesSelected, onUploadComplete, onExtractionComplete, projectId }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
+  const [extractionStatus, setExtractionStatus] = useState({});
   const [errors, setErrors] = useState([]);
 
   // Handle file drop or selection
@@ -54,6 +56,54 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, proj
     multiple: true
   });
 
+  // Trigger AI extraction for uploaded files
+  const startExtraction = useCallback(async () => {
+    const filesToExtract = selectedFiles.filter(f => f.file);
+
+    for (const fileData of filesToExtract) {
+      const { id, file } = fileData;
+
+      // Set extraction status to processing
+      setExtractionStatus(prev => ({
+        ...prev,
+        [id]: { status: 'processing', progress: 0 }
+      }));
+
+      try {
+        // Extract data using Claude AI
+        const result = await extractDataFromDocument(file, (progress) => {
+          setExtractionStatus(prev => ({
+            ...prev,
+            [id]: { status: progress.status, progress: progress.progress }
+          }));
+        });
+
+        // Update status based on result
+        if (result.success) {
+          setExtractionStatus(prev => ({
+            ...prev,
+            [id]: { status: 'completed', progress: 100, data: result.extractedData }
+          }));
+
+          // Notify parent component
+          if (onExtractionComplete) {
+            onExtractionComplete(result);
+          }
+        } else {
+          setExtractionStatus(prev => ({
+            ...prev,
+            [id]: { status: 'failed', progress: 0, error: result.error }
+          }));
+        }
+      } catch (error) {
+        setExtractionStatus(prev => ({
+            ...prev,
+            [id]: { status: 'failed', progress: 0, error: error.message }
+          }));
+      }
+    }
+  }, [selectedFiles, onExtractionComplete]);
+
   // Remove file from selection
   const removeFile = (fileId) => {
     setSelectedFiles(prev => prev.filter(f => f.id !== fileId));
@@ -61,6 +111,11 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, proj
       const newProgress = { ...prev };
       delete newProgress[fileId];
       return newProgress;
+    });
+    setExtractionStatus(prev => {
+      const newStatus = { ...prev };
+      delete newStatus[fileId];
+      return newStatus;
     });
   };
 
@@ -154,8 +209,16 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, proj
 
       {/* Selected Files List */}
       {selectedFiles.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium text-gray-900">Selected Files ({selectedFiles.length})</h4>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-gray-900">Selected Files ({selectedFiles.length})</h4>
+            <button
+              onClick={startExtraction}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+            >
+              Extract Data with AI
+            </button>
+          </div>
 
           {selectedFiles.map((fileData) => (
             <div
@@ -217,6 +280,38 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, proj
                           style={{ width: `${uploadProgress[fileData.id]}%` }}
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {/* Extraction Status */}
+                  {extractionStatus[fileData.id] && (
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className={`font-medium ${
+                          extractionStatus[fileData.id].status === 'completed' ? 'text-green-600' :
+                          extractionStatus[fileData.id].status === 'failed' ? 'text-red-600' :
+                          'text-blue-600'
+                        }`}>
+                          {extractionStatus[fileData.id].status === 'completed' && '✓ Extraction Complete'}
+                          {extractionStatus[fileData.id].status === 'failed' && '✗ Extraction Failed'}
+                          {extractionStatus[fileData.id].status === 'processing' && '⟳ Extracting data...'}
+                          {extractionStatus[fileData.id].status === 'parsing' && '⟳ Parsing document...'}
+                        </span>
+                        {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
+                          <span className="text-gray-600">{Math.round(extractionStatus[fileData.id].progress)}%</span>
+                        )}
+                      </div>
+                      {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-blue-500 h-2 rounded-full transition-all"
+                            style={{ width: `${extractionStatus[fileData.id].progress}%` }}
+                          />
+                        </div>
+                      )}
+                      {extractionStatus[fileData.id].error && (
+                        <p className="text-xs text-red-600 mt-1">{extractionStatus[fileData.id].error}</p>
+                      )}
                     </div>
                   )}
                 </div>

@@ -62,7 +62,7 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 1.6 Add error handling and retry logic for upload failures
   - [x] 1.7 Write unit tests for fileStorage service
 
-- [ ] 2.0 Create document upload UI component for wizard Step 1
+- [x] 2.0 Create document upload UI component for wizard Step 1
   - [x] 2.1 Create `src/components/DocumentUpload.jsx` with drag-and-drop zone
   - [x] 2.2 Implement "Choose Files" button as alternative to drag-and-drop
   - [x] 2.3 Add category selection dropdown (Contract, Specifications, Other Documents)
@@ -77,23 +77,23 @@ _Generated from: 0001-prd-upload-contracts-and-specs.md_
   - [x] 2.12 Update progress indicator to show "Step X of 6" instead of "Step X of 5"
   - [x] 2.13 Write unit tests for DocumentUpload component
 
-- [ ] 3.0 Implement AI-powered data extraction system
-  - [ ] 3.1 Research and select LLM provider (OpenAI GPT-4, Claude API, or other)
-  - [ ] 3.2 Install required dependencies (AI SDK, PDF parser, DOCX parser)
-  - [ ] 3.3 Create `src/utils/documentParser.js` to convert PDF/DOCX files to text
-  - [ ] 3.4 Implement PDF text extraction using library like `pdf-parse` or `pdfjs-dist`
-  - [ ] 3.5 Implement DOCX text extraction using library like `mammoth` or `docx`
-  - [ ] 3.6 Create `src/services/documentExtraction.js` with extraction function
-  - [ ] 3.7 Design structured LLM prompt to extract specific fields (project name, client, budget, timeline, deliverables, scope, contacts, payment terms, objectives)
-  - [ ] 3.8 Implement LLM API call with prompt and document text
-  - [ ] 3.9 Parse LLM response (JSON format) and map to projectData fields
-  - [ ] 3.10 Handle extraction for multiple documents and merge results
-  - [ ] 3.11 Implement conflict resolution logic when multiple docs have different values for same field
-  - [ ] 3.12 Add graceful error handling for extraction failures (return partial results or empty)
-  - [ ] 3.13 Implement background/async processing so extraction doesn't block UI
-  - [ ] 3.14 Add extraction status tracking (pending, processing, completed, failed)
-  - [ ] 3.15 Store extraction results in projectData state with metadata (source document, confidence)
-  - [ ] 3.16 Write unit tests for documentParser and documentExtraction services
+- [x] 3.0 Implement AI-powered data extraction system
+  - [x] 3.1 Research and select LLM provider (OpenAI GPT-4, Claude API, or other)
+  - [x] 3.2 Install required dependencies (AI SDK, PDF parser, DOCX parser)
+  - [x] 3.3 Create `src/utils/documentParser.js` to convert PDF/DOCX files to text
+  - [x] 3.4 Implement PDF text extraction using library like `pdf-parse` or `pdfjs-dist`
+  - [x] 3.5 Implement DOCX text extraction using library like `mammoth` or `docx`
+  - [x] 3.6 Create `src/services/documentExtraction.js` with extraction function
+  - [x] 3.7 Design structured LLM prompt to extract specific fields (project name, client, budget, timeline, deliverables, scope, contacts, payment terms, objectives)
+  - [x] 3.8 Implement LLM API call with prompt and document text
+  - [x] 3.9 Parse LLM response (JSON format) and map to projectData fields
+  - [x] 3.10 Handle extraction for multiple documents and merge results
+  - [x] 3.11 Implement conflict resolution logic when multiple docs have different values for same field
+  - [x] 3.12 Add graceful error handling for extraction failures (return partial results or empty)
+  - [x] 3.13 Implement background/async processing so extraction doesn't block UI
+  - [x] 3.14 Add extraction status tracking (pending, processing, completed, failed)
+  - [x] 3.15 Store extraction results in projectData state with metadata (source document, confidence)
+  - [x] 3.16 Write unit tests for documentParser and documentExtraction services
 
 - [ ] 4.0 Integrate extracted data with wizard field pre-population
   - [ ] 4.1 Extend `projectData` state in `src/App.jsx` to include `extractedData` and `documents` arrays
