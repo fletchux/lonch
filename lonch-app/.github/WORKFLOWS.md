@@ -2,15 +2,15 @@
 
 This document contains reusable workflows for common development tasks with Claude Code.
 
-## "Wrap Up and Ship"
+## "lonchit" - Wrap Up and Ship
 
 Use this workflow when you've completed a feature and want to prepare it for GitHub.
 
-**Trigger phrase:** "wrap up and ship"
+**Trigger phrase:** "lonchit" (or "wrap up and ship")
 
 ### Checklist
 
-When you say "wrap up and ship", Claude will execute the following steps:
+When you say "lonchit", Claude will execute the following steps:
 
 #### 1. Clean Up Code
 - [ ] Remove debug console.logs (keep intentional warnings/errors)
@@ -72,7 +72,7 @@ Generate a summary including:
 ### Example Output
 
 ```
-✅ Wrap Up and Ship Complete!
+✅ lonchit Complete!
 
 Branch: feature/document-management
 Commit: 7e0eb0b
