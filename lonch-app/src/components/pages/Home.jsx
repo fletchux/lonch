@@ -1,25 +1,25 @@
 import { Plus, LonchO, ChevronRight } from '../icons';
-import lonchLogo from '../../assets/lonch_logo.svg';
+import Header from '../layout/Header';
+import Footer from '../layout/Footer';
 
-const TAGLINE = 'Consultant project kickoff made simple';
-
-export default function Home({ projects, onNewProject, onSelectProject }) {
+export default function Home({ projects, onNewProject, onSelectProject, onLogin }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex flex-col gap-3 items-start">
-            <img src={lonchLogo} alt="Lonch" className="h-16" />
-            <p className="text-gray-600 text-sm font-medium">{TAGLINE}</p>
-          </div>
-          <button
-            onClick={onNewProject}
-            className="bg-accent text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-accent-dark transition-colors shadow-lg"
-          >
-            <Plus size={20} />
-            New Project
-          </button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      <Header onLogin={onLogin} showLogin={projects.length === 0} />
+
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
+          {projects.length > 0 && (
+            <div className="flex justify-end mb-8">
+              <button
+                onClick={onNewProject}
+                className="bg-accent text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-accent-dark transition-colors shadow-lg"
+              >
+                <Plus size={20} />
+                New Project
+              </button>
+            </div>
+          )}
 
         {projects.length === 0 ? (
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
@@ -52,6 +52,9 @@ export default function Home({ projects, onNewProject, onSelectProject }) {
           </div>
         )}
       </div>
+    </div>
+
+    <Footer />
     </div>
   );
 }
