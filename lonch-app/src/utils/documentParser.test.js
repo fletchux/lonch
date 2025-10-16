@@ -10,7 +10,7 @@ import {
 
 // Mock pdf-parse
 vi.mock('pdf-parse', () => ({
-  default: vi.fn((buffer) => {
+  default: vi.fn(() => {
     return Promise.resolve({
       text: 'Sample PDF text content'
     });
@@ -20,7 +20,7 @@ vi.mock('pdf-parse', () => ({
 // Mock mammoth
 vi.mock('mammoth', () => ({
   default: {
-    extractRawText: vi.fn(({ arrayBuffer }) => {
+    extractRawText: vi.fn(() => {
       return Promise.resolve({
         value: 'Sample DOCX text content'
       });

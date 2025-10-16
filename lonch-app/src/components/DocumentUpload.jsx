@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { extractDataFromDocument } from '../services/documentExtraction';
 
-export default function DocumentUpload({ onFilesSelected, onUploadComplete, onExtractionComplete, projectId }) {
+export default function DocumentUpload({ onFilesSelected, onExtractionComplete }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
   const [extractionStatus, setExtractionStatus] = useState({});
@@ -49,6 +49,7 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
         onFilesSelected(filesWithMetadata);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onFilesSelected]);
 
   // Configure dropzone
@@ -134,13 +135,15 @@ export default function DocumentUpload({ onFilesSelected, onUploadComplete, onEx
   const updateFileCategory = (fileId, category) => {
     setSelectedFiles(prev => {
       const updated = prev.map(f => f.id === fileId ? { ...f, category } : f);
-
-      // Notify parent component of the change
-      if (onFilesSelected) {
-        onFilesSelected(updated);
-      }
-
       return updated;
+    });
+
+    // Notify parent component of the change (outside of setState to avoid render warning)
+    setSelectedFiles(current => {
+      if (onFilesSelected) {
+        onFilesSelected(current);
+      }
+      return current;
     });
   };
 

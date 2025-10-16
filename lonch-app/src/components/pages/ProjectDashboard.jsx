@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
 import DocumentList from '../DocumentList';
 
-export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUploadDocument, onUpdateDocumentCategories }) {
-  const [showUploadModal, setShowUploadModal] = useState(false);
+export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories }) {
 
   // Handle document download
   const handleDownload = (doc) => {
@@ -32,7 +30,6 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
 
   // Handle uploading new documents
   const handleUploadNew = () => {
-    setShowUploadModal(true);
     // TODO: Show DocumentUpload component in a modal
   };
 
