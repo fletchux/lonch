@@ -15,15 +15,14 @@ describe('Lonch App', () => {
     expect(screen.getByText('Consultant project kickoff made simple')).toBeInTheDocument();
   });
 
-  it('shows New Project button', () => {
+  it('shows Create Your First Project button when no projects exist', () => {
     render(<App />);
-    const buttons = screen.getAllByText('New Project');
-    expect(buttons.length).toBeGreaterThan(0);
+    expect(screen.getByText('Create Your First Project')).toBeInTheDocument();
   });
 
-  it('navigates to wizard when New Project is clicked', () => {
+  it('navigates to wizard when Create Your First Project is clicked', () => {
     render(<App />);
-    const newProjectButton = screen.getAllByText('New Project')[0];
+    const newProjectButton = screen.getByText('Create Your First Project');
 
     fireEvent.click(newProjectButton);
 
@@ -33,7 +32,7 @@ describe('Lonch App', () => {
 
   it('wizard shows document upload in step 1', () => {
     render(<App />);
-    const newProjectButton = screen.getAllByText('New Project')[0];
+    const newProjectButton = screen.getByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
     expect(screen.getByText('Upload Documents')).toBeInTheDocument();
@@ -42,7 +41,7 @@ describe('Lonch App', () => {
 
   it('wizard navigates to step 2 (Project Basics) when Next is clicked', () => {
     render(<App />);
-    const newProjectButton = screen.getAllByText('New Project')[0];
+    const newProjectButton = screen.getByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
     // Click Next to go to Step 2
@@ -62,7 +61,7 @@ describe('Lonch App', () => {
     // and that the wizard works correctly with the new state structure
     expect(container).toBeTruthy();
 
-    const newProjectButton = screen.getAllByText('New Project')[0];
+    const newProjectButton = screen.getByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
     // Verify wizard renders with new state structure
@@ -71,7 +70,7 @@ describe('Lonch App', () => {
 
   it('wizard step 2 shows extraction indicator placeholder when data is extracted', () => {
     render(<App />);
-    const newProjectButton = screen.getAllByText('New Project')[0];
+    const newProjectButton = screen.getByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
     // Navigate to Step 2

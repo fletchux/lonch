@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
 import DocumentList from '../DocumentList';
+import Header from '../layout/Header';
+import Footer from '../layout/Footer';
 
-export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUploadDocument, onUpdateDocumentCategories }) {
-  const [showUploadModal, setShowUploadModal] = useState(false);
+export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories }) {
 
   // Handle document download
   const handleDownload = (doc) => {
@@ -32,13 +32,15 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
 
   // Handle uploading new documents
   const handleUploadNew = () => {
-    setShowUploadModal(true);
     // TODO: Show DocumentUpload component in a modal
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      <Header />
+
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <button
             onClick={onBack}
@@ -222,7 +224,10 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
             />
           </div>
         </div>
+        </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
