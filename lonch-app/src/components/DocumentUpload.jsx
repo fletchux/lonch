@@ -272,22 +272,6 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
                     </div>
                   </div>
 
-                  {/* Category Selection */}
-                  <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Category
-                    </label>
-                    <select
-                      value={fileData.category}
-                      onChange={(e) => updateFileCategory(fileData.id, e.target.value)}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                      <option value="contract">Contract</option>
-                      <option value="specifications">Specifications</option>
-                      <option value="other">Other Documents</option>
-                    </select>
-                  </div>
-
                   {/* Upload Progress */}
                   {uploadProgress[fileData.id] !== undefined && (
                     <div className="mt-3">
@@ -307,6 +291,13 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
                   {/* Extraction Status */}
                   {extractionStatus[fileData.id] && (
                     <div className="mt-3">
+                      {/* Magic Message - Only show during extraction */}
+                      {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
+                        <p className="text-sm font-medium text-blue-600 mb-2">
+                          ✨ Just a moment, Magic at work!!!
+                        </p>
+                      )}
+
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className={`font-medium ${
                           extractionStatus[fileData.id].status === 'completed' ? 'text-green-600' :
@@ -335,6 +326,27 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
                       )}
                     </div>
                   )}
+
+                  {/* Category Selection */}
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={fileData.category}
+                      onChange={(e) => updateFileCategory(fileData.id, e.target.value)}
+                      disabled={extractionStatus[fileData.id] && extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed'}
+                      className={`w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        extractionStatus[fileData.id] && extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed'
+                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                          : ''
+                      }`}
+                    >
+                      <option value="contract">Contract</option>
+                      <option value="specifications">Specifications</option>
+                      <option value="other">Other Documents</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* Remove Button */}
