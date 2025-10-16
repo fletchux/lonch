@@ -2,10 +2,10 @@ import { Plus, LonchO, ChevronRight } from '../icons';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 
-export default function Home({ projects, onNewProject, onSelectProject, onLogin }) {
+export default function Home({ projects, onNewProject, onSelectProject }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <Header onLogin={onLogin} showLogin={projects.length === 0} />
+      <Header />
 
       <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">

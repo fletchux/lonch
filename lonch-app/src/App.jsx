@@ -60,11 +60,6 @@ function App() {
     setCurrentProject(null);
   };
 
-  const handleLogin = () => {
-    // TODO: Implement authentication
-    console.log('Login clicked - implement authentication');
-  };
-
   const updateProjectDocuments = (projectId, updatedDocuments) => {
     // Update the project in the projects array
     const updatedProjects = projects.map(project =>
@@ -110,7 +105,6 @@ function App() {
           projects={projects}
           onNewProject={startNewProject}
           onSelectProject={selectProject}
-          onLogin={handleLogin}
         />
       )}
       {view === 'wizard' && (
