@@ -2,6 +2,8 @@ import { FileText, CheckSquare, Users } from '../icons';
 import { templates } from '../../data/templates';
 import DocumentUpload from '../DocumentUpload';
 import ExtractionIndicator from '../ExtractionIndicator';
+import Header from '../layout/Header';
+import Footer from '../layout/Footer';
 import { mergeExtractedData, mapToProjectData } from '../../services/documentExtraction';
 
 export default function Wizard({ projectData, setProjectData, step, setStep, onCancel, onSave }) {
@@ -41,8 +43,11 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      <Header />
+
+      <div className="flex-1 p-8">
+        <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -305,7 +310,10 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
             </button>
           </div>
         </div>
+        </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
