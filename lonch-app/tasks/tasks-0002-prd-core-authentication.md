@@ -52,17 +52,17 @@
   - [x] 1.4 Configure Google OAuth provider in Firebase Console (manual step, documented in firebase.js comments)
   - [x] 1.5 Add auth initialization test in `src/config/firebase.test.js`
 
-- [ ] 2.0 Create authentication context and React hooks for auth state management
-  - [ ] 2.1 Create `src/contexts/AuthContext.jsx` with AuthProvider component
-  - [ ] 2.2 Implement `useAuth()` hook to access auth context
-  - [ ] 2.3 Implement `useRequireAuth()` hook that redirects to login if not authenticated
-  - [ ] 2.4 Add Firebase `onAuthStateChanged` observer in AuthProvider to track auth state
-  - [ ] 2.5 Implement `signup(email, password)` function in context
-  - [ ] 2.6 Implement `login(email, password)` function in context
-  - [ ] 2.7 Implement `loginWithGoogle()` function in context using signInWithPopup
-  - [ ] 2.8 Implement `logout()` function in context
-  - [ ] 2.9 Implement `updateProfile(displayName, avatarURL)` function in context
-  - [ ] 2.10 Create comprehensive tests in `src/contexts/AuthContext.test.jsx`
+- [x] 2.0 Create authentication context and React hooks for auth state management
+  - [x] 2.1 Create `src/contexts/AuthContext.jsx` with AuthProvider component
+  - [x] 2.2 Implement `useAuth()` hook to access auth context
+  - [x] 2.3 Implement `useRequireAuth()` hook that redirects to login if not authenticated
+  - [x] 2.4 Add Firebase `onAuthStateChanged` observer in AuthProvider to track auth state
+  - [x] 2.5 Implement `signup(email, password)` function in context
+  - [x] 2.6 Implement `login(email, password)` function in context
+  - [x] 2.7 Implement `loginWithGoogle()` function in context using signInWithPopup
+  - [x] 2.8 Implement `logout()` function in context
+  - [x] 2.9 Implement `updateProfile(displayName, avatarURL)` function in context
+  - [x] 2.10 Create comprehensive tests in `src/contexts/AuthContext.test.jsx`
 
 - [ ] 3.0 Build signup and login pages with email/password and Google OAuth
   - [ ] 3.1 Create `src/components/auth/SignupPage.jsx` with email/password form
