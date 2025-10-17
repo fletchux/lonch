@@ -1,51 +1,167 @@
 /**
  * Document Parser Utility
  * Converts PDF and DOCX files to plain text for AI processing
- *
- * NOTE: This is a browser-compatible mock version.
- * For production, use server-side PDF/DOCX parsing or browser-compatible libraries like:
- * - pdf.js (https://mozilla.github.io/pdf.js/)
- * - docx.js or docx-preview
  */
 
 /**
- * Extract text from a PDF file
+ * Extract text from a PDF file (MOCKED for development)
  * @param {File} file - PDF file to parse
  * @returns {Promise<string>} - Extracted text content
  */
 export const extractTextFromPDF = async (file) => {
   try {
-    // TODO: Replace with actual PDF parsing library (pdf.js)
+    // TODO: Replace with actual PDF parsing library (pdf.js works in browser)
     // For now, return mock data for UI testing
     console.warn('PDF parsing is mocked. Replace with pdf.js for production.');
 
-    // Test if file.arrayBuffer throws an error (for testing error handling)
-    if (file.arrayBuffer) {
-      await file.arrayBuffer();
-    }
+    // Simulate async processing
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    return `[Mock PDF Content from ${file.name}]
+    return `# STATEMENT OF WORK
 
-PROJECT AGREEMENT
+## IT Server Infrastructure Analysis Services
 
-Client: Acme Corporation
-Project Name: Website Redesign Project
-Budget: $50,000
-Timeline: 3 months
-Start Date: January 15, 2024
+**Between:**
 
-Project Scope:
-- Design new website homepage
-- Implement responsive layout
-- Integrate content management system
+**TechConsult Solutions, LLC** ("Consultant")
+123 Technology Drive
+San Francisco, CA 94105
 
-Deliverables:
-- Homepage design mockups
-- Responsive HTML/CSS templates
-- CMS integration and training
+**And:**
 
-Contact: John Smith (john@acme.com)
-Phone: (555) 123-4567`;
+**Academy Corp** ("Client")
+456 Business Plaza
+New York, NY 10001
+
+**Effective Date:** November 1, 2025
+**Project Duration:** Two (2) months
+**Total Project Value:** $100,000.00
+
+---
+
+## 1. PROJECT OVERVIEW
+
+Consultant agrees to provide comprehensive IT server infrastructure analysis services to Academy Corp.
+The engagement will focus on identifying, documenting, and analyzing current issues affecting
+the Client's server infrastructure, including performance bottlenecks, security vulnerabilities,
+capacity constraints, and operational inefficiencies.
+
+## 2. SCOPE OF SERVICES
+
+### 2.1 Server Infrastructure Assessment
+- Conduct complete inventory of all physical and virtual servers
+- Document server configurations, specifications, and current utilization
+- Assess server hardware age, warranty status, and end-of-life considerations
+- Review virtualization environment and resource allocation
+
+### 2.2 Performance Analysis
+- Monitor and analyze server performance metrics including CPU, memory, disk I/O, and network utilization
+- Identify performance bottlenecks and resource constraints
+- Evaluate application response times and server load patterns
+- Review backup and disaster recovery performance
+
+### 2.3 Security Assessment
+- Review server security configurations and patch management status
+- Identify security vulnerabilities and compliance gaps
+- Assess access controls and authentication mechanisms
+- Evaluate firewall rules and network segmentation
+
+### 2.4 Capacity Planning Review
+- Analyze current capacity utilization and growth trends
+- Project future capacity requirements based on business needs
+- Identify opportunities for consolidation or expansion
+- Review storage capacity and data growth patterns
+
+### 2.5 Operational Analysis
+- Review current IT operations procedures and documentation
+- Assess monitoring and alerting systems
+- Evaluate incident management and response processes
+- Identify automation opportunities
+
+### 2.6 Deliverables
+- **Week 2:** Initial Assessment Report with preliminary findings
+- **Week 4:** Interim Progress Report with detailed technical analysis
+- **Week 6:** Draft Final Report for Client review
+- **Week 8:** Final Comprehensive Report including:
+  - Executive Summary
+  - Detailed findings and analysis
+  - Risk assessment matrix
+  - Prioritized recommendations
+  - Implementation roadmap
+  - Cost-benefit analysis
+- **Week 8:** Final presentation to Client stakeholders
+
+## 3. CLIENT RESPONSIBILITIES
+
+Client agrees to:
+- Provide Consultant with necessary access to server infrastructure, documentation, and monitoring tools
+- Assign a primary point of contact for project coordination
+- Make key IT personnel available for interviews and discussions
+- Provide workspace and network access as needed
+- Review and provide feedback on interim deliverables within five (5) business days
+
+## 4. PROJECT TIMELINE
+
+**Start Date:** November 1, 2025
+**End Date:** December 31, 2025
+**Total Duration:** 8 weeks
+
+## 5. COMPENSATION AND PAYMENT TERMS
+
+**Total Project Fee:** $100,000.00
+
+**Payment Schedule:**
+- **Payment 1:** $40,000.00 upon execution of this SOW
+- **Payment 2:** $30,000.00 upon delivery of Interim Progress Report (Week 4)
+- **Payment 3:** $30,000.00 upon delivery of Final Report (Week 8)
+
+Payments are due within fifteen (15) days of invoice date. Late payments will incur interest at 1.5% per month.
+
+## 6. ASSUMPTIONS AND CONSTRAINTS
+
+- Client maintains fewer than 200 physical and virtual servers
+- Consultant will have full administrative access to necessary systems
+- Analysis will be conducted during normal business hours unless otherwise agreed
+- Client IT staff will be available for scheduled interviews and meetings
+- No hands-on remediation work is included in this scope
+
+## 7. OUT OF SCOPE
+
+The following items are explicitly excluded from this engagement:
+- Implementation of recommendations
+- Hardware or software procurement
+- Server migrations or upgrades
+- Ongoing managed services
+- Training services
+- Third-party vendor management
+
+## 8. CONFIDENTIALITY
+
+Both parties agree to maintain confidentiality of all proprietary and sensitive information exchanged during this engagement in accordance with the Master Services Agreement dated October 15, 2025.
+
+## 9. ACCEPTANCE
+
+This Statement of Work is governed by the terms and conditions of the Master Services Agreement between the parties dated October 15, 2025.
+
+---
+
+**ACCEPTED AND AGREED:**
+
+**TechConsult Solutions, LLC**
+
+Signature: ________________________
+
+Name: Sarah Mitchell
+Title: Managing Partner
+Date: ___________________
+
+**Academy Corp**
+
+Signature: ________________________
+
+Name: Robert Chen
+Title: Chief Information Officer
+Date: ___________________`;
   } catch (error) {
     console.error('PDF parsing error:', error);
     throw new Error(`Failed to parse PDF: ${error.message}`);

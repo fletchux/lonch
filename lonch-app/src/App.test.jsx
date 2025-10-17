@@ -1,8 +1,39 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
+import * as AuthContext from './contexts/AuthContext';
+
+// Mock AuthContext to avoid Firebase and loading states
+vi.mock('./contexts/AuthContext', async () => {
+  const actual = await vi.importActual('./contexts/AuthContext');
+  return {
+    ...actual,
+    AuthProvider: ({ children }) => children, // Pass through children without provider logic
+    useAuth: vi.fn()
+  };
+});
+
+// Mock Firestore services to avoid database calls
+vi.mock('./services/projectService', () => ({
+  getUserProjects: vi.fn(() => Promise.resolve([])),
+  getUserProjectsAsMember: vi.fn(() => Promise.resolve([])),
+  getUserRoleInProject: vi.fn(() => Promise.resolve('viewer')),
+  createProject: vi.fn((userId, data) => Promise.resolve({ id: 'test-project', userId, ...data })),
+  updateProject: vi.fn(() => Promise.resolve()),
+  deleteProject: vi.fn(() => Promise.resolve())
+}));
 
 describe('Lonch App', () => {
+  beforeEach(() => {
+    // Mock useAuth to return an authenticated user for these tests
+    vi.mocked(AuthContext.useAuth).mockReturnValue({
+      currentUser: { uid: 'test-user', email: 'test@example.com', displayName: 'Test User' },
+      loading: false,
+      error: null,
+      migrationMessage: null
+    });
+  });
+
   it('renders the home page with welcome message', () => {
     render(<App />);
     expect(screen.getByText('Ready to lonch?')).toBeInTheDocument();

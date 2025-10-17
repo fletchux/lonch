@@ -1,8 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 // Firebase configuration
 // TODO: Replace with your actual Firebase config from Firebase Console
+// SETUP REQUIRED:
+// 1. Go to Firebase Console (https://console.firebase.google.com/)
+// 2. Enable Authentication > Sign-in method > Email/Password
+// 3. Enable Authentication > Sign-in method > Google (OAuth)
+// 4. Add your environment variables to .env file (see .env.example)
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'your-api-key',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'your-project.firebaseapp.com',
@@ -18,4 +25,10 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Storage
 const storage = getStorage(app);
 
-export { storage };
+// Initialize Firebase Authentication
+const auth = getAuth(app);
+
+// Initialize Firebase Firestore
+const db = getFirestore(app);
+
+export { storage, auth, db };

@@ -1,9 +1,17 @@
+import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
 import DocumentList from '../DocumentList';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+import ProjectMembersPanel from '../project/ProjectMembersPanel';
+import InviteUserModal from '../project/InviteUserModal';
+import ActivityLogPanel from '../project/ActivityLogPanel';
+import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 
 export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories }) {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const permissions = useProjectPermissions(project?.id);
 
   // Handle document download
   const handleDownload = (doc) => {
@@ -48,10 +56,62 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
           >
             ← Back to Projects
           </button>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
-          <p className="text-gray-600">{project.clientType}</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
+              <p className="text-gray-600">{project.clientType}</p>
+            </div>
+            {permissions.canInvite && (
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-2"
+              >
+                <Users size={20} />
+                Invite User
+              </button>
+            )}
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'overview'
+                    ? 'border-teal-500 text-teal-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('members')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'members'
+                    ? 'border-teal-500 text-teal-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Members
+              </button>
+              <button
+                onClick={() => setActiveTab('activity')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'activity'
+                    ? 'border-teal-500 text-teal-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Activity
+              </button>
+            </nav>
+          </div>
         </div>
 
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -220,14 +280,42 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               onDownload={handleDownload}
               onDelete={handleDelete}
               onUploadNew={handleUploadNew}
-              onUpdateCategories={onUpdateDocumentCategories}
+              onUpdateDocumentCategories={onUpdateDocumentCategories}
             />
           </div>
         </div>
+        </>
+        )}
+
+        {/* Members Tab */}
+        {activeTab === 'members' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <ProjectMembersPanel projectId={project.id} />
+          </div>
+        )}
+
+        {/* Activity Tab */}
+        {activeTab === 'activity' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <ActivityLogPanel projectId={project.id} />
+          </div>
+        )}
+
         </div>
       </div>
 
       <Footer />
+
+      {/* Invite User Modal */}
+      <InviteUserModal
+        projectId={project.id}
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSuccess={() => {
+          // Optionally refresh members list or show success message
+          setShowInviteModal(false);
+        }}
+      />
     </div>
   );
 }
