@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { AuthProvider } from './contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { getUserProjects, createProject, updateProject } from './services/projectService';
 import Home from './components/pages/Home';
 import Wizard from './components/pages/Wizard';
 import ProjectDashboard from './components/pages/ProjectDashboard';
@@ -7,7 +8,9 @@ import SignupPage from './components/auth/SignupPage';
 import LoginPage from './components/auth/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
-function App() {
+// Separate component for app content so we can use useAuth
+function AppContent() {
+  const { currentUser } = useAuth();
   const [view, setView] = useState('home');
   const [currentProject, setCurrentProject] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -24,6 +27,25 @@ function App() {
     extractionConflicts: null, // Conflicts from multiple documents
     manuallyEditedFields: [] // Track which fields user has manually edited
   });
+
+  // Task 5.16: Fetch projects from Firestore when user changes
+  useEffect(() => {
+    async function fetchProjects() {
+      if (currentUser) {
+        try {
+          const userProjects = await getUserProjects(currentUser.uid);
+          setProjects(userProjects);
+        } catch (error) {
+          console.error('Error fetching projects:', error);
+        }
+      } else {
+        // Clear projects when user logs out
+        setProjects([]);
+      }
+    }
+
+    fetchProjects();
+  }, [currentUser]);
 
   const startNewProject = () => {
     setView('wizard');
@@ -42,16 +64,27 @@ function App() {
     });
   };
 
-  const saveProject = () => {
-    const newProject = {
-      id: Date.now(),
-      ...projectData,
-      createdAt: new Date().toISOString(),
-      status: 'active'
-    };
-    setProjects([...projects, newProject]);
-    setCurrentProject(newProject);
-    setView('project');
+  const saveProject = async () => {
+    if (!currentUser) {
+      console.error('User must be logged in to save project');
+      return;
+    }
+
+    try {
+      // Save to Firestore
+      const newProject = await createProject(currentUser.uid, {
+        ...projectData,
+        status: 'active'
+      });
+
+      // Update local state
+      setProjects([...projects, newProject]);
+      setCurrentProject(newProject);
+      setView('project');
+    } catch (error) {
+      console.error('Error saving project:', error);
+      alert('Failed to save project. Please try again.');
+    }
   };
 
   const selectProject = (project) => {
@@ -64,18 +97,26 @@ function App() {
     setCurrentProject(null);
   };
 
-  const updateProjectDocuments = (projectId, updatedDocuments) => {
-    // Update the project in the projects array
-    const updatedProjects = projects.map(project =>
-      project.id === projectId
-        ? { ...project, documents: updatedDocuments }
-        : project
-    );
-    setProjects(updatedProjects);
+  const updateProjectDocuments = async (projectId, updatedDocuments) => {
+    try {
+      // Update in Firestore
+      await updateProject(projectId, { documents: updatedDocuments });
 
-    // Update currentProject if it's the one being modified
-    if (currentProject?.id === projectId) {
-      setCurrentProject({ ...currentProject, documents: updatedDocuments });
+      // Update the project in the projects array
+      const updatedProjects = projects.map(project =>
+        project.id === projectId
+          ? { ...project, documents: updatedDocuments }
+          : project
+      );
+      setProjects(updatedProjects);
+
+      // Update currentProject if it's the one being modified
+      if (currentProject?.id === projectId) {
+        setCurrentProject({ ...currentProject, documents: updatedDocuments });
+      }
+    } catch (error) {
+      console.error('Error updating project documents:', error);
+      alert('Failed to update documents. Please try again.');
     }
   };
 
@@ -103,7 +144,7 @@ function App() {
   };
 
   return (
-    <AuthProvider>
+    <>
       {view === 'home' && (
         <Home
           projects={projects}
@@ -151,6 +192,15 @@ function App() {
           />
         </ProtectedRoute>
       )}
+    </>
+  );
+}
+
+// Main App component that wraps AppContent with AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

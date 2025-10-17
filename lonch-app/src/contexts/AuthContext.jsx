@@ -9,6 +9,9 @@ import {
   updateProfile as firebaseUpdateProfile
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { createUser, getUser } from '../services/userService';
+import { createProject } from '../services/projectService';
+import { getLocalStorageProjects, clearLocalStorageProjects } from '../utils/localStorage';
 
 const AuthContext = createContext();
 
@@ -16,11 +19,61 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [migrationMessage, setMigrationMessage] = useState(null);
 
   // Task 2.4: Firebase onAuthStateChanged observer
+  // Task 5.13-5.15: localStorage project migration
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+
+      // If user just logged in, handle user creation and project migration
+      if (user) {
+        try {
+          // Check if user document exists in Firestore
+          const existingUser = await getUser(user.uid);
+
+          // If user doesn't exist, create user document
+          if (!existingUser) {
+            const authProvider = user.providerData[0]?.providerId === 'google.com' ? 'google' : 'email';
+            await createUser(
+              user.uid,
+              user.email,
+              user.displayName || user.email.split('@')[0],
+              authProvider,
+              user.photoURL
+            );
+          }
+
+          // Migrate localStorage projects to Firestore
+          const localProjects = getLocalStorageProjects();
+          if (localProjects.length > 0) {
+            // Migrate each project to Firestore
+            for (const project of localProjects) {
+              // Remove the old local ID and status fields that shouldn't be migrated
+              // eslint-disable-next-line no-unused-vars
+              const { id, createdAt, ...projectData } = project;
+              await createProject(user.uid, {
+                ...projectData,
+                status: 'active'
+              });
+            }
+
+            // Clear localStorage after successful migration
+            clearLocalStorageProjects();
+
+            // Set migration message
+            setMigrationMessage(`${localProjects.length} project${localProjects.length > 1 ? 's' : ''} imported from this device`);
+
+            // Clear message after 5 seconds
+            setTimeout(() => setMigrationMessage(null), 5000);
+          }
+        } catch (err) {
+          console.error('Error during user setup or migration:', err);
+          // Don't block auth flow if migration fails
+        }
+      }
+
       setLoading(false);
     });
 
@@ -102,6 +155,7 @@ export function AuthProvider({ children }) {
     currentUser,
     loading,
     error,
+    migrationMessage,
     signup,
     login,
     loginWithGoogle,

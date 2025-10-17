@@ -93,26 +93,26 @@
   - [x] 4.10 Create tests for ProtectedRoute in `src/components/auth/ProtectedRoute.test.jsx`
   - [x] 4.11 Create tests for UserProfileDropdown in `src/components/layout/UserProfileDropdown.test.jsx`
 
-- [ ] 5.0 Create user database schema and implement localStorage project migration
-  - [ ] 5.1 Create `src/services/userService.js` with Firestore user operations
-  - [ ] 5.2 Implement `createUser(uid, email, displayName, authProvider)` function
-  - [ ] 5.3 Implement `getUser(uid)` function
-  - [ ] 5.4 Implement `updateUser(uid, updates)` function
-  - [ ] 5.5 Create `src/services/projectService.js` with Firestore project operations
-  - [ ] 5.6 Implement `createProject(userId, projectData)` function
-  - [ ] 5.7 Implement `getUserProjects(userId)` function
-  - [ ] 5.8 Implement `updateProject(projectId, updates)` function
-  - [ ] 5.9 Implement `deleteProject(projectId)` function
-  - [ ] 5.10 Create `src/utils/localStorage.js` with helper functions
-  - [ ] 5.11 Implement `getLocalStorageProjects()` function
-  - [ ] 5.12 Implement `clearLocalStorageProjects()` function
-  - [ ] 5.13 Implement migration logic in AuthContext after successful signup/login
-  - [ ] 5.14 Detect localStorage projects, migrate to Firestore, and clear localStorage
-  - [ ] 5.15 Display migration success message to user ("N projects imported from this device")
-  - [ ] 5.16 Update `App.jsx` to fetch projects from Firestore instead of local state
-  - [ ] 5.17 Create tests for userService in `src/services/userService.test.js`
-  - [ ] 5.18 Create tests for projectService in `src/services/projectService.test.js`
-  - [ ] 5.19 Create tests for localStorage utils in `src/utils/localStorage.test.js`
+- [x] 5.0 Create user database schema and implement localStorage project migration (199/209 tests passing - no new failures!)
+  - [x] 5.1 Create `src/services/userService.js` with Firestore user operations
+  - [x] 5.2 Implement `createUser(uid, email, displayName, authProvider)` function
+  - [x] 5.3 Implement `getUser(uid)` function
+  - [x] 5.4 Implement `updateUser(uid, updates)` function
+  - [x] 5.5 Create `src/services/projectService.js` with Firestore project operations
+  - [x] 5.6 Implement `createProject(userId, projectData)` function
+  - [x] 5.7 Implement `getUserProjects(userId)` function
+  - [x] 5.8 Implement `updateProject(projectId, updates)` function
+  - [x] 5.9 Implement `deleteProject(projectId)` function
+  - [x] 5.10 Create `src/utils/localStorage.js` with helper functions
+  - [x] 5.11 Implement `getLocalStorageProjects()` function
+  - [x] 5.12 Implement `clearLocalStorageProjects()` function
+  - [x] 5.13 Implement migration logic in AuthContext after successful signup/login
+  - [x] 5.14 Detect localStorage projects, migrate to Firestore, and clear localStorage
+  - [x] 5.15 Display migration success message to user ("N projects imported from this device")
+  - [x] 5.16 Update `App.jsx` to fetch projects from Firestore instead of local state
+  - [x] 5.17 Create tests for userService in `src/services/userService.test.js`
+  - [x] 5.18 Create tests for projectService in `src/services/projectService.test.js`
+  - [x] 5.19 Create tests for localStorage utils in `src/utils/localStorage.test.js`
 
 - [ ] 6.0 Add comprehensive testing for authentication flows
   - [ ] 6.1 Write integration test for signup flow (email/password)
