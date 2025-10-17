@@ -64,7 +64,7 @@ export default function LoginPage({ onSuccess, onSwitchToSignup }) {
         )}
 
         {/* Email/password form */}
-        <form onSubmit={handleEmailLogin} className="space-y-4">
+        <form onSubmit={handleEmailLogin} className="space-y-4" noValidate>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email

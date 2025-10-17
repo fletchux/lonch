@@ -114,7 +114,9 @@ describe('LoginPage', () => {
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.click(submitButton);
 
-    expect(screen.getByRole('button', { name: /logging in\.\.\./i })).toBeInTheDocument();
+    // Both the submit button and Google button show "Logging in..." during loading
+    const loadingButtons = screen.getAllByRole('button', { name: /logging in\.\.\./i });
+    expect(loadingButtons.length).toBeGreaterThan(0);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /^log in$/i })).toBeInTheDocument();
