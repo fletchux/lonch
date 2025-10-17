@@ -1,7 +1,11 @@
 import { useState } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
 import Home from './components/pages/Home';
 import Wizard from './components/pages/Wizard';
 import ProjectDashboard from './components/pages/ProjectDashboard';
+import SignupPage from './components/auth/SignupPage';
+import LoginPage from './components/auth/LoginPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
   const [view, setView] = useState('home');
@@ -99,34 +103,55 @@ function App() {
   };
 
   return (
-    <>
+    <AuthProvider>
       {view === 'home' && (
         <Home
           projects={projects}
           onNewProject={startNewProject}
           onSelectProject={selectProject}
+          onLogin={() => setView('login')}
+          onSignup={() => setView('signup')}
         />
       )}
+      {/* Task 4.5: Add signup and login views */}
+      {view === 'signup' && (
+        <SignupPage
+          onSuccess={() => setView('home')}
+          onSwitchToLogin={() => setView('login')}
+        />
+      )}
+      {view === 'login' && (
+        <LoginPage
+          onSuccess={() => setView('home')}
+          onSwitchToSignup={() => setView('signup')}
+        />
+      )}
+      {/* Task 4.4: Wrap wizard with ProtectedRoute */}
       {view === 'wizard' && (
-        <Wizard
-          projectData={projectData}
-          setProjectData={setProjectData}
-          step={step}
-          setStep={setStep}
-          onCancel={goHome}
-          onSave={saveProject}
-        />
+        <ProtectedRoute>
+          <Wizard
+            projectData={projectData}
+            setProjectData={setProjectData}
+            step={step}
+            setStep={setStep}
+            onCancel={goHome}
+            onSave={saveProject}
+          />
+        </ProtectedRoute>
       )}
+      {/* Task 4.4: Wrap project dashboard with ProtectedRoute */}
       {view === 'project' && currentProject && (
-        <ProjectDashboard
-          project={currentProject}
-          onBack={goHome}
-          onDeleteDocument={handleDeleteDocument}
-          onUploadDocument={handleUploadDocument}
-          onUpdateDocumentCategories={handleUpdateDocumentCategories}
-        />
+        <ProtectedRoute>
+          <ProjectDashboard
+            project={currentProject}
+            onBack={goHome}
+            onDeleteDocument={handleDeleteDocument}
+            onUploadDocument={handleUploadDocument}
+            onUpdateDocumentCategories={handleUpdateDocumentCategories}
+          />
+        </ProtectedRoute>
       )}
-    </>
+    </AuthProvider>
   );
 }
 
