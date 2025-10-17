@@ -2,6 +2,7 @@ import { db } from '../config/firebase';
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   setDoc,
   updateDoc,
@@ -15,12 +16,14 @@ import {
  * Project Service
  *
  * Manages project data in Firestore.
- * Collection structure: projects/{projectId}
+ * Collection structure:
+ *   - projects/{projectId}
+ *   - projectMembers/{memberId} - subcollection for project collaborators
  *
  * Project document schema:
  * {
  *   id: string,
- *   userId: string,
+ *   userId: string (project owner),
  *   name: string,
  *   clientType: string,
  *   intakeTemplate: object | null,
@@ -31,9 +34,21 @@ import {
  *   extractedData: object | null,
  *   extractionConflicts: object | null,
  *   manuallyEditedFields: array,
+ *   members: array of memberIds (reference to projectMembers collection),
  *   status: string,
  *   createdAt: timestamp,
  *   updatedAt: timestamp
+ * }
+ *
+ * ProjectMember document schema (in projectMembers collection):
+ * {
+ *   id: string (memberId = `${projectId}_${userId}`),
+ *   projectId: string,
+ *   userId: string,
+ *   role: 'owner' | 'admin' | 'editor' | 'viewer',
+ *   invitedBy: string (userId of inviter),
+ *   joinedAt: timestamp,
+ *   lastActiveAt: timestamp
  * }
  */
 
@@ -124,5 +139,138 @@ export async function deleteProject(projectId) {
   } catch (error) {
     console.error('Error deleting project:', error);
     throw new Error(`Failed to delete project: ${error.message}`);
+  }
+}
+
+/**
+ * Add a member to a project
+ * @param {string} projectId - Project ID
+ * @param {string} userId - User ID to add as member
+ * @param {string} role - Role to assign ('owner' | 'admin' | 'editor' | 'viewer')
+ * @param {string} invitedBy - User ID of the person who invited this member
+ * @returns {Promise<Object>} The created project member document
+ */
+export async function addProjectMember(projectId, userId, role, invitedBy) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+
+    const memberData = {
+      id: memberId,
+      projectId,
+      userId,
+      role,
+      invitedBy,
+      joinedAt: serverTimestamp(),
+      lastActiveAt: serverTimestamp()
+    };
+
+    await setDoc(memberRef, memberData);
+
+    return memberData;
+  } catch (error) {
+    console.error('Error adding project member:', error);
+    throw new Error(`Failed to add project member: ${error.message}`);
+  }
+}
+
+/**
+ * Get all members of a project
+ * @param {string} projectId - Project ID
+ * @returns {Promise<Array>} Array of project member documents
+ */
+export async function getProjectMembers(projectId) {
+  try {
+    const membersRef = collection(db, 'projectMembers');
+    const q = query(membersRef, where('projectId', '==', projectId));
+    const querySnapshot = await getDocs(q);
+
+    const members = [];
+    querySnapshot.forEach((doc) => {
+      members.push(doc.data());
+    });
+
+    return members;
+  } catch (error) {
+    console.error('Error getting project members:', error);
+    throw new Error(`Failed to get project members: ${error.message}`);
+  }
+}
+
+/**
+ * Update a member's role in a project
+ * @param {string} projectId - Project ID
+ * @param {string} userId - User ID whose role to update
+ * @param {string} newRole - New role to assign ('owner' | 'admin' | 'editor' | 'viewer')
+ * @returns {Promise<void>}
+ */
+export async function updateMemberRole(projectId, userId, newRole) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+
+    await updateDoc(memberRef, {
+      role: newRole,
+      lastActiveAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating member role:', error);
+    throw new Error(`Failed to update member role: ${error.message}`);
+  }
+}
+
+/**
+ * Remove a member from a project
+ * @param {string} projectId - Project ID
+ * @param {string} userId - User ID to remove from project
+ * @returns {Promise<void>}
+ */
+export async function removeMember(projectId, userId) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+    await deleteDoc(memberRef);
+  } catch (error) {
+    console.error('Error removing member:', error);
+    throw new Error(`Failed to remove member: ${error.message}`);
+  }
+}
+
+/**
+ * Get all projects where user is a member (not necessarily owner)
+ * @param {string} userId - User ID
+ * @returns {Promise<Array>} Array of project documents where user is a member
+ */
+export async function getUserProjectsAsMember(userId) {
+  try {
+    // First, get all projectMember records for this user
+    const membersRef = collection(db, 'projectMembers');
+    const q = query(membersRef, where('userId', '==', userId));
+    const memberSnapshot = await getDocs(q);
+
+    if (memberSnapshot.empty) {
+      return [];
+    }
+
+    // Extract project IDs
+    const projectIds = [];
+    memberSnapshot.forEach((doc) => {
+      projectIds.push(doc.data().projectId);
+    });
+
+    // Fetch all projects by their IDs
+    const projects = [];
+    for (const projectId of projectIds) {
+      const projectRef = doc(db, 'projects', projectId);
+      const projectDoc = await getDoc(projectRef);
+      if (projectDoc.exists()) {
+        projects.push(projectDoc.data());
+      }
+    }
+
+    return projects;
+  } catch (error) {
+    console.error('Error getting user projects as member:', error);
+    throw new Error(`Failed to get user projects as member: ${error.message}`);
   }
 }

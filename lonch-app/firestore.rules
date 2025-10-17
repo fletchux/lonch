@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to get user's role in a project
+    function getUserRole(projectId) {
+      let memberId = projectId + '_' + request.auth.uid;
+      return get(/databases/$(database)/documents/projectMembers/$(memberId)).data.role;
+    }
+
+    // Helper function to check if user is a member of a project
+    function isMember(projectId) {
+      let memberId = projectId + '_' + request.auth.uid;
+      return exists(/databases/$(database)/documents/projectMembers/$(memberId));
+    }
+
+    // Helper function to check if user is project owner
+    function isOwner(projectId) {
+      return isMember(projectId) && getUserRole(projectId) == 'owner';
+    }
+
+    // Helper function to check if user is admin or owner
+    function isAdminOrOwner(projectId) {
+      return isMember(projectId) && getUserRole(projectId) in ['owner', 'admin'];
+    }
+
+    // Helper function to check if user can edit (owner, admin, or editor)
+    function canEdit(projectId) {
+      return isMember(projectId) && getUserRole(projectId) in ['owner', 'admin', 'editor'];
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Projects collection rules
+    match /projects/{projectId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isMember(projectId));
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || canEdit(projectId));
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isOwner(projectId));
+    }
+
+    // ProjectMembers collection rules
+    match /projectMembers/{memberId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isMember(resource.data.projectId));
+      allow create: if isSignedIn() && isAdminOrOwner(request.resource.data.projectId);
+      allow update: if isSignedIn() && isAdminOrOwner(resource.data.projectId);
+      allow delete: if isSignedIn() && isAdminOrOwner(resource.data.projectId);
+    }
+
+    // Invitations collection rules (to be used in Task 2.0)
+    match /invitations/{invitationId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && (resource.data.invitedBy == request.auth.uid || isAdminOrOwner(resource.data.projectId));
+    }
+
+    // Activity log collection rules (to be used in Task 5.0)
+    match /activityLog/{logId} {
+      allow read: if isSignedIn() && isMember(resource.data.projectId);
+      allow create: if isSignedIn();
+      allow update: if false; // Activity logs should be immutable
+      allow delete: if isSignedIn() && isOwner(resource.data.projectId);
+    }
+
+    // User notifications collection rules
+    match /userNotifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

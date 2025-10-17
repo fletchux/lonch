@@ -44,16 +44,16 @@
 
 ## Tasks
 
-- [ ] 1.0 Set up database schema and permissions for multi-user projects
-  - [ ] 1.1 Create Firestore collection structure for `projectMembers` (projectId, userId, role, invitedBy, joinedAt)
-  - [ ] 1.2 Update project document schema to include `members` array reference
-  - [ ] 1.3 Update `src/services/projectService.js` to add `addProjectMember(projectId, userId, role)` function
-  - [ ] 1.4 Update `src/services/projectService.js` to add `getProjectMembers(projectId)` function
-  - [ ] 1.5 Update `src/services/projectService.js` to add `updateMemberRole(projectId, userId, newRole)` function
-  - [ ] 1.6 Update `src/services/projectService.js` to add `removeMember(projectId, userId)` function
-  - [ ] 1.7 Update `src/services/projectService.js` to add `getUserProjectsAsMember(userId)` query (fetch projects where user is member, not just owner)
-  - [ ] 1.8 Add Firestore security rules to enforce role-based access (owners can delete, editors can write, viewers can read)
-  - [ ] 1.9 Create tests in `src/services/projectService.test.js` for all new multi-user functions
+- [x] 1.0 Set up database schema and permissions for multi-user projects
+  - [x] 1.1 Create Firestore collection structure for `projectMembers` (projectId, userId, role, invitedBy, joinedAt)
+  - [x] 1.2 Update project document schema to include `members` array reference
+  - [x] 1.3 Update `src/services/projectService.js` to add `addProjectMember(projectId, userId, role)` function
+  - [x] 1.4 Update `src/services/projectService.js` to add `getProjectMembers(projectId)` function
+  - [x] 1.5 Update `src/services/projectService.js` to add `updateMemberRole(projectId, userId, newRole)` function
+  - [x] 1.6 Update `src/services/projectService.js` to add `removeMember(projectId, userId)` function
+  - [x] 1.7 Update `src/services/projectService.js` to add `getUserProjectsAsMember(userId)` query (fetch projects where user is member, not just owner)
+  - [x] 1.8 Add Firestore security rules to enforce role-based access (owners can delete, editors can write, viewers can read)
+  - [x] 1.9 Create tests in `src/services/projectService.test.js` for all new multi-user functions
 
 - [ ] 2.0 Create invitation system with email and in-app invitations
   - [ ] 2.1 Create `src/services/invitationService.js` with Firestore operations
