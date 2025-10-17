@@ -41,13 +41,14 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
         const updated = [...prev, ...filesWithMetadata];
         // Auto-trigger extraction for newly added files
         setTimeout(() => extractFiles(filesWithMetadata), 100);
+
+        // Notify parent component asynchronously to avoid render warning
+        if (onFilesSelected) {
+          setTimeout(() => onFilesSelected(updated), 0);
+        }
+
         return updated;
       });
-
-      // Notify parent component
-      if (onFilesSelected) {
-        onFilesSelected(filesWithMetadata);
-      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onFilesSelected]);
@@ -135,15 +136,13 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
   const updateFileCategory = (fileId, category) => {
     setSelectedFiles(prev => {
       const updated = prev.map(f => f.id === fileId ? { ...f, category } : f);
-      return updated;
-    });
 
-    // Notify parent component of the change (outside of setState to avoid render warning)
-    setSelectedFiles(current => {
+      // Notify parent component asynchronously to avoid render warning
       if (onFilesSelected) {
-        onFilesSelected(current);
+        setTimeout(() => onFilesSelected(updated), 0);
       }
-      return current;
+
+      return updated;
     });
   };
 

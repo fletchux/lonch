@@ -110,6 +110,7 @@ export default function SignupPage({ onSuccess, onSwitchToLogin }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+              autoComplete="email"
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 validationErrors.email
                   ? 'border-red-300 focus:ring-red-500'
@@ -132,6 +133,7 @@ export default function SignupPage({ onSuccess, onSwitchToLogin }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              autoComplete="new-password"
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 validationErrors.password
                   ? 'border-red-300 focus:ring-red-500'
@@ -154,6 +156,7 @@ export default function SignupPage({ onSuccess, onSwitchToLogin }) {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
+              autoComplete="new-password"
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                 validationErrors.confirmPassword
                   ? 'border-red-300 focus:ring-red-500'

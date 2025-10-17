@@ -16,6 +16,8 @@ vi.mock('./contexts/AuthContext', async () => {
 // Mock Firestore services to avoid database calls
 vi.mock('./services/projectService', () => ({
   getUserProjects: vi.fn(() => Promise.resolve([])),
+  getUserProjectsAsMember: vi.fn(() => Promise.resolve([])),
+  getUserRoleInProject: vi.fn(() => Promise.resolve('viewer')),
   createProject: vi.fn((userId, data) => Promise.resolve({ id: 'test-project', userId, ...data })),
   updateProject: vi.fn(() => Promise.resolve()),
   deleteProject: vi.fn(() => Promise.resolve())

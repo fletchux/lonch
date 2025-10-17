@@ -5,6 +5,7 @@ import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import ProjectMembersPanel from '../project/ProjectMembersPanel';
 import InviteUserModal from '../project/InviteUserModal';
+import ActivityLogPanel from '../project/ActivityLogPanel';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 
 export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories }) {
@@ -93,6 +94,16 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
                 }`}
               >
                 Members
+              </button>
+              <button
+                onClick={() => setActiveTab('activity')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'activity'
+                    ? 'border-teal-500 text-teal-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Activity
               </button>
             </nav>
           </div>
@@ -280,6 +291,13 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
         {activeTab === 'members' && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <ProjectMembersPanel projectId={project.id} />
+          </div>
+        )}
+
+        {/* Activity Tab */}
+        {activeTab === 'activity' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <ActivityLogPanel projectId={project.id} />
           </div>
         )}
 

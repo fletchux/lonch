@@ -53,6 +53,35 @@ import {
  */
 
 /**
+ * Sanitize project data to remove non-serializable objects like File objects
+ * @param {Object} projectData - Raw project data
+ * @returns {Object} Sanitized project data safe for Firestore
+ */
+function sanitizeProjectData(projectData) {
+  const sanitized = { ...projectData };
+
+  // Convert documents array to serializable format
+  if (sanitized.documents && Array.isArray(sanitized.documents)) {
+    sanitized.documents = sanitized.documents.map(doc => {
+      // If doc has a File object, extract only serializable metadata
+      if (doc.file instanceof File) {
+        const { file, ...serializableDoc } = doc;
+        return {
+          ...serializableDoc,
+          // Keep file metadata but not the File object itself
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type
+        };
+      }
+      return doc;
+    });
+  }
+
+  return sanitized;
+}
+
+/**
  * Create a new project in Firestore
  * @param {string} userId - User ID who owns the project
  * @param {Object} projectData - Project data object
@@ -64,15 +93,21 @@ export async function createProject(userId, projectData) {
     const projectId = `${userId}_${Date.now()}`;
     const projectRef = doc(db, 'projects', projectId);
 
+    // Sanitize project data to remove non-serializable objects
+    const sanitizedData = sanitizeProjectData(projectData);
+
     const fullProjectData = {
       id: projectId,
       userId,
-      ...projectData,
+      ...sanitizedData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
 
     await setDoc(projectRef, fullProjectData);
+
+    // Automatically add the creator as the project owner
+    await addProjectMember(projectId, userId, 'owner', userId);
 
     return fullProjectData;
   } catch (error) {
@@ -114,9 +149,12 @@ export async function updateProject(projectId, updates) {
   try {
     const projectRef = doc(db, 'projects', projectId);
 
+    // Sanitize updates to remove non-serializable objects
+    const sanitizedUpdates = sanitizeProjectData(updates);
+
     // Add updatedAt timestamp to all updates
     const updatesWithTimestamp = {
-      ...updates,
+      ...sanitizedUpdates,
       updatedAt: serverTimestamp()
     };
 

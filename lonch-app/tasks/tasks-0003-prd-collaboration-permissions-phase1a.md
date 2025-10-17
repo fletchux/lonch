@@ -94,22 +94,22 @@
   - [x] 4.14 Update `src/components/pages/ProjectDashboard.jsx` to add "Members" tab with ProjectMembersPanel
   - [x] 4.15 Add "Invite" button in ProjectDashboard that opens InviteUserModal (only visible to Owner/Admin)
 
-- [ ] 5.0 Add activity logging and display
-  - [ ] 5.1 Create `src/services/activityLogService.js` with Firestore operations
-  - [ ] 5.2 Implement `logActivity(projectId, userId, action, resourceType, resourceId)` function
-  - [ ] 5.3 Implement `getProjectActivityLog(projectId, limit, offset)` function with pagination
-  - [ ] 5.4 Implement activity log filtering: `filterByUser(userId)`, `filterByAction(actionType)`, `filterByDateRange(startDate, endDate)`
-  - [ ] 5.5 Add activity log calls to existing actions: document upload, document delete, member invited, member removed, role changed
-  - [ ] 5.6 Create comprehensive tests in `src/services/activityLogService.test.js`
-  - [ ] 5.7 Create `src/components/project/ActivityLogPanel.jsx` component with timeline display
-  - [ ] 5.8 Add activity log entries with: user avatar, user name, action description, timestamp, resource link
-  - [ ] 5.9 Add filter controls: filter by user dropdown, filter by action type dropdown, date range picker
-  - [ ] 5.10 Implement pagination (load more button or infinite scroll)
-  - [ ] 5.11 Create tests for ActivityLogPanel in `src/components/project/ActivityLogPanel.test.jsx`
-  - [ ] 5.12 Update `src/components/pages/ProjectDashboard.jsx` to add "Activity" tab with ActivityLogPanel
-  - [ ] 5.13 Update `src/App.jsx` to fetch both owned projects and projects where user is a member
-  - [ ] 5.14 Update `src/components/pages/Home.jsx` to display all accessible projects with role indicator
-  - [ ] 5.15 Add visual indicator on Home page for projects where user is not the owner (show role badge)
+- [x] 5.0 Add activity logging and display
+  - [x] 5.1 Create `src/services/activityLogService.js` with Firestore operations
+  - [x] 5.2 Implement `logActivity(projectId, userId, action, resourceType, resourceId)` function
+  - [x] 5.3 Implement `getProjectActivityLog(projectId, limit, offset)` function with pagination
+  - [x] 5.4 Implement activity log filtering: `filterByUser(userId)`, `filterByAction(actionType)`, `filterByDateRange(startDate, endDate)`
+  - [x] 5.5 Add activity log calls to existing actions: document upload, document delete, member invited, member removed, role changed
+  - [x] 5.6 Create comprehensive tests in `src/services/activityLogService.test.js`
+  - [x] 5.7 Create `src/components/project/ActivityLogPanel.jsx` component with timeline display
+  - [x] 5.8 Add activity log entries with: user avatar, user name, action description, timestamp, resource link
+  - [x] 5.9 Add filter controls: filter by user dropdown, filter by action type dropdown, date range picker
+  - [x] 5.10 Implement pagination (load more button or infinite scroll)
+  - [x] 5.11 Create tests for ActivityLogPanel in `src/components/project/ActivityLogPanel.test.jsx`
+  - [x] 5.12 Update `src/components/pages/ProjectDashboard.jsx` to add "Activity" tab with ActivityLogPanel
+  - [x] 5.13 Update `src/App.jsx` to fetch both owned projects and projects where user is a member
+  - [x] 5.14 Update `src/components/pages/Home.jsx` to display all accessible projects with role indicator
+  - [x] 5.15 Add visual indicator on Home page for projects where user is not the owner (show role badge)
 
 ---
 

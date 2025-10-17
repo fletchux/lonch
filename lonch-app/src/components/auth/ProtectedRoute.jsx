@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import LoginPage from './LoginPage';
 
 // Task 4.1-4.3: Protected route wrapper that redirects to login when not authenticated
-export default function ProtectedRoute({ children, redirectPath = 'login' }) {
+export default function ProtectedRoute({ children, redirectPath = 'login', onSwitchToSignup, onLoginSuccess }) {
   const { currentUser, loading } = useAuth();
   const [intendedDestination, setIntendedDestination] = useState(null);
 
@@ -31,15 +31,20 @@ export default function ProtectedRoute({ children, redirectPath = 'login' }) {
     return (
       <LoginPage
         onSuccess={() => {
-          // After successful login, could redirect to intended destination
-          // For now, the parent App component will handle view changes
-          if (intendedDestination) {
+          // After successful login, call the passed callback or log for debugging
+          if (onLoginSuccess) {
+            onLoginSuccess();
+          } else if (intendedDestination) {
             console.log('Would redirect to:', intendedDestination);
           }
         }}
         onSwitchToSignup={() => {
-          // Handle switch to signup - parent App will manage this
-          console.log('Switch to signup requested');
+          // Handle switch to signup - call the passed callback
+          if (onSwitchToSignup) {
+            onSwitchToSignup();
+          } else {
+            console.log('Switch to signup requested');
+          }
         }}
       />
     );

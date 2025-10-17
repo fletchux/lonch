@@ -2,6 +2,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Plus, LonchO, ChevronRight } from '../icons';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+import RoleBadge from '../shared/RoleBadge';
 
 export default function Home({ projects, onNewProject, onSelectProject, onLogin, onSignup }) {
   const { currentUser } = useAuth();
@@ -62,7 +63,12 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
                 onClick={() => onSelectProject(project)}
                 className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
               >
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{project.name}</h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 flex-1">{project.name}</h3>
+                  {project.userRole && project.userRole !== 'owner' && (
+                    <RoleBadge role={project.userRole} />
+                  )}
+                </div>
                 <p className="text-sm text-gray-600 mb-4">{project.clientType}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-accent font-medium">Active</span>

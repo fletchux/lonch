@@ -75,6 +75,7 @@ export default function LoginPage({ onSuccess, onSwitchToSignup }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+              autoComplete="email"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2D9B9B]"
               disabled={loading}
             />
@@ -90,6 +91,7 @@ export default function LoginPage({ onSuccess, onSwitchToSignup }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              autoComplete="current-password"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2D9B9B]"
               disabled={loading}
             />

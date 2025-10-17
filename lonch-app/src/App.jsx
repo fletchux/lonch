@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { getUserProjects, createProject, updateProject } from './services/projectService';
+import {
+  getUserProjects,
+  getUserProjectsAsMember,
+  getUserRoleInProject,
+  createProject,
+  updateProject
+} from './services/projectService';
+import { logActivity } from './services/activityLogService';
 import Home from './components/pages/Home';
 import Wizard from './components/pages/Wizard';
 import ProjectDashboard from './components/pages/ProjectDashboard';
@@ -28,13 +35,37 @@ function AppContent() {
     manuallyEditedFields: [] // Track which fields user has manually edited
   });
 
-  // Task 5.16: Fetch projects from Firestore when user changes
+  // Task 5.13: Fetch all accessible projects from Firestore when user changes
   useEffect(() => {
     async function fetchProjects() {
       if (currentUser) {
         try {
-          const userProjects = await getUserProjects(currentUser.uid);
-          setProjects(userProjects);
+          // Fetch projects where user is owner
+          const ownedProjects = await getUserProjects(currentUser.uid);
+
+          // Fetch projects where user is a member (not necessarily owner)
+          const memberProjects = await getUserProjectsAsMember(currentUser.uid);
+
+          // Combine projects, removing duplicates (in case user is both owner and member)
+          const projectMap = new Map();
+
+          // Add owned projects first (user is owner)
+          for (const project of ownedProjects) {
+            projectMap.set(project.id, { ...project, userRole: 'owner' });
+          }
+
+          // Add member projects, enriching with user's role
+          for (const project of memberProjects) {
+            if (!projectMap.has(project.id)) {
+              // Get user's role in this project
+              const role = await getUserRoleInProject(currentUser.uid, project.id);
+              projectMap.set(project.id, { ...project, userRole: role });
+            }
+          }
+
+          // Convert map to array
+          const allProjects = Array.from(projectMap.values());
+          setProjects(allProjects);
         } catch (error) {
           console.error('Error fetching projects:', error);
         }
@@ -120,18 +151,50 @@ function AppContent() {
     }
   };
 
-  const handleDeleteDocument = (docId) => {
-    if (!currentProject) return;
+  const handleDeleteDocument = async (docId) => {
+    if (!currentProject || !currentUser) return;
 
+    const deletedDoc = currentProject.documents.find(doc => doc.id === docId);
     const updatedDocuments = currentProject.documents.filter(doc => doc.id !== docId);
-    updateProjectDocuments(currentProject.id, updatedDocuments);
+
+    await updateProjectDocuments(currentProject.id, updatedDocuments);
+
+    // Log activity
+    try {
+      await logActivity(
+        currentProject.id,
+        currentUser.uid,
+        'document_deleted',
+        'document',
+        docId,
+        { documentName: deletedDoc?.name || 'Unknown document' }
+      );
+    } catch (error) {
+      console.error('Error logging document deletion:', error);
+    }
   };
 
-  const handleUploadDocument = (newDocuments) => {
-    if (!currentProject) return;
+  const handleUploadDocument = async (newDocuments) => {
+    if (!currentProject || !currentUser) return;
 
     const updatedDocuments = [...(currentProject.documents || []), ...newDocuments];
-    updateProjectDocuments(currentProject.id, updatedDocuments);
+    await updateProjectDocuments(currentProject.id, updatedDocuments);
+
+    // Log activity for each uploaded document
+    try {
+      for (const doc of newDocuments) {
+        await logActivity(
+          currentProject.id,
+          currentUser.uid,
+          'document_uploaded',
+          'document',
+          doc.id,
+          { documentName: doc.name, documentType: doc.type }
+        );
+      }
+    } catch (error) {
+      console.error('Error logging document upload:', error);
+    }
   };
 
   const handleUpdateDocumentCategories = (documentIds, newCategory) => {
@@ -169,7 +232,10 @@ function AppContent() {
       )}
       {/* Task 4.4: Wrap wizard with ProtectedRoute */}
       {view === 'wizard' && (
-        <ProtectedRoute>
+        <ProtectedRoute
+          onSwitchToSignup={() => setView('signup')}
+          onLoginSuccess={() => setView('home')}
+        >
           <Wizard
             projectData={projectData}
             setProjectData={setProjectData}
@@ -182,7 +248,10 @@ function AppContent() {
       )}
       {/* Task 4.4: Wrap project dashboard with ProtectedRoute */}
       {view === 'project' && currentProject && (
-        <ProtectedRoute>
+        <ProtectedRoute
+          onSwitchToSignup={() => setView('signup')}
+          onLoginSuccess={() => setView('home')}
+        >
           <ProjectDashboard
             project={currentProject}
             onBack={goHome}

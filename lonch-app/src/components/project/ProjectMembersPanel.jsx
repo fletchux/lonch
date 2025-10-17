@@ -6,6 +6,7 @@ import { getUser } from '../../services/userService';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { ROLES, getRoleDisplayName } from '../../utils/permissions';
 import RoleBadge from '../shared/RoleBadge';
+import { logActivity } from '../../services/activityLogService';
 
 export default function ProjectMembersPanel({ projectId }) {
   const { currentUser } = useAuth();
@@ -62,8 +63,30 @@ export default function ProjectMembersPanel({ projectId }) {
 
   async function confirmRoleChangeAction() {
     const { member, newRole } = confirmRoleChange;
+    const oldRole = member.role;
     try {
       await updateMemberRole(projectId, member.userId, newRole);
+
+      // Log the activity
+      try {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'role_changed',
+          'member',
+          member.userId,
+          {
+            targetUserId: member.userId,
+            targetUserEmail: memberDetails[member.userId]?.email,
+            oldRole,
+            newRole
+          }
+        );
+      } catch (logError) {
+        console.error('Failed to log activity:', logError);
+        // Don't fail the operation if logging fails
+      }
+
       await fetchMembers();
       setConfirmRoleChange(null);
     } catch (err) {
@@ -84,6 +107,26 @@ export default function ProjectMembersPanel({ projectId }) {
   async function confirmRemoveAction() {
     try {
       await removeMember(projectId, confirmRemove.userId);
+
+      // Log the activity
+      try {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'member_removed',
+          'member',
+          confirmRemove.userId,
+          {
+            removedUserId: confirmRemove.userId,
+            removedUserEmail: memberDetails[confirmRemove.userId]?.email,
+            removedUserRole: confirmRemove.role
+          }
+        );
+      } catch (logError) {
+        console.error('Failed to log activity:', logError);
+        // Don't fail the operation if logging fails
+      }
+
       await fetchMembers();
       setConfirmRemove(null);
     } catch (err) {

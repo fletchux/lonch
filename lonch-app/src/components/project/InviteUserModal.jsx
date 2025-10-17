@@ -4,6 +4,7 @@ import { createInvitation } from '../../services/invitationService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { getRoleDisplayName } from '../../utils/permissions';
+import { logActivity } from '../../services/activityLogService';
 
 export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess }) {
   const { currentUser } = useAuth();
@@ -47,6 +48,25 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
         role,
         currentUser.uid
       );
+
+      // Log the activity
+      try {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'member_invited',
+          'member',
+          invitation.id,
+          {
+            invitedEmail: email,
+            invitedRole: role,
+            invitationId: invitation.id
+          }
+        );
+      } catch (logError) {
+        console.error('Failed to log activity:', logError);
+        // Don't fail the operation if logging fails
+      }
 
       // Generate shareable invite link
       const link = `${window.location.origin}/invite/${invitation.token}`;
