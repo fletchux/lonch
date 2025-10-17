@@ -55,16 +55,16 @@
   - [x] 1.8 Add Firestore security rules to enforce role-based access (owners can delete, editors can write, viewers can read)
   - [x] 1.9 Create tests in `src/services/projectService.test.js` for all new multi-user functions
 
-- [ ] 2.0 Create invitation system with email and in-app invitations
-  - [ ] 2.1 Create `src/services/invitationService.js` with Firestore operations
-  - [ ] 2.2 Implement `createInvitation(projectId, email, role, invitedBy)` function (generate unique token, set expiration to 7 days)
-  - [ ] 2.3 Implement `getInvitation(token)` function to retrieve invitation by token
-  - [ ] 2.4 Implement `getUserInvitations(email)` function to get all pending invitations for a user
-  - [ ] 2.5 Implement `acceptInvitation(token, userId)` function (add user to projectMembers, mark invitation as accepted)
-  - [ ] 2.6 Implement `declineInvitation(token)` function (mark invitation as declined)
-  - [ ] 2.7 Implement `cancelInvitation(invitationId)` function (for owners/admins to revoke invitations)
-  - [ ] 2.8 Add email notification logic (integrate with Firebase Extensions or create placeholder for future email service)
-  - [ ] 2.9 Create comprehensive tests in `src/services/invitationService.test.js`
+- [x] 2.0 Create invitation system with email and in-app invitations
+  - [x] 2.1 Create `src/services/invitationService.js` with Firestore operations
+  - [x] 2.2 Implement `createInvitation(projectId, email, role, invitedBy)` function (generate unique token, set expiration to 7 days)
+  - [x] 2.3 Implement `getInvitation(token)` function to retrieve invitation by token
+  - [x] 2.4 Implement `getUserInvitations(email)` function to get all pending invitations for a user
+  - [x] 2.5 Implement `acceptInvitation(token, userId)` function (add user to projectMembers, mark invitation as accepted)
+  - [x] 2.6 Implement `declineInvitation(token)` function (mark invitation as declined)
+  - [x] 2.7 Implement `cancelInvitation(invitationId)` function (for owners/admins to revoke invitations)
+  - [x] 2.8 Add email notification logic (integrate with Firebase Extensions or create placeholder for future email service)
+  - [x] 2.9 Create comprehensive tests in `src/services/invitationService.test.js`
 
 - [ ] 3.0 Implement role-based access control (Owner, Admin, Editor, Viewer)
   - [ ] 3.1 Create `src/utils/permissions.js` helper file with role constants (OWNER, ADMIN, EDITOR, VIEWER)
