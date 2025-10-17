@@ -274,3 +274,26 @@ export async function getUserProjectsAsMember(userId) {
     throw new Error(`Failed to get user projects as member: ${error.message}`);
   }
 }
+
+/**
+ * Get user's role in a project
+ * @param {string} userId - User ID
+ * @param {string} projectId - Project ID
+ * @returns {Promise<string|null>} User's role or null if not a member
+ */
+export async function getUserRoleInProject(userId, projectId) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+    const memberDoc = await getDoc(memberRef);
+
+    if (!memberDoc.exists()) {
+      return null;
+    }
+
+    return memberDoc.data().role;
+  } catch (error) {
+    console.error('Error getting user role in project:', error);
+    throw new Error(`Failed to get user role in project: ${error.message}`);
+  }
+}

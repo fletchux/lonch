@@ -8,7 +8,8 @@ import {
   getProjectMembers,
   updateMemberRole,
   removeMember,
-  getUserProjectsAsMember
+  getUserProjectsAsMember,
+  getUserRoleInProject
 } from './projectService';
 import * as firebase from '../config/firebase';
 import {
@@ -423,6 +424,47 @@ describe('projectService', () => {
 
       await expect(getUserProjectsAsMember('user456'))
         .rejects.toThrow('Failed to get user projects as member: Firestore error');
+    });
+  });
+
+  describe('getUserRoleInProject', () => {
+    it('should return user role if member exists', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      const mockMemberDoc = {
+        exists: () => true,
+        data: () => ({ id: 'project123_user456', role: 'editor' })
+      };
+
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockResolvedValue(mockMemberDoc);
+
+      const result = await getUserRoleInProject('user456', 'project123');
+
+      expect(doc).toHaveBeenCalledWith(firebase.db, 'projectMembers', 'project123_user456');
+      expect(result).toBe('editor');
+    });
+
+    it('should return null if user is not a member', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      const mockMemberDoc = {
+        exists: () => false
+      };
+
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockResolvedValue(mockMemberDoc);
+
+      const result = await getUserRoleInProject('user456', 'project123');
+
+      expect(result).toBeNull();
+    });
+
+    it('should throw error if query fails', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockRejectedValue(new Error('Firestore error'));
+
+      await expect(getUserRoleInProject('user456', 'project123'))
+        .rejects.toThrow('Failed to get user role in project: Firestore error');
     });
   });
 });

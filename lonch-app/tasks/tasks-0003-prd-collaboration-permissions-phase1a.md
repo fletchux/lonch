@@ -66,16 +66,16 @@
   - [x] 2.8 Add email notification logic (integrate with Firebase Extensions or create placeholder for future email service)
   - [x] 2.9 Create comprehensive tests in `src/services/invitationService.test.js`
 
-- [ ] 3.0 Implement role-based access control (Owner, Admin, Editor, Viewer)
-  - [ ] 3.1 Create `src/utils/permissions.js` helper file with role constants (OWNER, ADMIN, EDITOR, VIEWER)
-  - [ ] 3.2 Implement `canEditProject(userRole)` helper function (Owner, Admin, Editor = true; Viewer = false)
-  - [ ] 3.3 Implement `canManageMembers(userRole)` helper function (Owner, Admin = true; Editor, Viewer = false)
-  - [ ] 3.4 Implement `canDeleteProject(userRole)` helper function (Owner only = true)
-  - [ ] 3.5 Implement `getUserRoleInProject(userId, projectId)` function in projectService to fetch user's role
-  - [ ] 3.6 Create `useProjectPermissions(projectId)` custom React hook to expose role and permission checks
-  - [ ] 3.7 Update `src/components/pages/ProjectDashboard.jsx` to use permission checks (hide/disable features based on role)
-  - [ ] 3.8 Update document upload/edit features to check `canEditProject` permission before allowing actions
-  - [ ] 3.9 Create tests for all permission helper functions in `src/utils/permissions.test.js`
+- [x] 3.0 Implement role-based access control (Owner, Admin, Editor, Viewer)
+  - [x] 3.1 Create `src/utils/permissions.js` helper file with role constants (OWNER, ADMIN, EDITOR, VIEWER)
+  - [x] 3.2 Implement `canEditProject(userRole)` helper function (Owner, Admin, Editor = true; Viewer = false)
+  - [x] 3.3 Implement `canManageMembers(userRole)` helper function (Owner, Admin = true; Editor, Viewer = false)
+  - [x] 3.4 Implement `canDeleteProject(userRole)` helper function (Owner only = true)
+  - [x] 3.5 Implement `getUserRoleInProject(userId, projectId)` function in projectService to fetch user's role
+  - [x] 3.6 Create `useProjectPermissions(projectId)` custom React hook to expose role and permission checks
+  - [x] 3.7 Update `src/components/pages/ProjectDashboard.jsx` to use permission checks (hide/disable features based on role)
+  - [x] 3.8 Update document upload/edit features to check `canEditProject` permission before allowing actions
+  - [x] 3.9 Create tests for all permission helper functions in `src/utils/permissions.test.js`
 
 - [ ] 4.0 Build project members management UI
   - [ ] 4.1 Create `src/components/shared/RoleBadge.jsx` component to display role with color coding (Owner=teal, Admin=gold, Editor=blue, Viewer=gray)
