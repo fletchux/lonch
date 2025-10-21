@@ -84,7 +84,8 @@ export default function ProjectMembersPanel({ projectId }) {
             targetUserEmail: memberDetails[member.userId]?.email,
             oldRole,
             newRole
-          }
+          },
+          member.group
         );
       } catch (logError) {
         console.error('Failed to log activity:', logError);
@@ -123,8 +124,10 @@ export default function ProjectMembersPanel({ projectId }) {
           {
             removedUserId: confirmRemove.userId,
             removedUserEmail: memberDetails[confirmRemove.userId]?.email,
-            removedUserRole: confirmRemove.role
-          }
+            removedUserRole: confirmRemove.role,
+            removedFromGroup: confirmRemove.group
+          },
+          confirmRemove.group
         );
       } catch (logError) {
         console.error('Failed to log activity:', logError);
