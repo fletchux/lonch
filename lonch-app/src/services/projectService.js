@@ -30,7 +30,17 @@ import {
  *   checklistTemplate: object | null,
  *   stakeholderTemplate: object | null,
  *   teamTemplate: object | null,
- *   documents: array,
+ *   documents: array of {
+ *     id: string,
+ *     name: string,
+ *     category: string,
+ *     size: number,
+ *     type: string,
+ *     visibility: 'consulting_only' | 'client_only' | 'both' (defaults to 'both'),
+ *     uploadedAt: timestamp,
+ *     uploadedBy: string (userId),
+ *     ...other metadata
+ *   },
  *   extractedData: object | null,
  *   extractionConflicts: object | null,
  *   manuallyEditedFields: array,
@@ -381,5 +391,57 @@ export async function updateMemberGroup(projectId, userId, newGroup) {
   } catch (error) {
     console.error('Error updating member group:', error);
     throw new Error(`Failed to update member group: ${error.message}`);
+  }
+}
+
+/**
+ * Migration helper: Add default group='consulting' to all existing project members
+ * This function should be run once to migrate existing data when upgrading to Phase 1B
+ * @returns {Promise<Object>} Migration results with counts
+ */
+export async function migrateExistingMembersToGroups() {
+  try {
+    const membersRef = collection(db, 'projectMembers');
+    const querySnapshot = await getDocs(membersRef);
+
+    let updated = 0;
+    let alreadyHasGroup = 0;
+    let errors = 0;
+
+    for (const memberDoc of querySnapshot.docs) {
+      try {
+        const memberData = memberDoc.data();
+
+        // Skip if member already has a group field
+        if (memberData.group) {
+          alreadyHasGroup++;
+          continue;
+        }
+
+        // Add group='consulting' as default for existing members
+        await updateDoc(memberDoc.ref, {
+          group: 'consulting'
+        });
+
+        updated++;
+      } catch (error) {
+        console.error(`Error migrating member ${memberDoc.id}:`, error);
+        errors++;
+      }
+    }
+
+    const results = {
+      total: querySnapshot.size,
+      updated,
+      alreadyHasGroup,
+      errors,
+      success: errors === 0
+    };
+
+    console.log('Migration results:', results);
+    return results;
+  } catch (error) {
+    console.error('Error running migration:', error);
+    throw new Error(`Failed to migrate existing members: ${error.message}`);
   }
 }
