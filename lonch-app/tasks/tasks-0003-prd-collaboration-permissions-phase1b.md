@@ -100,9 +100,9 @@
   - [ ] 4.10 Create tests for Home.jsx group badge display
 
 - [ ] 5.0 Implement document visibility controls
-  - [ ] 5.1 Create DocumentVisibilityToggle.jsx component with three options (Consulting Only, Client Only, Both Groups)
-  - [ ] 5.2 Add visual indicators: lock icon for restricted visibility, globe for both groups
-  - [ ] 5.3 Create tests for DocumentVisibilityToggle in DocumentVisibilityToggle.test.jsx
+  - [x] 5.1 Create DocumentVisibilityToggle.jsx component with three options (Consulting Only, Client Only, Both Groups)
+  - [x] 5.2 Add visual indicators: lock icon for restricted visibility, globe for both groups
+  - [x] 5.3 Create tests for DocumentVisibilityToggle in DocumentVisibilityToggle.test.jsx
   - [ ] 5.4 Update ProjectDashboard.jsx to show DocumentVisibilityToggle for each document
   - [ ] 5.5 Restrict visibility toggle to Owner/Admin in Consulting Group only
   - [ ] 5.6 Filter document list based on user's group (hide documents user cannot see)
