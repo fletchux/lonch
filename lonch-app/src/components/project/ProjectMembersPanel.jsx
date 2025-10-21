@@ -10,10 +10,12 @@ import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from './GroupBadge';
 import { logActivity } from '../../services/activityLogService';
 import { createNotification, shouldNotifyUser } from '../../services/notificationService';
+import ShareLinksTab from './ShareLinksTab';
 
 export default function ProjectMembersPanel({ projectId }) {
   const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
+  const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
   const [memberDetails, setMemberDetails] = useState({});
   const [loading, setLoading] = useState(true);
@@ -255,18 +257,54 @@ export default function ProjectMembersPanel({ projectId }) {
     return date.toLocaleDateString();
   }
 
-  if (loading) {
+  // Only show loading/error for members tab
+  if (loading && activeTab === 'members') {
     return <div className="text-center py-8">Loading members...</div>;
   }
 
-  if (error) {
+  if (error && activeTab === 'members') {
     return <div className="text-center py-8 text-red-600">Error: {error}</div>;
   }
 
   return (
     <div className="space-y-4">
-      {/* Search/Filter */}
-      <div className="mb-4 space-y-2">
+      {/* Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8" data-testid="members-tabs">
+          <button
+            onClick={() => setActiveTab('members')}
+            className={`
+              py-2 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'members'
+                ? 'border-teal-600 text-teal-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }
+            `}
+            data-testid="members-tab"
+          >
+            Members ({members.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('shareLinks')}
+            className={`
+              py-2 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'shareLinks'
+                ? 'border-teal-600 text-teal-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }
+            `}
+            data-testid="share-links-tab"
+          >
+            Share Links
+          </button>
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'members' && (
+        <>
+          {/* Search/Filter */}
+          <div className="mb-4 space-y-2">
         {members.length > 5 && (
           <input
             type="text"
@@ -468,6 +506,13 @@ export default function ProjectMembersPanel({ projectId }) {
             </div>
           </div>
         </div>
+      )}
+        </>
+      )}
+
+      {/* Share Links Tab */}
+      {activeTab === 'shareLinks' && (
+        <ShareLinksTab projectId={projectId} />
       )}
     </div>
   );
