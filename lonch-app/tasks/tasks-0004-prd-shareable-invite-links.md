@@ -67,18 +67,18 @@
   - [x] 1.8 Add Firestore security rules for `inviteLinks` collection (read: authenticated, write: project members)
   - [x] 1.9 Create comprehensive tests in `src/services/inviteLinkService.test.js`
 
-- [ ] 2.0 Build link generation UI with role and group selection
-  - [ ] 2.1 Create `src/components/project/GenerateLinkModal.jsx` modal component
-  - [ ] 2.2 Add role selection dropdown (Owner, Admin, Editor, Viewer) with RoleBadge preview
-  - [ ] 2.3 Add group selection radio buttons (Consulting Group / Client Group) with GroupBadge preview
-  - [ ] 2.4 Add preview section showing "Recipients will join as [Role] in [Group]"
-  - [ ] 2.5 Implement "Generate Link" button handler calling inviteLinkService.generateInviteLink()
-  - [ ] 2.6 Display generated link in read-only text input after generation
-  - [ ] 2.7 Add "Copy Link" button with clipboard API integration
-  - [ ] 2.8 Show link expiration notice "This link expires in 7 days (Oct 28, 2025)"
-  - [ ] 2.9 Add loading states and error handling for link generation
-  - [ ] 2.10 Style modal with lonch branding (teal primary, gold accent)
-  - [ ] 2.11 Create tests for GenerateLinkModal in `src/components/project/GenerateLinkModal.test.jsx`
+- [x] 2.0 Build link generation UI with role and group selection
+  - [x] 2.1 Create `src/components/project/GenerateLinkModal.jsx` modal component
+  - [x] 2.2 Add role selection dropdown (Owner, Admin, Editor, Viewer) with RoleBadge preview
+  - [x] 2.3 Add group selection radio buttons (Consulting Group / Client Group) with GroupBadge preview
+  - [x] 2.4 Add preview section showing "Recipients will join as [Role] in [Group]"
+  - [x] 2.5 Implement "Generate Link" button handler calling inviteLinkService.generateInviteLink()
+  - [x] 2.6 Display generated link in read-only text input after generation
+  - [x] 2.7 Add "Copy Link" button with clipboard API integration
+  - [x] 2.8 Show link expiration notice "This link expires in 7 days (Oct 28, 2025)"
+  - [x] 2.9 Add loading states and error handling for link generation
+  - [x] 2.10 Style modal with lonch branding (teal primary, gold accent)
+  - [x] 2.11 Create tests for GenerateLinkModal in `src/components/project/GenerateLinkModal.test.jsx`
 
 - [ ] 3.0 Implement link acceptance flow and validation
   - [ ] 3.1 Add route `/invite/:token` in `src/App.jsx` for link acceptance
