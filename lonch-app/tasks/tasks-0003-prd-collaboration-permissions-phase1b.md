@@ -87,16 +87,16 @@
   - [x] 3.7 Update InviteUserModal.test.jsx with group selection tests
   - [x] 3.8 Update invitationService.test.js with group invitation tests
 
-- [ ] 4.0 Build group management UI components
-  - [ ] 4.1 Create `src/components/project/GroupBadge.jsx` component (Consulting=Teal, Client=Gold)
-  - [ ] 4.2 Create tests for GroupBadge in GroupBadge.test.jsx
-  - [ ] 4.3 Update ProjectMembersPanel.jsx to display GroupBadge next to each member
-  - [ ] 4.4 Add "Move to Group" dropdown for Owner/Admin to change member groups
-  - [ ] 4.5 Add confirmation dialog when moving users between groups
-  - [ ] 4.6 Update activityLogService calls when group is changed (log "member_moved_to_group" action)
-  - [ ] 4.7 Add group filter in ProjectMembersPanel (show All / Consulting Group / Client Group)
+- [x] 4.0 Build group management UI components
+  - [x] 4.1 Create `src/components/project/GroupBadge.jsx` component (Consulting=Teal, Client=Gold)
+  - [x] 4.2 Create tests for GroupBadge in GroupBadge.test.jsx
+  - [x] 4.3 Update ProjectMembersPanel.jsx to display GroupBadge next to each member
+  - [x] 4.4 Add "Move to Group" dropdown for Owner/Admin to change member groups
+  - [x] 4.5 Add confirmation dialog when moving users between groups
+  - [x] 4.6 Update activityLogService calls when group is changed (log "member_moved_to_group" action)
+  - [x] 4.7 Add group filter in ProjectMembersPanel (show All / Consulting Group / Client Group)
   - [ ] 4.8 Update ProjectMembersPanel.test.jsx with group management tests
-  - [ ] 4.9 Update Home.jsx to show GroupBadge for projects where user is a member
+  - [x] 4.9 Update Home.jsx to show GroupBadge for projects where user is a member
   - [ ] 4.10 Create tests for Home.jsx group badge display
 
 - [ ] 5.0 Implement document visibility controls
