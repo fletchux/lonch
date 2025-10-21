@@ -11,6 +11,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { addProjectMember } from './projectService';
+import { createNotification, shouldNotifyUser } from './notificationService';
 
 /**
  * Invitation Service
@@ -232,6 +233,24 @@ export async function acceptInvitation(token, userId) {
       status: 'accepted',
       acceptedAt: serverTimestamp()
     });
+
+    // Send notification to the person who sent the invitation
+    try {
+      const shouldNotify = await shouldNotifyUser(invitation.invitedBy, 'invitation');
+      if (shouldNotify) {
+        const groupName = invitation.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        await createNotification(
+          invitation.invitedBy,
+          'invitation',
+          `${invitation.email} accepted your invitation to join as ${invitation.role} in ${groupName}`,
+          `/projects/${invitation.projectId}`,
+          invitation.projectId
+        );
+      }
+    } catch (notificationError) {
+      console.error('Failed to create notification for invitation acceptance:', notificationError);
+      // Don't fail the invitation acceptance if notification fails
+    }
   } catch (error) {
     console.error('Error accepting invitation:', error);
     throw new Error(`Failed to accept invitation: ${error.message}`);

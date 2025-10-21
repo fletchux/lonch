@@ -9,6 +9,7 @@ import { GROUP } from '../../utils/groupPermissions';
 import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from './GroupBadge';
 import { logActivity } from '../../services/activityLogService';
+import { createNotification, shouldNotifyUser } from '../../services/notificationService';
 
 export default function ProjectMembersPanel({ projectId }) {
   const { currentUser } = useAuth();
@@ -89,6 +90,23 @@ export default function ProjectMembersPanel({ projectId }) {
       } catch (logError) {
         console.error('Failed to log activity:', logError);
         // Don't fail the operation if logging fails
+      }
+
+      // Send notification to the user whose role was changed
+      try {
+        const shouldNotify = await shouldNotifyUser(member.userId, 'role_change');
+        if (shouldNotify) {
+          await createNotification(
+            member.userId,
+            'role_change',
+            `Your role has been changed from ${getRoleDisplayName(oldRole)} to ${getRoleDisplayName(newRole)}`,
+            `/projects/${projectId}`,
+            projectId
+          );
+        }
+      } catch (notificationError) {
+        console.error('Failed to create notification for role change:', notificationError);
+        // Don't fail the operation if notification fails
       }
 
       await fetchMembers();
@@ -172,6 +190,25 @@ export default function ProjectMembersPanel({ projectId }) {
         );
       } catch (logError) {
         console.error('Failed to log activity:', logError);
+      }
+
+      // Send notification to the user whose group was changed
+      try {
+        const shouldNotify = await shouldNotifyUser(member.userId, 'group_change');
+        if (shouldNotify) {
+          const oldGroupName = oldGroup === GROUP.CONSULTING ? 'Consulting Group' : 'Client Group';
+          const newGroupName = newGroup === GROUP.CONSULTING ? 'Consulting Group' : 'Client Group';
+          await createNotification(
+            member.userId,
+            'group_change',
+            `You have been moved from ${oldGroupName} to ${newGroupName}. Your document visibility has been updated.`,
+            `/projects/${projectId}`,
+            projectId
+          );
+        }
+      } catch (notificationError) {
+        console.error('Failed to create notification for group change:', notificationError);
+        // Don't fail the operation if notification fails
       }
 
       await fetchMembers();
