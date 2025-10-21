@@ -77,15 +77,15 @@
   - [x] 2.8 Create comprehensive tests in groupPermissions.test.js
   - [x] 2.9 Update existing permissions.test.js to work with group-aware permissions
 
-- [ ] 3.0 Update invitation system with group assignment
-  - [ ] 3.1 Update `createInvitation()` in invitationService.js to accept and store group parameter
-  - [ ] 3.2 Update InviteUserModal.jsx to add group selection dropdown (Consulting Group / Client Group)
-  - [ ] 3.3 Add group validation: only Owner/Admin can invite to Consulting Group
-  - [ ] 3.4 Update email/notification templates to mention which group user is being invited to
-  - [ ] 3.5 Update `acceptInvitation()` to add user with specified group
-  - [ ] 3.6 Add group badge display in InviteUserModal showing target group
-  - [ ] 3.7 Update InviteUserModal.test.jsx with group selection tests
-  - [ ] 3.8 Update invitationService.test.js with group invitation tests
+- [x] 3.0 Update invitation system with group assignment
+  - [x] 3.1 Update `createInvitation()` in invitationService.js to accept and store group parameter
+  - [x] 3.2 Update InviteUserModal.jsx to add group selection dropdown (Consulting Group / Client Group)
+  - [x] 3.3 Add group validation: only Owner/Admin can invite to Consulting Group
+  - [x] 3.4 Update email/notification templates to mention which group user is being invited to
+  - [x] 3.5 Update `acceptInvitation()` to add user with specified group
+  - [x] 3.6 Add group badge display in InviteUserModal showing target group
+  - [x] 3.7 Update InviteUserModal.test.jsx with group selection tests
+  - [x] 3.8 Update invitationService.test.js with group invitation tests
 
 - [ ] 4.0 Build group management UI components
   - [ ] 4.1 Create `src/components/project/GroupBadge.jsx` component (Consulting=Teal, Client=Gold)
