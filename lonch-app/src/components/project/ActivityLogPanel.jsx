@@ -169,10 +169,11 @@ export default function ActivityLogPanel({ projectId }) {
         return `${userName} removed ${activity.metadata?.removedUserEmail || 'a member'}`;
       case 'role_changed':
         return `${userName} changed ${activity.metadata?.targetUserEmail || 'a member'}'s role from ${activity.metadata?.oldRole || '?'} to ${activity.metadata?.newRole || '?'}`;
-      case 'member_moved_to_group':
+      case 'member_moved_to_group': {
         const oldGroup = activity.metadata?.oldGroup === 'consulting' ? 'Consulting' : 'Client';
         const newGroup = activity.metadata?.newGroup === 'consulting' ? 'Consulting' : 'Client';
         return `${userName} moved ${activity.metadata?.targetUserEmail || 'a member'} from ${oldGroup} Group to ${newGroup} Group`;
+      }
       case 'project_created':
         return `${userName} created the project`;
       case 'project_updated':
