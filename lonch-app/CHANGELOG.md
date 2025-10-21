@@ -2,49 +2,138 @@
 
 ## [Unreleased]
 
-### Added - 2025-10-20
-- **Document Visibility Controls (Phase 1B - Task 5.0)**
-  - DocumentVisibilityToggle component with three visibility levels:
-    - 🔒 Consulting Only - visible to consulting group members only
-    - 🔒 Client Only - visible to client group members only
-    - 🌐 Both Groups - visible to all project members
-  - Color-coded visibility indicators (teal for consulting, gold for client, gray for both)
-  - Group-based document filtering - users only see documents their group can access
-  - Permission-based visibility control - only Owner/Admin in Consulting Group can change visibility
-  - Default visibility based on uploader's group (Consulting→consulting_only, Client→both)
-  - Activity logging for all visibility changes (document_visibility_changed action)
-  - DocumentVisibilityToggle integrated into DocumentList with permission checks
-  - Comprehensive test coverage (28 DocumentList tests, 15 DocumentUpload tests, 13 visibility toggle tests)
+### Added - 2025-10-21 - Phase 1B Complete ✅
+**Collaboration & Permissions - Phase 1B (Dual-Group Architecture)**
 
-- **Group Management UI Components (Phase 1B - Task 4.0)**
-  - GroupBadge component displaying user's group (Consulting=Teal, Client=Gold)
-  - Group badges shown in ProjectMembersPanel next to each member
-  - Group badges displayed on Home page for member projects
-  - Move to Group functionality for Owner/Admin to change member groups
-  - Confirmation dialog when moving users between groups
-  - Group filter in ProjectMembersPanel (All / Consulting / Client)
-  - Activity logging for group changes (member_moved_to_group action)
+All 8 parent tasks complete (72/72 sub-tasks)
 
-### Technical Details - 2025-10-20
-- Branch: `feature/collaboration-phase1b`
-- Phase 1B Progress: 47/72 sub-tasks complete (65%)
-- Parent Tasks Complete: 5/8 (Tasks 1.0-5.0)
-- Files added:
-  - src/components/project/DocumentVisibilityToggle.jsx
-  - src/components/project/DocumentVisibilityToggle.test.jsx
-  - src/components/project/GroupBadge.jsx
-  - src/components/project/GroupBadge.test.jsx
-- Files modified:
-  - src/components/DocumentList.jsx (+76 lines: visibility integration, filtering)
-  - src/components/DocumentList.test.jsx (+298 lines: 11 new visibility tests)
-  - src/components/DocumentUpload.jsx (+11 lines: default visibility)
-  - src/components/DocumentUpload.test.jsx (+14 lines: visibility mocks)
-  - src/components/pages/ProjectDashboard.jsx (added projectId prop)
-  - src/components/pages/Home.jsx (added GroupBadge display)
-  - src/components/project/ProjectMembersPanel.jsx (+121 lines: group management)
-  - tasks/tasks-0003-prd-collaboration-permissions-phase1b.md (progress tracking)
-- Tests: 405/418 passing (97%)
-- Build: Successful (914KB main bundle)
+#### Task 1.0: Dual-Group Database Schema
+- Extended projectMembers schema with `group` field ('consulting' | 'client')
+- Added `group` field to invitation schema
+- Added `groupContext` field to activity logs
+- Added `visibility` field to documents ('consulting_only' | 'client_only' | 'both')
+- Migration helper for backwards compatibility (existing members → consulting group)
+- Firestore security rules updated for group-based document visibility
+- Comprehensive test coverage (40+ tests for group-aware functionality)
+
+#### Task 2.0: Group-Based Permission System
+- Created groupPermissions.js utility with GROUP constants and helper functions
+- Implemented canViewDocument(), canSetDocumentVisibility(), canMoveUserBetweenGroups()
+- Implemented getDefaultDocumentVisibility() based on user's group
+- Updated useProjectPermissions hook with group-aware checks
+- Added getUserGroupInProject() to projectService.js
+- 27 comprehensive tests in groupPermissions.test.js
+
+#### Task 3.0: Group Assignment in Invitations
+- Updated createInvitation() to accept and store group parameter
+- Added group selection dropdown in InviteUserModal (Consulting Group / Client Group)
+- Group validation: only Owner/Admin can invite to Consulting Group
+- Email/notification templates include target group information
+- acceptInvitation() adds user with specified group
+- 8 new tests for group invitation functionality
+
+#### Task 4.0: Group Management UI Components
+- GroupBadge component (Consulting=Teal, Client=Gold)
+- Group badges in ProjectMembersPanel and Home page
+- Move to Group functionality with confirmation dialogs
+- Group filter (All / Consulting Group / Client Group)
+- Activity logging for group changes (member_moved_to_group action)
+- 22 ProjectMembersPanel tests, 15 Home tests with group functionality
+
+#### Task 5.0: Document Visibility Controls
+- DocumentVisibilityToggle component with three visibility levels:
+  - 🔒 Consulting Only - visible to consulting group members only
+  - 🔒 Client Only - visible to client group members only
+  - 🌐 Both Groups - visible to all project members
+- Color-coded visibility indicators (teal/gold/gray)
+- Group-based document filtering (users only see documents their group can access)
+- Permission-based visibility control (Owner/Admin in Consulting Group only)
+- Default visibility based on uploader's group
+- Activity logging for visibility changes
+- 28 DocumentList tests, 13 visibility toggle tests
+
+#### Task 6.0: Enhanced Activity Logs with Group Context
+- Updated all logActivity() calls to include groupContext parameter
+- GroupBadge display in activity log entries
+- Group filter dropdown (All Groups / Consulting / Client)
+- Client-side group filtering
+- Group-aware activity descriptions (e.g., "invited to Consulting Group")
+- 16 activityLogService tests, 28 ActivityLogPanel tests
+
+#### Task 7.0: Notification System with User Preferences
+- **notificationService.js** (24 tests)
+  - createNotification(), getUserNotifications(), markNotificationAsRead()
+  - getUserNotificationPreferences(), updateNotificationPreferences()
+  - shouldNotifyUser() for preference checking
+- **NotificationPreferences.jsx** (22 tests)
+  - Toggle switches for in-app and email notifications
+  - Individual toggles for notification types (invitations, role changes, group changes, mentions)
+  - Auto-disable when all channels off
+  - Success/error messaging
+- **NotificationBell.jsx** (17 tests)
+  - Bell icon with unread count badge (99+ for high counts)
+  - Dropdown panel with recent notifications
+  - Click to mark as read and navigate
+  - Auto-polling every 30 seconds
+- **Settings.jsx**
+  - User settings page with integrated NotificationPreferences
+  - Navigation from all authenticated pages
+- **Notification Triggers**
+  - Invitation accepted notifications
+  - Role change notifications
+  - Group change notifications
+  - All triggers respect user preferences
+
+#### Task 8.0: Comprehensive Testing & Validation
+- ✅ All 515 tests passing (100% pass rate)
+- ✅ Production build successful (934KB bundle)
+- ✅ ESLint clean (0 errors, 0 warnings)
+- ✅ No regressions from Phase 1A
+- ✅ Group-based document visibility working correctly
+- ✅ Group-based invitation flow working correctly
+- ✅ Activity log group filtering working correctly
+- ✅ Notification preferences working correctly
+
+### Technical Details - 2025-10-21
+- **Branch**: `feature/collaboration-phase1b`
+- **Status**: Phase 1B Complete - All 8 parent tasks, 72/72 sub-tasks ✅
+- **Test Coverage**: 515 tests passing (63 new notification tests)
+- **Build**: Successful (934KB main bundle, +1KB from Phase 1A)
+- **Code Quality**: ESLint clean, no linter warnings
+
+**Files Added** (10 new files):
+- src/components/project/DocumentVisibilityToggle.jsx + test
+- src/components/project/GroupBadge.jsx + test
+- src/components/settings/NotificationPreferences.jsx + test
+- src/components/notifications/NotificationBell.jsx + test
+- src/components/pages/Settings.jsx
+- src/services/notificationService.js + test
+- src/utils/groupPermissions.js + test
+
+**Files Modified** (20+ files):
+- Database schema updates: projectService.js, invitationService.js, activityLogService.js
+- UI components: DocumentList.jsx, ProjectMembersPanel.jsx, ActivityLogPanel.jsx, InviteUserModal.jsx
+- Pages: Home.jsx, ProjectDashboard.jsx, Wizard.jsx, App.jsx
+- Core services: Header.jsx, UserProfileDropdown.jsx
+- Permissions: permissions.js, useProjectPermissions.js
+- Security: firestore.rules
+
+**Commits**: 20+ commits with detailed messages
+- feat: extend database schema for dual-group architecture
+- feat: implement group-based permission system
+- feat: update invitation system with group assignment
+- feat: build group management UI components
+- feat: implement document visibility controls
+- feat: enhance activity logs with group context
+- feat: implement notification system foundation
+- feat: add notification triggers
+- feat: add notification center UI
+- feat: integrate notification preferences into settings
+- fix: resolve all ESLint errors
+- docs: mark Phase 1B complete in task list
+
+### Breaking Changes
+None - Phase 1B is fully backwards compatible with Phase 1A
 
 ### Added - 2025-10-15
 - **Document Management with AI Extraction**
