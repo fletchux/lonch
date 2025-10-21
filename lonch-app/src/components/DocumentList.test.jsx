@@ -26,8 +26,8 @@ describe('DocumentList', () => {
       canInvite: true
     });
 
-    projectService.updateProject = vi.fn().mockResolvedValue({});
-    activityLogService.logActivity = vi.fn().mockResolvedValue({});
+    vi.mocked(projectService.updateProject).mockResolvedValue({});
+    vi.mocked(activityLogService.logActivity).mockResolvedValue({});
   });
 
   const mockDocuments = [

@@ -242,3 +242,39 @@ export async function filterByDateRange(projectId, startDate, endDate, limit = 5
     throw new Error(`Failed to filter activity log by date range: ${error.message}`);
   }
 }
+
+/**
+ * Get activity log filtered by group context
+ * @param {string} projectId - Project ID
+ * @param {string} group - Group context to filter by ('consulting' or 'client')
+ * @param {number} limit - Maximum number of entries to return (default: 50)
+ * @returns {Promise<Array>} Array of activity log documents
+ */
+export async function getActivityLogByGroup(projectId, group, limit = 50) {
+  try {
+    const activityLogsRef = collection(db, 'activityLogs');
+
+    const q = query(
+      activityLogsRef,
+      where('projectId', '==', projectId),
+      where('groupContext', '==', group),
+      orderBy('timestamp', 'desc'),
+      firestoreLimit(limit)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const activities = [];
+    querySnapshot.forEach((doc) => {
+      activities.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    return activities;
+  } catch (error) {
+    console.error('Error getting activity log by group:', error);
+    throw new Error(`Failed to get activity log by group: ${error.message}`);
+  }
+}

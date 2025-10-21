@@ -8,7 +8,7 @@ import {
   updateNotificationPreferences,
   shouldNotify
 } from './notificationService';
-import { collection, addDoc, getDocs, getDoc, updateDoc, doc, query, where, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, doc, where } from 'firebase/firestore';
 
 // Mock Firebase Firestore
 vi.mock('../config/firebase', () => ({
@@ -246,7 +246,7 @@ describe('notificationService', () => {
         }
       };
 
-      const result = await updateNotificationPreferences('user123', preferences);
+      await updateNotificationPreferences('user123', preferences);
 
       expect(updateDoc).toHaveBeenCalledWith(
         'preferencesDoc',
