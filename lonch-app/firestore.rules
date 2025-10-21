@@ -104,5 +104,20 @@ service cloud.firestore {
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
+
+    // Invite links collection rules
+    match /inviteLinks/{linkId} {
+      // Anyone authenticated can read (needed to accept links)
+      allow read: if isSignedIn();
+      // Project members can create links
+      allow create: if isSignedIn() && isMember(request.resource.data.projectId);
+      // Link creator or admin/owner can update (revoke)
+      allow update: if isSignedIn() && (
+        resource.data.createdBy == request.auth.uid ||
+        isAdminOrOwner(resource.data.projectId)
+      );
+      // Owner can delete
+      allow delete: if isSignedIn() && isOwner(resource.data.projectId);
+    }
   }
 }
