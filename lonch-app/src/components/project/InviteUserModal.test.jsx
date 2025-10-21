@@ -18,7 +18,9 @@ describe('InviteUserModal', () => {
 
   const mockPermissions = {
     role: 'owner',
-    assignableRoles: ['owner', 'admin', 'editor', 'viewer']
+    group: 'consulting',
+    assignableRoles: ['owner', 'admin', 'editor', 'viewer'],
+    canMoveUserBetweenGroups: () => true
   };
 
   beforeEach(() => {
@@ -52,10 +54,11 @@ describe('InviteUserModal', () => {
     expect(screen.getByText('Invite User to Project')).toBeInTheDocument();
   });
 
-  it('should display email and role inputs', async () => {
+  it('should display email, role, and group inputs', async () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
     expect(screen.getByTestId('email-input')).toBeInTheDocument();
     expect(screen.getByTestId('role-select')).toBeInTheDocument();
+    expect(screen.getByTestId('group-select')).toBeInTheDocument();
   });
 
   it('should show error for invalid email', async () => {
@@ -85,12 +88,13 @@ describe('InviteUserModal', () => {
     });
   });
 
-  it('should call createInvitation with correct params', async () => {
+  it('should call createInvitation with correct params including default group', async () => {
     const mockInvitation = {
       id: 'inv123',
       token: 'token123',
       email: 'user@example.com',
-      role: 'editor'
+      role: 'editor',
+      group: 'client'
     };
     vi.mocked(invitationService.createInvitation).mockResolvedValue(mockInvitation);
 
@@ -109,7 +113,8 @@ describe('InviteUserModal', () => {
         'project1',
         'user@example.com',
         'editor',
-        'owner123'
+        'owner123',
+        'client'
       );
     });
   });
@@ -264,5 +269,126 @@ describe('InviteUserModal', () => {
     expect(roleSelect).toBeDisabled();
     expect(inviteButton).toBeDisabled();
     expect(inviteButton).toHaveTextContent('Sending...');
+  });
+
+  // Group selection tests
+  it('should default group selection to Client Group', async () => {
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+    const groupSelect = screen.getByTestId('group-select');
+    expect(groupSelect).toHaveValue('client');
+  });
+
+  it('should allow selecting Consulting Group', async () => {
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+    const groupSelect = screen.getByTestId('group-select');
+
+    fireEvent.change(groupSelect, { target: { value: 'consulting' } });
+    expect(groupSelect).toHaveValue('consulting');
+  });
+
+  it('should call createInvitation with consulting group when selected', async () => {
+    const mockInvitation = {
+      id: 'inv123',
+      token: 'token123',
+      email: 'consultant@example.com',
+      role: 'admin',
+      group: 'consulting'
+    };
+    vi.mocked(invitationService.createInvitation).mockResolvedValue(mockInvitation);
+
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+
+    const emailInput = screen.getByTestId('email-input');
+    const roleSelect = screen.getByTestId('role-select');
+    const groupSelect = screen.getByTestId('group-select');
+    const inviteButton = screen.getByTestId('invite-button');
+
+    fireEvent.change(emailInput, { target: { value: 'consultant@example.com' } });
+    fireEvent.change(roleSelect, { target: { value: 'admin' } });
+    fireEvent.change(groupSelect, { target: { value: 'consulting' } });
+    fireEvent.click(inviteButton);
+
+    await waitFor(() => {
+      expect(invitationService.createInvitation).toHaveBeenCalledWith(
+        'project1',
+        'consultant@example.com',
+        'admin',
+        'owner123',
+        'consulting'
+      );
+    });
+  });
+
+  it('should show error when non-Owner/Admin tries to invite to Consulting Group', async () => {
+    const editorPermissions = {
+      role: 'editor',
+      group: 'client',
+      assignableRoles: [],
+      canMoveUserBetweenGroups: () => false
+    };
+    vi.mocked(useProjectPermissions.useProjectPermissions).mockReturnValue(editorPermissions);
+
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+
+    const emailInput = screen.getByTestId('email-input');
+    const groupSelect = screen.getByTestId('group-select');
+    const inviteButton = screen.getByTestId('invite-button');
+
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    fireEvent.change(groupSelect, { target: { value: 'consulting' } });
+    fireEvent.click(inviteButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error-message')).toHaveTextContent(
+        'Only Owner and Admin can invite users to the Consulting Group'
+      );
+    });
+
+    expect(invitationService.createInvitation).not.toHaveBeenCalled();
+  });
+
+  it('should show warning message when Consulting Group is selected without permissions', async () => {
+    const editorPermissions = {
+      role: 'editor',
+      group: 'client',
+      assignableRoles: [],
+      canMoveUserBetweenGroups: () => false
+    };
+    vi.mocked(useProjectPermissions.useProjectPermissions).mockReturnValue(editorPermissions);
+
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+
+    const groupSelect = screen.getByTestId('group-select');
+    fireEvent.change(groupSelect, { target: { value: 'consulting' } });
+
+    await waitFor(() => {
+      expect(screen.getByText('Only Owner and Admin can invite to the Consulting Group')).toBeInTheDocument();
+    });
+  });
+
+  it('should display group in success message', async () => {
+    const mockInvitation = {
+      id: 'inv123',
+      token: 'token123',
+      email: 'user@example.com',
+      role: 'editor',
+      group: 'consulting'
+    };
+    vi.mocked(invitationService.createInvitation).mockResolvedValue(mockInvitation);
+
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+
+    const emailInput = screen.getByTestId('email-input');
+    const groupSelect = screen.getByTestId('group-select');
+    const inviteButton = screen.getByTestId('invite-button');
+
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    fireEvent.change(groupSelect, { target: { value: 'consulting' } });
+    fireEvent.click(inviteButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Invitation sent to/)).toBeInTheDocument();
+      expect(screen.getByText(/Consulting Group/)).toBeInTheDocument();
+    });
   });
 });
