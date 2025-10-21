@@ -9,7 +9,10 @@ import {
   updateMemberRole,
   removeMember,
   getUserProjectsAsMember,
-  getUserRoleInProject
+  getUserRoleInProject,
+  getUserGroupInProject,
+  updateMemberGroup,
+  migrateExistingMembersToGroups
 } from './projectService';
 import * as firebase from '../config/firebase';
 import {
@@ -193,7 +196,7 @@ describe('projectService', () => {
   });
 
   describe('addProjectMember', () => {
-    it('should add a member to a project with role', async () => {
+    it('should add a member to a project with role and default group', async () => {
       const mockDoc = { id: 'project123_user456' };
       vi.mocked(doc).mockReturnValue(mockDoc);
       vi.mocked(setDoc).mockResolvedValue(undefined);
@@ -206,12 +209,27 @@ describe('projectService', () => {
         projectId: 'project123',
         userId: 'user456',
         role: 'editor',
+        group: 'consulting', // Default group
         invitedBy: 'user789',
         joinedAt: 'mock-timestamp',
         lastActiveAt: 'mock-timestamp'
       });
       expect(result.id).toBe('project123_user456');
       expect(result.role).toBe('editor');
+      expect(result.group).toBe('consulting');
+    });
+
+    it('should add a member with specified group', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+
+      const result = await addProjectMember('project123', 'user456', 'viewer', 'user789', 'client');
+
+      expect(setDoc).toHaveBeenCalledWith(mockDoc, expect.objectContaining({
+        group: 'client'
+      }));
+      expect(result.group).toBe('client');
     });
 
     it('should throw error if adding member fails', async () => {
@@ -465,6 +483,167 @@ describe('projectService', () => {
 
       await expect(getUserRoleInProject('user456', 'project123'))
         .rejects.toThrow('Failed to get user role in project: Firestore error');
+    });
+  });
+
+  describe('getUserGroupInProject', () => {
+    it('should return user group if member exists', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      const mockMemberDoc = {
+        exists: () => true,
+        data: () => ({ id: 'project123_user456', role: 'editor', group: 'consulting' })
+      };
+
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockResolvedValue(mockMemberDoc);
+
+      const result = await getUserGroupInProject('user456', 'project123');
+
+      expect(doc).toHaveBeenCalledWith(firebase.db, 'projectMembers', 'project123_user456');
+      expect(result).toBe('consulting');
+    });
+
+    it('should return default "consulting" if group field is missing', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      const mockMemberDoc = {
+        exists: () => true,
+        data: () => ({ id: 'project123_user456', role: 'editor' }) // No group field
+      };
+
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockResolvedValue(mockMemberDoc);
+
+      const result = await getUserGroupInProject('user456', 'project123');
+
+      expect(result).toBe('consulting');
+    });
+
+    it('should return null if user is not a member', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      const mockMemberDoc = {
+        exists: () => false
+      };
+
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockResolvedValue(mockMemberDoc);
+
+      const result = await getUserGroupInProject('user456', 'project123');
+
+      expect(result).toBeNull();
+    });
+
+    it('should throw error if query fails', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(getDoc).mockRejectedValue(new Error('Firestore error'));
+
+      await expect(getUserGroupInProject('user456', 'project123'))
+        .rejects.toThrow('Failed to get user group in project: Firestore error');
+    });
+  });
+
+  describe('updateMemberGroup', () => {
+    it('should update member group in a project', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(updateDoc).mockResolvedValue(undefined);
+
+      await updateMemberGroup('project123', 'user456', 'client');
+
+      expect(doc).toHaveBeenCalledWith(firebase.db, 'projectMembers', 'project123_user456');
+      expect(updateDoc).toHaveBeenCalledWith(mockDoc, {
+        group: 'client',
+        lastActiveAt: 'mock-timestamp'
+      });
+    });
+
+    it('should throw error if update fails', async () => {
+      const mockDoc = { id: 'project123_user456' };
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(updateDoc).mockRejectedValue(new Error('Firestore error'));
+
+      await expect(updateMemberGroup('project123', 'user456', 'client'))
+        .rejects.toThrow('Failed to update member group: Firestore error');
+    });
+  });
+
+  describe('migrateExistingMembersToGroups', () => {
+    it('should migrate members without group field to consulting group', async () => {
+      const mockCollection = { id: 'projectMembers' };
+      const mockMembers = [
+        { id: 'project1_user1', role: 'owner' }, // No group field
+        { id: 'project2_user2', role: 'editor' }, // No group field
+        { id: 'project3_user3', role: 'viewer', group: 'client' } // Already has group
+      ];
+      const mockDocs = mockMembers.map((data, index) => ({
+        id: data.id,
+        data: () => data,
+        ref: { id: `ref_${index}` }
+      }));
+      const mockQuerySnapshot = {
+        size: 3,
+        docs: mockDocs,
+        forEach: () => {} // Not used in this implementation
+      };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(getDocs).mockResolvedValue(mockQuerySnapshot);
+      vi.mocked(updateDoc).mockResolvedValue(undefined);
+
+      const result = await migrateExistingMembersToGroups();
+
+      expect(collection).toHaveBeenCalledWith(firebase.db, 'projectMembers');
+      expect(getDocs).toHaveBeenCalled();
+      expect(updateDoc).toHaveBeenCalledTimes(2); // Only 2 members without group
+      expect(result).toEqual({
+        total: 3,
+        updated: 2,
+        alreadyHasGroup: 1,
+        errors: 0,
+        success: true
+      });
+    });
+
+    it('should handle migration errors gracefully', async () => {
+      const mockCollection = { id: 'projectMembers' };
+      const mockMembers = [
+        { id: 'project1_user1', role: 'owner' }, // Will succeed
+        { id: 'project2_user2', role: 'editor' } // Will fail
+      ];
+      const mockDocs = mockMembers.map((data, index) => ({
+        id: data.id,
+        data: () => data,
+        ref: { id: `ref_${index}` }
+      }));
+      const mockQuerySnapshot = {
+        size: 2,
+        docs: mockDocs
+      };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(getDocs).mockResolvedValue(mockQuerySnapshot);
+      vi.mocked(updateDoc)
+        .mockResolvedValueOnce(undefined) // First update succeeds
+        .mockRejectedValueOnce(new Error('Update failed')); // Second update fails
+
+      const result = await migrateExistingMembersToGroups();
+
+      expect(result).toEqual({
+        total: 2,
+        updated: 1,
+        alreadyHasGroup: 0,
+        errors: 1,
+        success: false
+      });
+    });
+
+    it('should throw error if getDocs fails', async () => {
+      const mockCollection = { id: 'projectMembers' };
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(getDocs).mockRejectedValue(new Error('Firestore error'));
+
+      await expect(migrateExistingMembersToGroups())
+        .rejects.toThrow('Failed to migrate existing members: Firestore error');
     });
   });
 });
