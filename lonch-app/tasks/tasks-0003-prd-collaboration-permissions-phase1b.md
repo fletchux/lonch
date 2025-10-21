@@ -66,16 +66,16 @@
   - [x] 1.8 Create comprehensive tests in projectService.test.js for group-aware functions
   - [x] 1.9 Create comprehensive tests in invitationService.test.js for group invitations
 
-- [ ] 2.0 Implement group-based permission system
-  - [ ] 2.1 Create `src/utils/groupPermissions.js` with GROUP constants ('consulting', 'client')
-  - [ ] 2.2 Implement `canViewDocument(userGroup, documentVisibility)` helper function
-  - [ ] 2.3 Implement `canSetDocumentVisibility(userRole, userGroup)` helper function (Owner/Admin in Consulting group only)
-  - [ ] 2.4 Implement `canMoveUserBetweenGroups(userRole)` helper function (Owner/Admin only)
-  - [ ] 2.5 Implement `getDefaultDocumentVisibility(userGroup)` helper (Consulting → 'consulting_only', Client → 'both')
-  - [ ] 2.6 Update `useProjectPermissions` hook to include user's group and group-based checks
-  - [ ] 2.7 Add `getUserGroupInProject(userId, projectId)` function to projectService.js
-  - [ ] 2.8 Create comprehensive tests in groupPermissions.test.js
-  - [ ] 2.9 Update existing permissions.test.js to work with group-aware permissions
+- [x] 2.0 Implement group-based permission system
+  - [x] 2.1 Create `src/utils/groupPermissions.js` with GROUP constants ('consulting', 'client')
+  - [x] 2.2 Implement `canViewDocument(userGroup, documentVisibility)` helper function
+  - [x] 2.3 Implement `canSetDocumentVisibility(userRole, userGroup)` helper function (Owner/Admin in Consulting group only)
+  - [x] 2.4 Implement `canMoveUserBetweenGroups(userRole)` helper function (Owner/Admin only)
+  - [x] 2.5 Implement `getDefaultDocumentVisibility(userGroup)` helper (Consulting → 'consulting_only', Client → 'both')
+  - [x] 2.6 Update `useProjectPermissions` hook to include user's group and group-based checks
+  - [x] 2.7 Add `getUserGroupInProject(userId, projectId)` function to projectService.js
+  - [x] 2.8 Create comprehensive tests in groupPermissions.test.js
+  - [x] 2.9 Update existing permissions.test.js to work with group-aware permissions
 
 - [ ] 3.0 Update invitation system with group assignment
   - [ ] 3.1 Update `createInvitation()` in invitationService.js to accept and store group parameter
