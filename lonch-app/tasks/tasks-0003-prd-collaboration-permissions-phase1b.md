@@ -99,17 +99,17 @@
   - [x] 4.9 Update Home.jsx to show GroupBadge for projects where user is a member
   - [ ] 4.10 Create tests for Home.jsx group badge display
 
-- [ ] 5.0 Implement document visibility controls
+- [x] 5.0 Implement document visibility controls
   - [x] 5.1 Create DocumentVisibilityToggle.jsx component with three options (Consulting Only, Client Only, Both Groups)
   - [x] 5.2 Add visual indicators: lock icon for restricted visibility, globe for both groups
   - [x] 5.3 Create tests for DocumentVisibilityToggle in DocumentVisibilityToggle.test.jsx
-  - [ ] 5.4 Update ProjectDashboard.jsx to show DocumentVisibilityToggle for each document
-  - [ ] 5.5 Restrict visibility toggle to Owner/Admin in Consulting Group only
-  - [ ] 5.6 Filter document list based on user's group (hide documents user cannot see)
-  - [ ] 5.7 Set default visibility when uploading documents based on uploader's group
-  - [ ] 5.8 Add activity log when document visibility is changed
-  - [ ] 5.9 Update document upload handlers to include visibility field
-  - [ ] 5.10 Create tests for document visibility filtering in ProjectDashboard.test.jsx
+  - [x] 5.4 Update ProjectDashboard.jsx to show DocumentVisibilityToggle for each document
+  - [x] 5.5 Restrict visibility toggle to Owner/Admin in Consulting Group only
+  - [x] 5.6 Filter document list based on user's group (hide documents user cannot see)
+  - [x] 5.7 Set default visibility when uploading documents based on uploader's group
+  - [x] 5.8 Add activity log when document visibility is changed
+  - [x] 5.9 Update document upload handlers to include visibility field
+  - [x] 5.10 Create tests for document visibility filtering in DocumentList.test.jsx
 
 - [ ] 6.0 Enhance activity logs with group context
   - [ ] 6.1 Update all `logActivity()` calls to include groupContext parameter
