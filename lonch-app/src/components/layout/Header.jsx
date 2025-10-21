@@ -1,6 +1,7 @@
 import { useAuth } from '../../contexts/AuthContext';
 import lonchLogo from '../../assets/lonch_logo.svg';
 import UserProfileDropdown from './UserProfileDropdown';
+import NotificationBell from '../notifications/NotificationBell';
 
 const TAGLINE = 'Consultant project kickoff made simple';
 
@@ -15,8 +16,13 @@ export default function Header() {
             <img src={lonchLogo} alt="Lonch" className="h-14" />
             <p className="text-gray-600 text-sm font-medium">{TAGLINE}</p>
           </div>
-          {/* Task 4.8: Show user profile dropdown when authenticated */}
-          {currentUser && <UserProfileDropdown />}
+          {/* Notification Bell and User Profile */}
+          {currentUser && (
+            <div className="flex items-center gap-4">
+              <NotificationBell />
+              <UserProfileDropdown />
+            </div>
+          )}
         </div>
       </div>
     </header>
