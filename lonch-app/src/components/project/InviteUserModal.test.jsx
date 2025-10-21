@@ -4,12 +4,10 @@ import InviteUserModal from './InviteUserModal';
 import * as AuthContext from '../../contexts/AuthContext';
 import * as invitationService from '../../services/invitationService';
 import * as useProjectPermissions from '../../hooks/useProjectPermissions';
-import * as activityLogService from '../../services/activityLogService';
 
 vi.mock('../../contexts/AuthContext');
 vi.mock('../../services/invitationService');
 vi.mock('../../hooks/useProjectPermissions');
-vi.mock('../../services/activityLogService');
 
 describe('InviteUserModal', () => {
   const mockCurrentUser = { uid: 'owner123', email: 'owner@example.com' };

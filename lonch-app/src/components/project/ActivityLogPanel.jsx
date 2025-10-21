@@ -298,9 +298,8 @@ export default function ActivityLogPanel({ projectId }) {
             {hasActiveFilters ? 'No activities match your filters' : 'No activity yet'}
           </div>
         ) : (
-          activities.map((activity, index) => {
+          activities.map((activity) => {
             const user = userDetails[activity.userId];
-            const isLastItem = index === activities.length - 1;
 
             return (
               <div
