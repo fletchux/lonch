@@ -8,7 +8,7 @@ import InviteUserModal from '../project/InviteUserModal';
 import ActivityLogPanel from '../project/ActivityLogPanel';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 
-export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories }) {
+export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories, onNavigateSettings }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const permissions = useProjectPermissions(project?.id);
@@ -45,7 +45,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <Header />
+      <Header onNavigateSettings={onNavigateSettings} />
 
       <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">

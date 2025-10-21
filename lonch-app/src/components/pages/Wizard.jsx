@@ -6,7 +6,7 @@ import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import { mergeExtractedData, mapToProjectData } from '../../services/documentExtraction';
 
-export default function Wizard({ projectData, setProjectData, step, setStep, onCancel, onSave }) {
+export default function Wizard({ projectData, setProjectData, step, setStep, onCancel, onSave, onNavigateSettings }) {
   const handleNext = () => {
     if (step < 6) {
       setStep(step + 1);
@@ -44,7 +44,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <Header />
+      <Header onNavigateSettings={onNavigateSettings} />
 
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">

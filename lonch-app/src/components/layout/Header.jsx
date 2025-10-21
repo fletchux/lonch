@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import lonchLogo from '../../assets/lonch_logo.svg';
 import UserProfileDropdown from './UserProfileDropdown';
@@ -5,7 +6,7 @@ import NotificationBell from '../notifications/NotificationBell';
 
 const TAGLINE = 'Consultant project kickoff made simple';
 
-export default function Header() {
+export default function Header({ onNavigateSettings }) {
   const { currentUser } = useAuth();
 
   return (
@@ -20,7 +21,7 @@ export default function Header() {
           {currentUser && (
             <div className="flex items-center gap-4">
               <NotificationBell />
-              <UserProfileDropdown />
+              <UserProfileDropdown onNavigateSettings={onNavigateSettings} />
             </div>
           )}
         </div>
@@ -28,3 +29,7 @@ export default function Header() {
     </header>
   );
 }
+
+Header.propTypes = {
+  onNavigateSettings: PropTypes.func
+};

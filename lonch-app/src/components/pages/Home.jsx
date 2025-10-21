@@ -5,11 +5,11 @@ import Footer from '../layout/Footer';
 import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from '../project/GroupBadge';
 
-export default function Home({ projects, onNewProject, onSelectProject, onLogin, onSignup }) {
+export default function Home({ projects, onNewProject, onSelectProject, onLogin, onSignup, onNavigateSettings }) {
   const { currentUser } = useAuth();
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <Header />
+      <Header onNavigateSettings={onNavigateSettings} />
 
       <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">

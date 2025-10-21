@@ -11,6 +11,7 @@ import { logActivity } from './services/activityLogService';
 import Home from './components/pages/Home';
 import Wizard from './components/pages/Wizard';
 import ProjectDashboard from './components/pages/ProjectDashboard';
+import Settings from './components/pages/Settings';
 import SignupPage from './components/auth/SignupPage';
 import LoginPage from './components/auth/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -217,6 +218,7 @@ function AppContent() {
           onSelectProject={selectProject}
           onLogin={() => setView('login')}
           onSignup={() => setView('signup')}
+          onNavigateSettings={() => setView('settings')}
         />
       )}
       {/* Task 4.5: Add signup and login views */}
@@ -245,6 +247,7 @@ function AppContent() {
             setStep={setStep}
             onCancel={goHome}
             onSave={saveProject}
+            onNavigateSettings={() => setView('settings')}
           />
         </ProtectedRoute>
       )}
@@ -260,7 +263,17 @@ function AppContent() {
             onDeleteDocument={handleDeleteDocument}
             onUploadDocument={handleUploadDocument}
             onUpdateDocumentCategories={handleUpdateDocumentCategories}
+            onNavigateSettings={() => setView('settings')}
           />
+        </ProtectedRoute>
+      )}
+      {/* Settings page with notification preferences */}
+      {view === 'settings' && (
+        <ProtectedRoute
+          onSwitchToSignup={() => setView('signup')}
+          onLoginSuccess={() => setView('home')}
+        >
+          <Settings onNavigateHome={goHome} />
         </ProtectedRoute>
       )}
     </>
