@@ -15,6 +15,7 @@ import Settings from './components/pages/Settings';
 import SignupPage from './components/auth/SignupPage';
 import LoginPage from './components/auth/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import AcceptInviteLinkPage from './components/project/AcceptInviteLinkPage';
 
 // Separate component for app content so we can use useAuth
 function AppContent() {
@@ -23,6 +24,7 @@ function AppContent() {
   const [currentProject, setCurrentProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const [step, setStep] = useState(1);
+  const [inviteToken, setInviteToken] = useState(null);
   const [projectData, setProjectData] = useState({
     name: '',
     clientType: '',
@@ -35,6 +37,16 @@ function AppContent() {
     extractionConflicts: null, // Conflicts from multiple documents
     manuallyEditedFields: [] // Track which fields user has manually edited
   });
+
+  // Parse URL on mount to detect invite links
+  useEffect(() => {
+    const path = window.location.pathname;
+    const inviteMatch = path.match(/^\/invite\/(.+)$/);
+    if (inviteMatch) {
+      setInviteToken(inviteMatch[1]);
+      setView('acceptInvite');
+    }
+  }, []);
 
   // Task 5.13: Fetch all accessible projects from Firestore when user changes
   useEffect(() => {
@@ -275,6 +287,24 @@ function AppContent() {
         >
           <Settings onNavigateHome={goHome} />
         </ProtectedRoute>
+      )}
+      {/* Task 3.1: Accept invite link page */}
+      {view === 'acceptInvite' && inviteToken && (
+        <AcceptInviteLinkPage
+          token={inviteToken}
+          onAccepted={(projectId) => {
+            // Navigate to accepted project
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+              selectProject(project);
+            } else {
+              // If project not yet in list, go home and refetch
+              goHome();
+            }
+          }}
+          onNavigateToLogin={() => setView('login')}
+          onNavigateToHome={goHome}
+        />
       )}
     </>
   );

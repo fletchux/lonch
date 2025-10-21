@@ -80,20 +80,20 @@
   - [x] 2.10 Style modal with lonch branding (teal primary, gold accent)
   - [x] 2.11 Create tests for GenerateLinkModal in `src/components/project/GenerateLinkModal.test.jsx`
 
-- [ ] 3.0 Implement link acceptance flow and validation
-  - [ ] 3.1 Add route `/invite/:token` in `src/App.jsx` for link acceptance
-  - [ ] 3.2 Create `src/components/project/AcceptInviteLinkPage.jsx` page component
-  - [ ] 3.3 Implement authentication check (redirect to login/signup if not authenticated)
-  - [ ] 3.4 Fetch link details using inviteLinkService.getInviteLink(token)
-  - [ ] 3.5 Display project name, role badge, group badge, and creator name
-  - [ ] 3.6 Validate link status: check if expired, already used, or revoked
-  - [ ] 3.7 Show clear error messages for invalid link states
-  - [ ] 3.8 Implement "Accept Invitation" button handler calling inviteLinkService.acceptInviteLink()
-  - [ ] 3.9 Check if user is already a project member (show friendly message if so)
-  - [ ] 3.10 Redirect to project dashboard after successful acceptance
-  - [ ] 3.11 Add "Decline" link that redirects to home page
-  - [ ] 3.12 Style page with centered card layout and gradient background (consistent with login/signup)
-  - [ ] 3.13 Create tests for AcceptInviteLinkPage in `src/components/project/AcceptInviteLinkPage.test.jsx`
+- [x] 3.0 Implement link acceptance flow and validation
+  - [x] 3.1 Add route `/invite/:token` in `src/App.jsx` for link acceptance
+  - [x] 3.2 Create `src/components/project/AcceptInviteLinkPage.jsx` page component
+  - [x] 3.3 Implement authentication check (redirect to login/signup if not authenticated)
+  - [x] 3.4 Fetch link details using inviteLinkService.getInviteLink(token)
+  - [x] 3.5 Display project name, role badge, group badge, and creator name
+  - [x] 3.6 Validate link status: check if expired, already used, or revoked
+  - [x] 3.7 Show clear error messages for invalid link states
+  - [x] 3.8 Implement "Accept Invitation" button handler calling inviteLinkService.acceptInviteLink()
+  - [x] 3.9 Check if user is already a project member (show friendly message if so)
+  - [x] 3.10 Redirect to project dashboard after successful acceptance
+  - [x] 3.11 Add "Decline" link that redirects to home page
+  - [x] 3.12 Style page with centered card layout and gradient background (consistent with login/signup)
+  - [x] 3.13 Create tests for AcceptInviteLinkPage in `src/components/project/AcceptInviteLinkPage.test.jsx`
 
 - [ ] 4.0 Add Share Links management tab to ProjectMembersPanel
   - [ ] 4.1 Create `src/components/project/ShareLinksTab.jsx` component for link management
