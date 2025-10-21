@@ -3,6 +3,7 @@ import { Plus, LonchO, ChevronRight } from '../icons';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import RoleBadge from '../shared/RoleBadge';
+import GroupBadge from '../project/GroupBadge';
 
 export default function Home({ projects, onNewProject, onSelectProject, onLogin, onSignup }) {
   const { currentUser } = useAuth();
@@ -65,9 +66,14 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-bold text-gray-900 flex-1">{project.name}</h3>
-                  {project.userRole && project.userRole !== 'owner' && (
-                    <RoleBadge role={project.userRole} />
-                  )}
+                  <div className="flex gap-2">
+                    {project.userGroup && (
+                      <GroupBadge group={project.userGroup} />
+                    )}
+                    {project.userRole && project.userRole !== 'owner' && (
+                      <RoleBadge role={project.userRole} />
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">{project.clientType}</p>
                 <div className="flex items-center justify-between">
