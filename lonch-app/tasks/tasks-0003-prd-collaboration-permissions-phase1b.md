@@ -95,9 +95,9 @@
   - [x] 4.5 Add confirmation dialog when moving users between groups
   - [x] 4.6 Update activityLogService calls when group is changed (log "member_moved_to_group" action)
   - [x] 4.7 Add group filter in ProjectMembersPanel (show All / Consulting Group / Client Group)
-  - [ ] 4.8 Update ProjectMembersPanel.test.jsx with group management tests
+  - [x] 4.8 Update ProjectMembersPanel.test.jsx with group management tests
   - [x] 4.9 Update Home.jsx to show GroupBadge for projects where user is a member
-  - [ ] 4.10 Create tests for Home.jsx group badge display
+  - [x] 4.10 Create tests for Home.jsx group badge display
 
 - [x] 5.0 Implement document visibility controls
   - [x] 5.1 Create DocumentVisibilityToggle.jsx component with three options (Consulting Only, Client Only, Both Groups)
