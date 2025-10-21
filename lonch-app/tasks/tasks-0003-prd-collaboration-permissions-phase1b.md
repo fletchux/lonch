@@ -121,7 +121,7 @@
   - [x] 6.7 Create tests for group-aware activity logging in activityLogService.test.js
   - [x] 6.8 Update ActivityLogPanel.test.jsx with group filtering tests
 
-- [ ] 7.0 Build notification system with user preferences
+- [x] 7.0 Build notification system with user preferences ✅ COMPLETE
   - [x] 7.1 Create `src/services/notificationService.js` with Firestore operations
   - [x] 7.2 Implement `createNotification(userId, type, message, link)` function
   - [x] 7.3 Implement `getUserNotifications(userId, unreadOnly)` function with pagination
@@ -130,10 +130,10 @@
   - [x] 7.6 Implement `updateNotificationPreferences(userId, preferences)` function (email-only, in-app-only, both, none)
   - [x] 7.7 Create comprehensive tests in notificationService.test.js
   - [x] 7.8 Create NotificationPreferences.jsx component with preference toggles
-  - [ ] 7.9 Add notification triggers for: invitations, role changes, group changes, @mentions (future)
-  - [ ] 7.10 Create tests for NotificationPreferences in NotificationPreferences.test.jsx
-  - [ ] 7.11 Add notification center UI (bell icon with unread count badge)
-  - [ ] 7.12 Integrate notification preferences into user settings page
+  - [x] 7.9 Add notification triggers for: invitations, role changes, group changes, @mentions (future)
+  - [x] 7.10 Create tests for NotificationPreferences in NotificationPreferences.test.jsx
+  - [x] 7.11 Add notification center UI (bell icon with unread count badge)
+  - [x] 7.12 Integrate notification preferences into user settings page
 
 - [ ] 8.0 Comprehensive testing and validation
   - [ ] 8.1 Test group-based document visibility (Consulting member cannot see Client Only docs)
