@@ -122,14 +122,14 @@
   - [x] 6.8 Update ActivityLogPanel.test.jsx with group filtering tests
 
 - [ ] 7.0 Build notification system with user preferences
-  - [ ] 7.1 Create `src/services/notificationService.js` with Firestore operations
-  - [ ] 7.2 Implement `createNotification(userId, type, message, link)` function
-  - [ ] 7.3 Implement `getUserNotifications(userId, unreadOnly)` function with pagination
-  - [ ] 7.4 Implement `markNotificationAsRead(notificationId)` function
-  - [ ] 7.5 Implement `getUserNotificationPreferences(userId)` function
-  - [ ] 7.6 Implement `updateNotificationPreferences(userId, preferences)` function (email-only, in-app-only, both, none)
-  - [ ] 7.7 Create comprehensive tests in notificationService.test.js
-  - [ ] 7.8 Create NotificationPreferences.jsx component with preference toggles
+  - [x] 7.1 Create `src/services/notificationService.js` with Firestore operations
+  - [x] 7.2 Implement `createNotification(userId, type, message, link)` function
+  - [x] 7.3 Implement `getUserNotifications(userId, unreadOnly)` function with pagination
+  - [x] 7.4 Implement `markNotificationAsRead(notificationId)` function
+  - [x] 7.5 Implement `getUserNotificationPreferences(userId)` function
+  - [x] 7.6 Implement `updateNotificationPreferences(userId, preferences)` function (email-only, in-app-only, both, none)
+  - [x] 7.7 Create comprehensive tests in notificationService.test.js
+  - [x] 7.8 Create NotificationPreferences.jsx component with preference toggles
   - [ ] 7.9 Add notification triggers for: invitations, role changes, group changes, @mentions (future)
   - [ ] 7.10 Create tests for NotificationPreferences in NotificationPreferences.test.jsx
   - [ ] 7.11 Add notification center UI (bell icon with unread count badge)
