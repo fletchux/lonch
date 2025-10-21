@@ -26,6 +26,7 @@ import {
  *   action: string (e.g., 'document_uploaded', 'member_invited', 'role_changed'),
  *   resourceType: string (e.g., 'document', 'member', 'project'),
  *   resourceId: string (ID of the resource affected),
+ *   groupContext: 'consulting' | 'client' | null (group context for the action),
  *   metadata: object (additional context-specific data),
  *   timestamp: Firestore timestamp
  * }
@@ -49,9 +50,10 @@ import {
  * @param {string} resourceType - Type of resource affected (e.g., 'document', 'member')
  * @param {string} resourceId - ID of the affected resource
  * @param {Object} metadata - Additional context data (optional)
+ * @param {string|null} groupContext - Group context for the action ('consulting' | 'client' | null)
  * @returns {Promise<Object>} The created activity log document
  */
-export async function logActivity(projectId, userId, action, resourceType, resourceId, metadata = {}) {
+export async function logActivity(projectId, userId, action, resourceType, resourceId, metadata = {}, groupContext = null) {
   try {
     const activityLogsRef = collection(db, 'activityLogs');
 
@@ -61,6 +63,7 @@ export async function logActivity(projectId, userId, action, resourceType, resou
       action,
       resourceType,
       resourceId,
+      groupContext,
       metadata,
       timestamp: serverTimestamp()
     };

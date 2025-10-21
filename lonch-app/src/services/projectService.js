@@ -46,6 +46,7 @@ import {
  *   projectId: string,
  *   userId: string,
  *   role: 'owner' | 'admin' | 'editor' | 'viewer',
+ *   group: 'consulting' | 'client',
  *   invitedBy: string (userId of inviter),
  *   joinedAt: timestamp,
  *   lastActiveAt: timestamp
@@ -186,9 +187,10 @@ export async function deleteProject(projectId) {
  * @param {string} userId - User ID to add as member
  * @param {string} role - Role to assign ('owner' | 'admin' | 'editor' | 'viewer')
  * @param {string} invitedBy - User ID of the person who invited this member
+ * @param {string} group - Group to assign ('consulting' | 'client'), defaults to 'consulting'
  * @returns {Promise<Object>} The created project member document
  */
-export async function addProjectMember(projectId, userId, role, invitedBy) {
+export async function addProjectMember(projectId, userId, role, invitedBy, group = 'consulting') {
   try {
     const memberId = `${projectId}_${userId}`;
     const memberRef = doc(db, 'projectMembers', memberId);
@@ -198,6 +200,7 @@ export async function addProjectMember(projectId, userId, role, invitedBy) {
       projectId,
       userId,
       role,
+      group,
       invitedBy,
       joinedAt: serverTimestamp(),
       lastActiveAt: serverTimestamp()
@@ -333,5 +336,50 @@ export async function getUserRoleInProject(userId, projectId) {
   } catch (error) {
     console.error('Error getting user role in project:', error);
     throw new Error(`Failed to get user role in project: ${error.message}`);
+  }
+}
+
+/**
+ * Get user's group in a project
+ * @param {string} userId - User ID
+ * @param {string} projectId - Project ID
+ * @returns {Promise<string|null>} User's group ('consulting' | 'client') or null if not a member
+ */
+export async function getUserGroupInProject(userId, projectId) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+    const memberDoc = await getDoc(memberRef);
+
+    if (!memberDoc.exists()) {
+      return null;
+    }
+
+    return memberDoc.data().group || 'consulting'; // Default to 'consulting' for backwards compatibility
+  } catch (error) {
+    console.error('Error getting user group in project:', error);
+    throw new Error(`Failed to get user group in project: ${error.message}`);
+  }
+}
+
+/**
+ * Update a member's group in a project
+ * @param {string} projectId - Project ID
+ * @param {string} userId - User ID whose group to update
+ * @param {string} newGroup - New group to assign ('consulting' | 'client')
+ * @returns {Promise<void>}
+ */
+export async function updateMemberGroup(projectId, userId, newGroup) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+
+    await updateDoc(memberRef, {
+      group: newGroup,
+      lastActiveAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating member group:', error);
+    throw new Error(`Failed to update member group: ${error.message}`);
   }
 }

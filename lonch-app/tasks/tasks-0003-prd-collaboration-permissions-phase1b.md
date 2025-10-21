@@ -56,10 +56,10 @@
 ## Tasks
 
 - [ ] 1.0 Extend database schema for dual-group architecture
-  - [ ] 1.1 Add `group` field ('consulting' | 'client') to projectMembers collection schema
-  - [ ] 1.2 Update `addProjectMember()` function in projectService.js to accept group parameter
-  - [ ] 1.3 Add `group` field to invitation schema in invitationService.js
-  - [ ] 1.4 Add `groupContext` field to activityLog schema in activityLogService.js
+  - [x] 1.1 Add `group` field ('consulting' | 'client') to projectMembers collection schema
+  - [x] 1.2 Update `addProjectMember()` function in projectService.js to accept group parameter
+  - [x] 1.3 Add `group` field to invitation schema in invitationService.js
+  - [x] 1.4 Add `groupContext` field to activityLog schema in activityLogService.js
   - [ ] 1.5 Add `visibility` field ('consulting_only' | 'client_only' | 'both') to document schema
   - [ ] 1.6 Create migration helper to add group='consulting' to existing project members (backwards compatibility)
   - [ ] 1.7 Update Firestore security rules to enforce group-based document visibility
