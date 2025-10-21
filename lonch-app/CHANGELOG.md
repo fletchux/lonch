@@ -2,6 +2,50 @@
 
 ## [Unreleased]
 
+### Added - 2025-10-20
+- **Document Visibility Controls (Phase 1B - Task 5.0)**
+  - DocumentVisibilityToggle component with three visibility levels:
+    - 🔒 Consulting Only - visible to consulting group members only
+    - 🔒 Client Only - visible to client group members only
+    - 🌐 Both Groups - visible to all project members
+  - Color-coded visibility indicators (teal for consulting, gold for client, gray for both)
+  - Group-based document filtering - users only see documents their group can access
+  - Permission-based visibility control - only Owner/Admin in Consulting Group can change visibility
+  - Default visibility based on uploader's group (Consulting→consulting_only, Client→both)
+  - Activity logging for all visibility changes (document_visibility_changed action)
+  - DocumentVisibilityToggle integrated into DocumentList with permission checks
+  - Comprehensive test coverage (28 DocumentList tests, 15 DocumentUpload tests, 13 visibility toggle tests)
+
+- **Group Management UI Components (Phase 1B - Task 4.0)**
+  - GroupBadge component displaying user's group (Consulting=Teal, Client=Gold)
+  - Group badges shown in ProjectMembersPanel next to each member
+  - Group badges displayed on Home page for member projects
+  - Move to Group functionality for Owner/Admin to change member groups
+  - Confirmation dialog when moving users between groups
+  - Group filter in ProjectMembersPanel (All / Consulting / Client)
+  - Activity logging for group changes (member_moved_to_group action)
+
+### Technical Details - 2025-10-20
+- Branch: `feature/collaboration-phase1b`
+- Phase 1B Progress: 47/72 sub-tasks complete (65%)
+- Parent Tasks Complete: 5/8 (Tasks 1.0-5.0)
+- Files added:
+  - src/components/project/DocumentVisibilityToggle.jsx
+  - src/components/project/DocumentVisibilityToggle.test.jsx
+  - src/components/project/GroupBadge.jsx
+  - src/components/project/GroupBadge.test.jsx
+- Files modified:
+  - src/components/DocumentList.jsx (+76 lines: visibility integration, filtering)
+  - src/components/DocumentList.test.jsx (+298 lines: 11 new visibility tests)
+  - src/components/DocumentUpload.jsx (+11 lines: default visibility)
+  - src/components/DocumentUpload.test.jsx (+14 lines: visibility mocks)
+  - src/components/pages/ProjectDashboard.jsx (added projectId prop)
+  - src/components/pages/Home.jsx (added GroupBadge display)
+  - src/components/project/ProjectMembersPanel.jsx (+121 lines: group management)
+  - tasks/tasks-0003-prd-collaboration-permissions-phase1b.md (progress tracking)
+- Tests: 405/418 passing (97%)
+- Build: Successful (914KB main bundle)
+
 ### Added - 2025-10-15
 - **Document Management with AI Extraction**
   - Document upload with drag-and-drop or file picker

@@ -2,6 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DocumentUpload from './DocumentUpload';
+import { VISIBILITY, GROUP } from '../utils/groupPermissions';
+
+// Mock useProjectPermissions hook
+vi.mock('../hooks/useProjectPermissions', () => ({
+  useProjectPermissions: vi.fn(() => ({
+    group: GROUP.CONSULTING,
+    canViewDocument: vi.fn(() => true),
+    canSetDocumentVisibility: vi.fn(() => true),
+    canInvite: true
+  }))
+}));
 
 describe('DocumentUpload Component', () => {
   const mockOnFilesSelected = vi.fn();
@@ -57,7 +68,8 @@ describe('DocumentUpload Component', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'test.pdf',
-          category: 'other'
+          category: 'other',
+          visibility: VISIBILITY.CONSULTING_ONLY // Default for consulting group
         })
       ])
     );

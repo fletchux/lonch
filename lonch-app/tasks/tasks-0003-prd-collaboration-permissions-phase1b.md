@@ -1,158 +1,160 @@
 # Task List: Collaboration & Permissions - Phase 1B (Dual-Group Architecture)
 
 **Based on PRD:** `0003-prd-collaboration-permissions.md`
-**Feature:** Collaboration & Permissions - Phase 1B (Full Dual-Group System)
+**Feature:** Collaboration & Permissions - Phase 1B (Dual-Group Architecture)
 **Status:** 📋 Not Started
 
-**Phase 1B Scope:** Add Consulting Group vs Client Group distinction with group-based data visibility, enhanced activity logs with group context, notification preferences, and share links with group/role embedded.
+**Phase 1B Scope:** Add Consulting Group vs Client Group distinction with group-based data visibility, group assignment in invitations, enhanced activity logs with group context, and notification preferences.
 
-**Builds on:** Phase 1A (Basic role-based permissions) - COMPLETED
+**Builds Upon:** Phase 1A (Core Permissions MVP) - completed and merged
 
 ---
 
 ## Relevant Files
 
-### Files to Create
-- `src/components/shared/GroupBadge.jsx` - Visual badge component for group indicators (Consulting/Client)
-- `src/components/shared/GroupBadge.test.jsx` - Unit tests for group badge
-- `src/components/project/DocumentVisibilityControl.jsx` - Component to set document visibility (Consulting Only/Client Only/Both)
-- `src/components/project/DocumentVisibilityControl.test.jsx` - Unit tests for visibility control
-- `src/components/user/NotificationPreferences.jsx` - User settings for notification preferences
-- `src/components/user/NotificationPreferences.test.jsx` - Unit tests for notification preferences
-- `src/services/notificationService.js` - Notification management (in-app + email)
+### New Files to Create
+- `src/components/project/DocumentVisibilityToggle.jsx` - Toggle component for document visibility settings (Consulting Only/Client Only/Both Groups)
+- `src/components/project/DocumentVisibilityToggle.test.jsx` - Unit tests for visibility toggle
+- `src/components/project/GroupBadge.jsx` - Visual badge component for user group (Consulting/Client)
+- `src/components/project/GroupBadge.test.jsx` - Unit tests for group badge
+- `src/components/settings/NotificationPreferences.jsx` - User notification preferences UI
+- `src/components/settings/NotificationPreferences.test.jsx` - Unit tests for notification preferences
+- `src/services/notificationService.js` - Notification management (in-app and email)
 - `src/services/notificationService.test.js` - Unit tests for notification service
-- `src/services/shareLinkService.js` - Generate and validate share links with embedded group/role
-- `src/services/shareLinkService.test.js` - Unit tests for share link service
-- `src/hooks/useGroupVisibility.js` - Custom hook to filter data by user's group
-- `src/hooks/useGroupVisibility.test.js` - Unit tests for group visibility hook
+- `src/utils/groupPermissions.js` - Group-based permission helpers
+- `src/utils/groupPermissions.test.js` - Unit tests for group permissions
 
 ### Files to Modify
-- `src/services/projectService.js` - Add group field to projectMembers, visibility filtering
-- `src/services/projectService.test.js` - Add tests for group-based queries
-- `src/services/invitationService.js` - Add group assignment to invitations
-- `src/services/invitationService.test.js` - Add tests for group-based invitations
-- `src/services/activityLogService.js` - Add group context to activity logs
-- `src/services/activityLogService.test.js` - Add tests for group-filtered logs
-- `src/utils/permissions.js` - Add group-aware permission helpers
-- `src/utils/permissions.test.js` - Add tests for group permissions
-- `src/components/project/ProjectMembersPanel.jsx` - Display group badges, filter by group
+- `src/services/projectService.js` - Add group field to projectMember schema, group-aware queries
+- `src/services/projectService.test.js` - Add tests for group-aware functionality
+- `src/services/invitationService.js` - Add group field to invitations
+- `src/services/invitationService.test.js` - Add tests for group invitations
+- `src/services/activityLogService.js` - Add groupContext field to activity logs
+- `src/services/activityLogService.test.js` - Add tests for group-aware logging
 - `src/components/project/InviteUserModal.jsx` - Add group selection dropdown
-- `src/components/project/ActivityLogPanel.jsx` - Show group context in activities
-- `src/components/pages/ProjectDashboard.jsx` - Update to filter content by user's group
-- `src/components/shared/RoleBadge.jsx` - May need updates to work alongside GroupBadge
-- `firestore.rules` - Update security rules to enforce group-based visibility
+- `src/components/project/InviteUserModal.test.jsx` - Add tests for group selection
+- `src/components/project/ProjectMembersPanel.jsx` - Display group badges, add group change functionality
+- `src/components/project/ProjectMembersPanel.test.jsx` - Add tests for group management
+- `src/components/project/ActivityLogPanel.jsx` - Add group context to activity entries, group filtering
+- `src/components/project/ActivityLogPanel.test.jsx` - Add tests for group filtering
+- `src/components/pages/ProjectDashboard.jsx` - Implement group-based document visibility
+- `src/components/pages/Home.jsx` - Show group badges for member projects
+- `src/utils/permissions.js` - Add group-aware permission checks
+- `src/utils/permissions.test.js` - Add tests for group permissions
+- `firestore.rules` - Add group-based security rules for document visibility
 
 ### Notes
-- Phase 1A must be complete before starting Phase 1B
-- Firebase Firestore and Auth already integrated
-- Follow existing service and component patterns from Phase 1A
+
+- Unit tests should be placed alongside the code files they are testing
 - Use `npm test` to run all tests with Vitest
+- Phase 1A foundation provides: roles (Owner/Admin/Editor/Viewer), invitation system, activity logs, members UI
+- Phase 1B adds the group layer on top of existing role-based permissions
+- Groups are hardcoded: "consulting" and "client" (no dynamic group creation)
 
 ---
 
 ## Tasks
 
-- [ ] 1.0 Add group field to database schema and update core services
-  - [ ] 1.1 Update Firestore `projectMembers` schema to include `group` field ('consulting' | 'client')
-  - [ ] 1.2 Create group constants in `src/utils/permissions.js` (GROUP_CONSULTING, GROUP_CLIENT)
-  - [ ] 1.3 Update `src/services/projectService.js` - modify `addProjectMember()` to accept group parameter
-  - [ ] 1.4 Update `src/services/projectService.js` - add `getProjectMembersByGroup(projectId, group)` function
-  - [ ] 1.5 Update `src/services/projectService.js` - add `updateMemberGroup(projectId, userId, newGroup)` function
-  - [ ] 1.6 Update `src/services/activityLogService.js` - add `groupContext` field to activity log schema
-  - [ ] 1.7 Update `src/services/activityLogService.js` - modify `logActivity()` to accept optional groupContext parameter
-  - [ ] 1.8 Update `src/services/activityLogService.js` - add `getActivityLogByGroup(projectId, group)` filter function
-  - [ ] 1.9 Update Firestore security rules to enforce group-based read access on documents
-  - [ ] 1.10 Add migration logic to assign existing Phase 1A members to 'consulting' group by default
-  - [ ] 1.11 Create tests in `src/services/projectService.test.js` for all group-related functions
-  - [ ] 1.12 Create tests in `src/services/activityLogService.test.js` for group context logging
+- [x] 1.0 Extend database schema for dual-group architecture
+  - [x] 1.1 Add `group` field ('consulting' | 'client') to projectMembers collection schema
+  - [x] 1.2 Update `addProjectMember()` function in projectService.js to accept group parameter
+  - [x] 1.3 Add `group` field to invitation schema in invitationService.js
+  - [x] 1.4 Add `groupContext` field to activityLog schema in activityLogService.js
+  - [x] 1.5 Add `visibility` field ('consulting_only' | 'client_only' | 'both') to document schema
+  - [x] 1.6 Create migration helper to add group='consulting' to existing project members (backwards compatibility)
+  - [x] 1.7 Update Firestore security rules to enforce group-based document visibility
+  - [x] 1.8 Create comprehensive tests in projectService.test.js for group-aware functions
+  - [x] 1.9 Create comprehensive tests in invitationService.test.js for group invitations
 
-- [ ] 2.0 Implement document visibility system with group-based filtering
-  - [ ] 2.1 Update project document schema to add `visibility` field ('consulting_only' | 'client_only' | 'both')
-  - [ ] 2.2 Create `src/utils/documentVisibility.js` with visibility constants and helper functions
-  - [ ] 2.3 Implement `canUserViewDocument(userGroup, documentVisibility)` helper function
-  - [ ] 2.4 Implement `getDefaultVisibility(userGroup)` helper (consulting → 'consulting_only', client → 'both')
-  - [ ] 2.5 Update `src/services/projectService.js` - add `filterDocumentsByVisibility(documents, userGroup)` function
-  - [ ] 2.6 Create `src/components/project/DocumentVisibilityControl.jsx` - dropdown/radio component for visibility selection
-  - [ ] 2.7 Add visibility icons/badges in DocumentVisibilityControl (lock icon for restricted, globe for both)
-  - [ ] 2.8 Create tests for DocumentVisibilityControl in `src/components/project/DocumentVisibilityControl.test.jsx`
-  - [ ] 2.9 Create tests in `src/utils/documentVisibility.test.js` for all helper functions
-  - [ ] 2.10 Update document upload flows to set visibility based on user's group (default values)
-  - [ ] 2.11 Update document display lists to filter by user's group visibility
+- [x] 2.0 Implement group-based permission system
+  - [x] 2.1 Create `src/utils/groupPermissions.js` with GROUP constants ('consulting', 'client')
+  - [x] 2.2 Implement `canViewDocument(userGroup, documentVisibility)` helper function
+  - [x] 2.3 Implement `canSetDocumentVisibility(userRole, userGroup)` helper function (Owner/Admin in Consulting group only)
+  - [x] 2.4 Implement `canMoveUserBetweenGroups(userRole)` helper function (Owner/Admin only)
+  - [x] 2.5 Implement `getDefaultDocumentVisibility(userGroup)` helper (Consulting → 'consulting_only', Client → 'both')
+  - [x] 2.6 Update `useProjectPermissions` hook to include user's group and group-based checks
+  - [x] 2.7 Add `getUserGroupInProject(userId, projectId)` function to projectService.js
+  - [x] 2.8 Create comprehensive tests in groupPermissions.test.js
+  - [x] 2.9 Update existing permissions.test.js to work with group-aware permissions
 
-- [ ] 3.0 Enhance invitation system with group assignment
-  - [ ] 3.1 Update `invitations` Firestore schema to include `group` field ('consulting' | 'client')
-  - [ ] 3.2 Update `src/services/invitationService.js` - modify `createInvitation()` to accept group parameter (required)
-  - [ ] 3.3 Update `src/services/invitationService.js` - modify `acceptInvitation()` to assign user to specified group
-  - [ ] 3.4 Add validation in `createInvitation()` to ensure group is either 'consulting' or 'client'
-  - [ ] 3.5 Update invitation email template to mention which group user is being invited to
-  - [ ] 3.6 Create tests in `src/services/invitationService.test.js` for group-based invitation flows
-  - [ ] 3.7 Add test cases for invalid group values (should reject)
-  - [ ] 3.8 Add test case for user accepting invitation and being assigned to correct group
+- [x] 3.0 Update invitation system with group assignment
+  - [x] 3.1 Update `createInvitation()` in invitationService.js to accept and store group parameter
+  - [x] 3.2 Update InviteUserModal.jsx to add group selection dropdown (Consulting Group / Client Group)
+  - [x] 3.3 Add group validation: only Owner/Admin can invite to Consulting Group
+  - [x] 3.4 Update email/notification templates to mention which group user is being invited to
+  - [x] 3.5 Update `acceptInvitation()` to add user with specified group
+  - [x] 3.6 Add group badge display in InviteUserModal showing target group
+  - [x] 3.7 Update InviteUserModal.test.jsx with group selection tests
+  - [x] 3.8 Update invitationService.test.js with group invitation tests
 
-- [ ] 4.0 Build group-aware UI components and update existing components
-  - [ ] 4.1 Create `src/components/shared/GroupBadge.jsx` - display group with color coding (Consulting=teal, Client=gold)
-  - [ ] 4.2 Add icon support to GroupBadge (briefcase for consulting, user for client)
-  - [ ] 4.3 Create tests for GroupBadge in `src/components/shared/GroupBadge.test.jsx`
-  - [ ] 4.4 Create `src/hooks/useGroupVisibility.js` - custom hook to get user's group and filter data
-  - [ ] 4.5 Implement `useGroupVisibility()` to fetch current user's group for a project
-  - [ ] 4.6 Implement filtering functions in useGroupVisibility for documents and activity logs
-  - [ ] 4.7 Create tests for useGroupVisibility in `src/hooks/useGroupVisibility.test.js`
-  - [ ] 4.8 Update `src/components/project/ProjectMembersPanel.jsx` - add GroupBadge next to each member's RoleBadge
-  - [ ] 4.9 Update ProjectMembersPanel - add group filter dropdown (All/Consulting/Client)
-  - [ ] 4.10 Update ProjectMembersPanel - add "Change Group" option for Owner/Admin (with confirmation)
-  - [ ] 4.11 Update `src/components/project/InviteUserModal.jsx` - add group selection dropdown (required field)
-  - [ ] 4.12 Add group selection validation in InviteUserModal (cannot submit without selecting group)
-  - [ ] 4.13 Update InviteUserModal to show group color preview next to selection
-  - [ ] 4.14 Update `src/components/project/ActivityLogPanel.jsx` - display group context badge on each activity
-  - [ ] 4.15 Update ActivityLogPanel - add group filter (show only activities from user's group or visible to them)
-  - [ ] 4.16 Update `src/components/pages/ProjectDashboard.jsx` - use useGroupVisibility to filter visible documents
-  - [ ] 4.17 Update ProjectDashboard - add group indicator showing current user's group in the project
-  - [ ] 4.18 Update all modified component tests to include group-related scenarios
+- [x] 4.0 Build group management UI components
+  - [x] 4.1 Create `src/components/project/GroupBadge.jsx` component (Consulting=Teal, Client=Gold)
+  - [x] 4.2 Create tests for GroupBadge in GroupBadge.test.jsx
+  - [x] 4.3 Update ProjectMembersPanel.jsx to display GroupBadge next to each member
+  - [x] 4.4 Add "Move to Group" dropdown for Owner/Admin to change member groups
+  - [x] 4.5 Add confirmation dialog when moving users between groups
+  - [x] 4.6 Update activityLogService calls when group is changed (log "member_moved_to_group" action)
+  - [x] 4.7 Add group filter in ProjectMembersPanel (show All / Consulting Group / Client Group)
+  - [ ] 4.8 Update ProjectMembersPanel.test.jsx with group management tests
+  - [x] 4.9 Update Home.jsx to show GroupBadge for projects where user is a member
+  - [ ] 4.10 Create tests for Home.jsx group badge display
 
-- [ ] 5.0 Implement notification preferences and in-app notification center
-  - [ ] 5.1 Create `userNotifications` Firestore collection with schema (userId, notificationId, type, message, link, read, createdAt)
-  - [ ] 5.2 Create `notificationPreferences` subcollection under users (email, inApp, preferences object)
-  - [ ] 5.3 Create `src/services/notificationService.js` with Firestore operations
-  - [ ] 5.4 Implement `createNotification(userId, type, message, link)` function
-  - [ ] 5.5 Implement `getUserNotifications(userId, limit)` function with pagination
-  - [ ] 5.6 Implement `markNotificationAsRead(notificationId)` function
-  - [ ] 5.7 Implement `markAllAsRead(userId)` function
-  - [ ] 5.8 Implement `getNotificationPreferences(userId)` function
-  - [ ] 5.9 Implement `updateNotificationPreferences(userId, preferences)` function
-  - [ ] 5.10 Create `src/components/user/NotificationPreferences.jsx` - settings page for notification preferences
-  - [ ] 5.11 Add preference toggles: email notifications, in-app notifications, notification types (invites, mentions, updates)
-  - [ ] 5.12 Create tests for NotificationPreferences in `src/components/user/NotificationPreferences.test.jsx`
-  - [ ] 5.13 Create `src/components/shared/NotificationCenter.jsx` - bell icon with badge showing unread count
-  - [ ] 5.14 Implement notification dropdown panel with list of recent notifications
-  - [ ] 5.15 Add "Mark all as read" button in NotificationCenter
-  - [ ] 5.16 Add real-time listener for new notifications (Firestore onSnapshot)
-  - [ ] 5.17 Integrate NotificationCenter into App.jsx header/navbar
-  - [ ] 5.18 Add notification triggers: send notification on invitation, role change, group change, @mention
-  - [ ] 5.19 Add email notification integration placeholder (Firebase Extensions or SendGrid)
-  - [ ] 5.20 Create comprehensive tests in `src/services/notificationService.test.js`
+- [x] 5.0 Implement document visibility controls
+  - [x] 5.1 Create DocumentVisibilityToggle.jsx component with three options (Consulting Only, Client Only, Both Groups)
+  - [x] 5.2 Add visual indicators: lock icon for restricted visibility, globe for both groups
+  - [x] 5.3 Create tests for DocumentVisibilityToggle in DocumentVisibilityToggle.test.jsx
+  - [x] 5.4 Update ProjectDashboard.jsx to show DocumentVisibilityToggle for each document
+  - [x] 5.5 Restrict visibility toggle to Owner/Admin in Consulting Group only
+  - [x] 5.6 Filter document list based on user's group (hide documents user cannot see)
+  - [x] 5.7 Set default visibility when uploading documents based on uploader's group
+  - [x] 5.8 Add activity log when document visibility is changed
+  - [x] 5.9 Update document upload handlers to include visibility field
+  - [x] 5.10 Create tests for document visibility filtering in DocumentList.test.jsx
 
-- [ ] 6.0 Create share link system with embedded group and role information
-  - [ ] 6.1 Create `shareLinks` Firestore collection with schema (linkId, projectId, group, role, token, createdBy, expiresAt, maxUses, usedCount)
-  - [ ] 6.2 Create `src/services/shareLinkService.js` with Firestore operations
-  - [ ] 6.3 Implement `createShareLink(projectId, group, role, expiresInDays, maxUses)` function - generate unique token
-  - [ ] 6.4 Implement `getShareLink(token)` function to retrieve link details
-  - [ ] 6.5 Implement `validateShareLink(token)` function - check expiration and usage limits
-  - [ ] 6.6 Implement `acceptShareLink(token, userId)` function - add user to project with specified group/role
-  - [ ] 6.7 Implement `revokeShareLink(linkId)` function - mark link as revoked
-  - [ ] 6.8 Implement `getProjectShareLinks(projectId)` function - list all active share links
-  - [ ] 6.9 Create share link acceptance page/route to handle `/invite/:token` URLs
-  - [ ] 6.10 Add share link UI to InviteUserModal - toggle between email invite and share link
-  - [ ] 6.11 Display generated share link in modal with copy-to-clipboard button
-  - [ ] 6.12 Add share link management section in ProjectMembersPanel (Owner/Admin only)
-  - [ ] 6.13 Show list of active share links with group, role, expiration, usage count
-  - [ ] 6.14 Add "Revoke" button for each share link
-  - [ ] 6.15 Create comprehensive tests in `src/services/shareLinkService.test.js`
-  - [ ] 6.16 Create tests for share link acceptance flow
+- [ ] 6.0 Enhance activity logs with group context
+  - [ ] 6.1 Update all `logActivity()` calls to include groupContext parameter
+  - [ ] 6.2 Add groupContext to activity log display in ActivityLogPanel.jsx
+  - [ ] 6.3 Add group filter dropdown in ActivityLogPanel (All Groups / Consulting / Client)
+  - [ ] 6.4 Filter activity log entries based on user's group visibility
+  - [ ] 6.5 Show group badge in activity log entries where relevant
+  - [ ] 6.6 Update activity descriptions to mention group context (e.g., "invited to Consulting Group")
+  - [ ] 6.7 Create tests for group-aware activity logging in activityLogService.test.js
+  - [ ] 6.8 Update ActivityLogPanel.test.jsx with group filtering tests
+
+- [ ] 7.0 Build notification system with user preferences
+  - [ ] 7.1 Create `src/services/notificationService.js` with Firestore operations
+  - [ ] 7.2 Implement `createNotification(userId, type, message, link)` function
+  - [ ] 7.3 Implement `getUserNotifications(userId, unreadOnly)` function with pagination
+  - [ ] 7.4 Implement `markNotificationAsRead(notificationId)` function
+  - [ ] 7.5 Implement `getUserNotificationPreferences(userId)` function
+  - [ ] 7.6 Implement `updateNotificationPreferences(userId, preferences)` function (email-only, in-app-only, both, none)
+  - [ ] 7.7 Create comprehensive tests in notificationService.test.js
+  - [ ] 7.8 Create NotificationPreferences.jsx component with preference toggles
+  - [ ] 7.9 Add notification triggers for: invitations, role changes, group changes, @mentions (future)
+  - [ ] 7.10 Create tests for NotificationPreferences in NotificationPreferences.test.jsx
+  - [ ] 7.11 Add notification center UI (bell icon with unread count badge)
+  - [ ] 7.12 Integrate notification preferences into user settings page
+
+- [ ] 8.0 Comprehensive testing and validation
+  - [ ] 8.1 Test group-based document visibility (Consulting member cannot see Client Only docs)
+  - [ ] 8.2 Test group-based invitation flow (invite to Consulting vs Client group)
+  - [ ] 8.3 Test moving members between groups and verify permission changes
+  - [ ] 8.4 Test activity log group filtering and visibility
+  - [ ] 8.5 Test notification preferences (email vs in-app)
+  - [ ] 8.6 Verify Firestore security rules enforce group-based access
+  - [ ] 8.7 Test edge case: Owner can see all documents regardless of group visibility
+  - [ ] 8.8 Test default visibility settings when uploading documents
+  - [ ] 8.9 Verify all tests pass (target: 100% pass rate)
+  - [ ] 8.10 Run build and verify no errors
+  - [ ] 8.11 Run ESLint and fix any issues
+  - [ ] 8.12 Update CHANGELOG.md with Phase 1B changes
 
 ---
 
-**Phase 2 Complete:** Sub-tasks generated for all parent tasks.
-
-**Total Sub-Tasks:** 73
+**Phase 1B Breakdown:**
+- 8 parent tasks
+- 72 sub-tasks total
+- Builds directly on Phase 1A foundation
+- Adds dual-group architecture with document visibility controls
 
 **Next Step:** Follow `process-task-list.md` workflow - create feature branch, implement one sub-task at a time, mark completed, commit after each parent task completion.

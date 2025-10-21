@@ -4,6 +4,7 @@ import { createInvitation } from '../../services/invitationService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { getRoleDisplayName } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 import { logActivity } from '../../services/activityLogService';
 
 export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess }) {
@@ -11,6 +12,7 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
   const permissions = useProjectPermissions(projectId);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('viewer');
+  const [group, setGroup] = useState(GROUP.CLIENT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [inviteLink, setInviteLink] = useState(null);
@@ -38,6 +40,13 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
       return;
     }
 
+    // Validate group permissions (Task 3.3)
+    // Only Owner/Admin can invite to Consulting Group
+    if (group === GROUP.CONSULTING && !permissions.canMoveUserBetweenGroups()) {
+      setError('Only Owner and Admin can invite users to the Consulting Group');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -46,7 +55,8 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
         projectId,
         email,
         role,
-        currentUser.uid
+        currentUser.uid,
+        group
       );
 
       // Log the activity
@@ -60,8 +70,10 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
           {
             invitedEmail: email,
             invitedRole: role,
+            invitedGroup: group,
             invitationId: invitation.id
-          }
+          },
+          group
         );
       } catch (logError) {
         console.error('Failed to log activity:', logError);
@@ -87,9 +99,14 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
   function handleClose() {
     setEmail('');
     setRole('viewer');
+    setGroup(GROUP.CLIENT);
     setError(null);
     setInviteLink(null);
     onClose();
+  }
+
+  function getGroupDisplayName(groupValue) {
+    return groupValue === GROUP.CONSULTING ? 'Consulting Group' : 'Client Group';
   }
 
   function copyInviteLink() {
@@ -107,7 +124,7 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
           <>
             <h3 className="text-lg font-semibold mb-4">Invitation Sent!</h3>
             <p className="text-gray-600 mb-4">
-              Invitation sent to <strong>{email}</strong> as <strong>{getRoleDisplayName(role)}</strong>.
+              Invitation sent to <strong>{email}</strong> as <strong>{getRoleDisplayName(role)}</strong> in the <strong>{getGroupDisplayName(group)}</strong>.
             </p>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -178,6 +195,28 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label htmlFor="group" className="block text-sm font-medium text-gray-700 mb-2">
+                  Group
+                </label>
+                <select
+                  id="group"
+                  value={group}
+                  onChange={(e) => setGroup(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  disabled={loading}
+                  data-testid="group-select"
+                >
+                  <option value={GROUP.CLIENT}>Client Group</option>
+                  <option value={GROUP.CONSULTING}>Consulting Group</option>
+                </select>
+                {group === GROUP.CONSULTING && !permissions.canMoveUserBetweenGroups() && (
+                  <p className="mt-2 text-sm text-amber-600">
+                    Only Owner and Admin can invite to the Consulting Group
+                  </p>
+                )}
               </div>
 
               {error && (

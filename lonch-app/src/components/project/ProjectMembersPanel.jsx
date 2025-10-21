@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
-import { getProjectMembers, updateMemberRole, removeMember } from '../../services/projectService';
+import { getProjectMembers, updateMemberRole, removeMember, updateMemberGroup } from '../../services/projectService';
 import { getUser } from '../../services/userService';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { ROLES, getRoleDisplayName } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 import RoleBadge from '../shared/RoleBadge';
+import GroupBadge from './GroupBadge';
 import { logActivity } from '../../services/activityLogService';
 
 export default function ProjectMembersPanel({ projectId }) {
@@ -16,8 +18,10 @@ export default function ProjectMembersPanel({ projectId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [groupFilter, setGroupFilter] = useState('all');
   const [confirmRemove, setConfirmRemove] = useState(null);
   const [confirmRoleChange, setConfirmRoleChange] = useState(null);
+  const [confirmGroupChange, setConfirmGroupChange] = useState(null);
 
   useEffect(() => {
     fetchMembers();
@@ -80,7 +84,8 @@ export default function ProjectMembersPanel({ projectId }) {
             targetUserEmail: memberDetails[member.userId]?.email,
             oldRole,
             newRole
-          }
+          },
+          member.group
         );
       } catch (logError) {
         console.error('Failed to log activity:', logError);
@@ -119,8 +124,10 @@ export default function ProjectMembersPanel({ projectId }) {
           {
             removedUserId: confirmRemove.userId,
             removedUserEmail: memberDetails[confirmRemove.userId]?.email,
-            removedUserRole: confirmRemove.role
-          }
+            removedUserRole: confirmRemove.role,
+            removedFromGroup: confirmRemove.group
+          },
+          confirmRemove.group
         );
       } catch (logError) {
         console.error('Failed to log activity:', logError);
@@ -135,8 +142,58 @@ export default function ProjectMembersPanel({ projectId }) {
     }
   }
 
-  // Filter members based on search term
+  async function handleGroupChange(member, newGroup) {
+    if (!permissions.canMoveUserBetweenGroups()) {
+      alert('You do not have permission to change user groups');
+      return;
+    }
+
+    setConfirmGroupChange({ member, newGroup });
+  }
+
+  async function confirmGroupChangeAction() {
+    const { member, newGroup } = confirmGroupChange;
+    const oldGroup = member.group || 'consulting';
+    try {
+      await updateMemberGroup(projectId, member.userId, newGroup);
+
+      // Log the activity
+      try {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'member_moved_to_group',
+          'member',
+          member.userId,
+          {
+            targetUserId: member.userId,
+            targetUserEmail: memberDetails[member.userId]?.email,
+            oldGroup,
+            newGroup
+          },
+          newGroup
+        );
+      } catch (logError) {
+        console.error('Failed to log activity:', logError);
+      }
+
+      await fetchMembers();
+      setConfirmGroupChange(null);
+    } catch (err) {
+      console.error('Error updating group:', err);
+      alert('Failed to update group: ' + err.message);
+    }
+  }
+
+  // Filter members based on search term and group
   const filteredMembers = members.filter(member => {
+    // Group filter
+    if (groupFilter !== 'all') {
+      const memberGroup = member.group || 'consulting';
+      if (memberGroup !== groupFilter) return false;
+    }
+
+    // Search filter
     if (!searchTerm) return true;
     const userDetails = memberDetails[member.userId];
     const searchLower = searchTerm.toLowerCase();
@@ -175,8 +232,8 @@ export default function ProjectMembersPanel({ projectId }) {
   return (
     <div className="space-y-4">
       {/* Search/Filter */}
-      {members.length > 5 && (
-        <div className="mb-4">
+      <div className="mb-4 space-y-2">
+        {members.length > 5 && (
           <input
             type="text"
             placeholder="Search members by name, email, or role..."
@@ -184,8 +241,21 @@ export default function ProjectMembersPanel({ projectId }) {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
+        )}
+        <div className="flex gap-2">
+          <label className="text-sm font-medium text-gray-700">Group:</label>
+          <select
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+            data-testid="group-filter"
+          >
+            <option value="all">All Groups</option>
+            <option value={GROUP.CONSULTING}>Consulting Group</option>
+            <option value={GROUP.CLIENT}>Client Group</option>
+          </select>
         </div>
-      )}
+      </div>
 
       {/* Members List */}
       <div className="space-y-2">
@@ -221,6 +291,7 @@ export default function ProjectMembersPanel({ projectId }) {
                           <span className="text-sm text-gray-500 ml-2">(You)</span>
                         )}
                       </h4>
+                      <GroupBadge group={member.group || 'consulting'} />
                     </div>
                     <p className="text-sm text-gray-500">{userDetails?.email || 'No email'}</p>
                     <p className="text-xs text-gray-400 mt-1">
@@ -245,6 +316,19 @@ export default function ProjectMembersPanel({ projectId }) {
                       </select>
                     ) : (
                       <RoleBadge role={member.role} />
+                    )}
+
+                    {/* Group Dropdown */}
+                    {permissions.canMoveUserBetweenGroups() && !isCurrentUser && (
+                      <select
+                        value={member.group || 'consulting'}
+                        onChange={(e) => handleGroupChange(member, e.target.value)}
+                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+                        data-testid="group-select"
+                      >
+                        <option value={GROUP.CONSULTING}>Consulting</option>
+                        <option value={GROUP.CLIENT}>Client</option>
+                      </select>
                     )}
                   </div>
 
@@ -316,6 +400,36 @@ export default function ProjectMembersPanel({ projectId }) {
                 data-testid="confirm-remove"
               >
                 Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Group Change Confirmation Dialog */}
+      {confirmGroupChange && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-2">Confirm Group Change</h3>
+            <p className="text-gray-600 mb-4">
+              Move <strong>{memberDetails[confirmGroupChange.member.userId]?.displayName}</strong> from{' '}
+              <strong>{confirmGroupChange.member.group === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong> to{' '}
+              <strong>{confirmGroupChange.newGroup === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong>?
+              This will change their document visibility.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmGroupChange(null)}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmGroupChangeAction}
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                data-testid="confirm-group-change"
+              >
+                Confirm
               </button>
             </div>
           </div>

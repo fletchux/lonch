@@ -280,7 +280,8 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               onDownload={handleDownload}
               onDelete={handleDelete}
               onUploadNew={handleUploadNew}
-              onUpdateDocumentCategories={onUpdateDocumentCategories}
+              onUpdateCategories={onUpdateDocumentCategories}
+              projectId={project.id}
             />
           </div>
         </div>

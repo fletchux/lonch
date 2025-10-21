@@ -167,7 +167,8 @@ function AppContent() {
         'document_deleted',
         'document',
         docId,
-        { documentName: deletedDoc?.name || 'Unknown document' }
+        { documentName: deletedDoc?.name || 'Unknown document' },
+        deletedDoc?.visibility || null
       );
     } catch (error) {
       console.error('Error logging document deletion:', error);
@@ -189,7 +190,8 @@ function AppContent() {
           'document_uploaded',
           'document',
           doc.id,
-          { documentName: doc.name, documentType: doc.type }
+          { documentName: doc.name, documentType: doc.type },
+          doc.visibility || null
         );
       }
     } catch (error) {
