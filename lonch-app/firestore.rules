@@ -34,6 +34,29 @@ service cloud.firestore {
       return isMember(projectId) && getUserRole(projectId) in ['owner', 'admin', 'editor'];
     }
 
+    // Helper function to get user's group in a project
+    function getUserGroup(projectId) {
+      let memberId = projectId + '_' + request.auth.uid;
+      let member = get(/databases/$(database)/documents/projectMembers/$(memberId)).data;
+      return member.get('group', 'consulting'); // Default to 'consulting' for backwards compatibility
+    }
+
+    // Helper function to check if user can view a document based on visibility
+    function canViewDocument(projectId, documentVisibility) {
+      let userGroup = getUserGroup(projectId);
+      let userRole = getUserRole(projectId);
+
+      // Owner can always see everything
+      if (userRole == 'owner') {
+        return true;
+      }
+
+      // Check group-based visibility
+      return documentVisibility == 'both' ||
+             (documentVisibility == 'consulting_only' && userGroup == 'consulting') ||
+             (documentVisibility == 'client_only' && userGroup == 'client');
+    }
+
     // Users collection rules
     match /users/{userId} {
       allow read: if isSignedIn();

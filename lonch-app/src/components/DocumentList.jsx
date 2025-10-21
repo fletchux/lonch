@@ -1,20 +1,40 @@
 import { useState, useRef, useEffect } from 'react';
+import { useProjectPermissions } from '../hooks/useProjectPermissions';
+import DocumentVisibilityToggle from './project/DocumentVisibilityToggle';
+import { VISIBILITY } from '../utils/groupPermissions';
+import { updateProject } from '../services/projectService';
+import { logActivity } from '../services/activityLogService';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * DocumentList Component
  * Displays uploaded documents in a table/list view with management capabilities
+ * Now includes group-based document visibility controls
  */
-export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories }) {
+export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories, projectId }) {
+  const { currentUser } = useAuth();
+  const permissions = useProjectPermissions(projectId);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [bulkCategory, setBulkCategory] = useState('');
   const headerCheckboxRef = useRef(null);
 
-  // Filter documents by category
-  const filteredDocuments = selectedCategory === 'all'
-    ? documents
-    : documents.filter(doc => doc.category === selectedCategory);
+  // Filter documents by category and visibility (Task 5.6)
+  const filteredDocuments = documents.filter(doc => {
+    // Category filter
+    if (selectedCategory !== 'all' && doc.category !== selectedCategory) {
+      return false;
+    }
+
+    // Visibility filter - hide documents user can't see
+    const docVisibility = doc.visibility || VISIBILITY.BOTH;
+    if (!permissions.canViewDocument(docVisibility)) {
+      return false;
+    }
+
+    return true;
+  });
 
   // Format file size
   const formatFileSize = (bytes) => {
@@ -117,6 +137,40 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
       setBulkCategory('');
     }
   };
+
+  // Handle visibility change (Tasks 5.4, 5.5, 5.8)
+  async function handleVisibilityChange(docId, newVisibility) {
+    try {
+      // Find the document and update its visibility
+      const updatedDocuments = documents.map(doc =>
+        doc.id === docId ? { ...doc, visibility: newVisibility } : doc
+      );
+
+      // Update project in Firestore
+      await updateProject(projectId, { documents: updatedDocuments });
+
+      // Log the activity (Task 5.8)
+      const doc = documents.find(d => d.id === docId);
+      if (doc && currentUser) {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'document_visibility_changed',
+          'document',
+          docId,
+          {
+            documentName: doc.name,
+            oldVisibility: doc.visibility || VISIBILITY.BOTH,
+            newVisibility
+          },
+          permissions.group
+        );
+      }
+    } catch (error) {
+      console.error('Error updating document visibility:', error);
+      alert('Failed to update document visibility: ' + error.message);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -241,6 +295,9 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Uploaded By
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Visibility
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -286,6 +343,15 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {doc.uploadedBy || 'You'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {/* Task 5.4, 5.5: Show visibility toggle, restricted to Owner/Admin in Consulting */}
+                    <DocumentVisibilityToggle
+                      visibility={doc.visibility || VISIBILITY.BOTH}
+                      onChange={(newVisibility) => handleVisibilityChange(doc.id, newVisibility)}
+                      disabled={!permissions.canSetDocumentVisibility()}
+                      size="sm"
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     {/* Download button */}

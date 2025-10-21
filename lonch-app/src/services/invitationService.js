@@ -11,6 +11,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { addProjectMember } from './projectService';
+import { createNotification, shouldNotifyUser } from './notificationService';
 
 /**
  * Invitation Service
@@ -25,6 +26,7 @@ import { addProjectMember } from './projectService';
  *   projectId: string,
  *   email: string,
  *   role: 'owner' | 'admin' | 'editor' | 'viewer',
+ *   group: 'consulting' | 'client',
  *   invitedBy: string (userId of inviter),
  *   token: string (unique invitation token),
  *   status: 'pending' | 'accepted' | 'declined' | 'cancelled',
@@ -59,20 +61,23 @@ function calculateExpirationDate() {
  * @param {string} email - Recipient email
  * @param {string} token - Invitation token
  * @param {string} projectId - Project ID
+ * @param {string} group - Group being invited to ('consulting' | 'client')
  */
-async function sendInvitationEmail(email, token, projectId) {
+async function sendInvitationEmail(email, token, projectId, group) {
   // Placeholder for email notification
   // In production, this would integrate with:
   // - Firebase Extensions: Trigger Email extension
   // - OR SendGrid/other email service
 
   const inviteLink = `${window.location.origin}/invite/${token}`;
+  const groupName = group === 'consulting' ? 'Consulting Group' : 'Client Group';
 
   console.log('Email notification placeholder:', {
     to: email,
-    subject: 'You\'ve been invited to collaborate on a project',
+    subject: `You've been invited to collaborate on a project (${groupName})`,
     inviteLink,
-    projectId
+    projectId,
+    group: groupName
   });
 
   // TODO: Implement actual email sending when email service is configured
@@ -92,9 +97,10 @@ async function sendInvitationEmail(email, token, projectId) {
  * @param {string} email - Email address of invitee
  * @param {string} role - Role to assign ('owner' | 'admin' | 'editor' | 'viewer')
  * @param {string} invitedBy - User ID of the person sending the invitation
+ * @param {string} group - Group to assign ('consulting' | 'client'), defaults to 'client'
  * @returns {Promise<Object>} The created invitation document
  */
-export async function createInvitation(projectId, email, role, invitedBy) {
+export async function createInvitation(projectId, email, role, invitedBy, group = 'client') {
   try {
     // Check for existing pending invitation
     const existingInvitations = await getUserInvitations(email);
@@ -115,6 +121,7 @@ export async function createInvitation(projectId, email, role, invitedBy) {
       projectId,
       email: email.toLowerCase(),
       role,
+      group,
       invitedBy,
       token,
       status: 'pending',
@@ -128,7 +135,7 @@ export async function createInvitation(projectId, email, role, invitedBy) {
 
     // Send email notification (placeholder)
     try {
-      await sendInvitationEmail(email, token, projectId);
+      await sendInvitationEmail(email, token, projectId, group);
     } catch (emailError) {
       console.error('Failed to send invitation email:', emailError);
       // Don't fail the invitation creation if email fails
@@ -217,8 +224,8 @@ export async function acceptInvitation(token, userId) {
       throw new Error('Invitation has expired');
     }
 
-    // Add user to project members
-    await addProjectMember(invitation.projectId, userId, invitation.role, invitation.invitedBy);
+    // Add user to project members with group
+    await addProjectMember(invitation.projectId, userId, invitation.role, invitation.invitedBy, invitation.group || 'client');
 
     // Update invitation status
     const invitationRef = doc(db, 'invitations', invitation.id);
@@ -226,6 +233,24 @@ export async function acceptInvitation(token, userId) {
       status: 'accepted',
       acceptedAt: serverTimestamp()
     });
+
+    // Send notification to the person who sent the invitation
+    try {
+      const shouldNotify = await shouldNotifyUser(invitation.invitedBy, 'invitation');
+      if (shouldNotify) {
+        const groupName = invitation.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        await createNotification(
+          invitation.invitedBy,
+          'invitation',
+          `${invitation.email} accepted your invitation to join as ${invitation.role} in ${groupName}`,
+          `/projects/${invitation.projectId}`,
+          invitation.projectId
+        );
+      }
+    } catch (notificationError) {
+      console.error('Failed to create notification for invitation acceptance:', notificationError);
+      // Don't fail the invitation acceptance if notification fails
+    }
   } catch (error) {
     console.error('Error accepting invitation:', error);
     throw new Error(`Failed to accept invitation: ${error.message}`);

@@ -11,6 +11,7 @@ import { logActivity } from './services/activityLogService';
 import Home from './components/pages/Home';
 import Wizard from './components/pages/Wizard';
 import ProjectDashboard from './components/pages/ProjectDashboard';
+import Settings from './components/pages/Settings';
 import SignupPage from './components/auth/SignupPage';
 import LoginPage from './components/auth/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -159,7 +160,7 @@ function AppContent() {
 
     await updateProjectDocuments(currentProject.id, updatedDocuments);
 
-    // Log activity
+    // Log activity (Task 6.1: include groupContext)
     try {
       await logActivity(
         currentProject.id,
@@ -167,7 +168,8 @@ function AppContent() {
         'document_deleted',
         'document',
         docId,
-        { documentName: deletedDoc?.name || 'Unknown document' }
+        { documentName: deletedDoc?.name || 'Unknown document' },
+        null // groupContext not available at this level
       );
     } catch (error) {
       console.error('Error logging document deletion:', error);
@@ -180,7 +182,7 @@ function AppContent() {
     const updatedDocuments = [...(currentProject.documents || []), ...newDocuments];
     await updateProjectDocuments(currentProject.id, updatedDocuments);
 
-    // Log activity for each uploaded document
+    // Log activity for each uploaded document (Task 6.1: include groupContext)
     try {
       for (const doc of newDocuments) {
         await logActivity(
@@ -189,7 +191,8 @@ function AppContent() {
           'document_uploaded',
           'document',
           doc.id,
-          { documentName: doc.name, documentType: doc.type }
+          { documentName: doc.name, documentType: doc.type },
+          null // groupContext not available at this level
         );
       }
     } catch (error) {
@@ -215,6 +218,7 @@ function AppContent() {
           onSelectProject={selectProject}
           onLogin={() => setView('login')}
           onSignup={() => setView('signup')}
+          onNavigateSettings={() => setView('settings')}
         />
       )}
       {/* Task 4.5: Add signup and login views */}
@@ -243,6 +247,7 @@ function AppContent() {
             setStep={setStep}
             onCancel={goHome}
             onSave={saveProject}
+            onNavigateSettings={() => setView('settings')}
           />
         </ProtectedRoute>
       )}
@@ -258,7 +263,17 @@ function AppContent() {
             onDeleteDocument={handleDeleteDocument}
             onUploadDocument={handleUploadDocument}
             onUpdateDocumentCategories={handleUpdateDocumentCategories}
+            onNavigateSettings={() => setView('settings')}
           />
+        </ProtectedRoute>
+      )}
+      {/* Settings page with notification preferences */}
+      {view === 'settings' && (
+        <ProtectedRoute
+          onSwitchToSignup={() => setView('signup')}
+          onLoginSuccess={() => setView('home')}
+        >
+          <Settings onNavigateHome={goHome} />
         </ProtectedRoute>
       )}
     </>

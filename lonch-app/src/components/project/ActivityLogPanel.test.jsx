@@ -478,4 +478,270 @@ describe('ActivityLogPanel', () => {
     expect(userService.getUser).toHaveBeenCalledTimes(1);
     expect(userService.getUser).toHaveBeenCalledWith('user1');
   });
+
+  // Task 6.8: Group filtering tests
+  describe('Group Filtering', () => {
+    it('should display group filter dropdown', async () => {
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-group')).toBeInTheDocument();
+      });
+
+      const groupFilter = screen.getByTestId('filter-group');
+      expect(groupFilter).toHaveProperty('tagName', 'SELECT');
+    });
+
+    it('should have correct group filter options', async () => {
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-group')).toBeInTheDocument();
+      });
+
+      const groupFilter = screen.getByTestId('filter-group');
+      const options = Array.from(groupFilter.querySelectorAll('option')).map(opt => opt.value);
+
+      expect(options).toContain('');
+      expect(options).toContain('consulting');
+      expect(options).toContain('client');
+    });
+
+    it('should filter activities by consulting group', async () => {
+      const activitiesWithGroups = [
+        {
+          id: 'act1',
+          projectId: 'project1',
+          userId: 'user1',
+          action: 'member_invited',
+          resourceType: 'member',
+          resourceId: 'inv1',
+          groupContext: 'consulting',
+          metadata: { invitedEmail: 'user@example.com', invitedRole: 'editor', invitedGroup: 'consulting' },
+          timestamp: { toDate: () => new Date() }
+        },
+        {
+          id: 'act2',
+          projectId: 'project1',
+          userId: 'user2',
+          action: 'member_invited',
+          resourceType: 'member',
+          resourceId: 'inv2',
+          groupContext: 'client',
+          metadata: { invitedEmail: 'client@example.com', invitedRole: 'viewer', invitedGroup: 'client' },
+          timestamp: { toDate: () => new Date() }
+        }
+      ];
+
+      vi.mocked(activityLogService.getProjectActivityLog).mockResolvedValue({
+        activities: activitiesWithGroups,
+        lastDoc: null,
+        hasMore: false
+      });
+
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-group')).toBeInTheDocument();
+      });
+
+      // Initially both activities should be visible
+      await waitFor(() => {
+        expect(screen.getAllByTestId('activity-item').length).toBe(2);
+      });
+
+      // Apply consulting group filter
+      const groupFilter = screen.getByTestId('filter-group');
+      fireEvent.change(groupFilter, { target: { value: 'consulting' } });
+
+      await waitFor(() => {
+        const activityItems = screen.getAllByTestId('activity-item');
+        expect(activityItems.length).toBe(1);
+        expect(screen.getByText(/invited user@example.com/)).toBeInTheDocument();
+        expect(screen.queryByText(/invited client@example.com/)).not.toBeInTheDocument();
+      });
+    });
+
+    it('should filter activities by client group', async () => {
+      const activitiesWithGroups = [
+        {
+          id: 'act1',
+          projectId: 'project1',
+          userId: 'user1',
+          action: 'member_invited',
+          resourceType: 'member',
+          resourceId: 'inv1',
+          groupContext: 'consulting',
+          metadata: { invitedEmail: 'user@example.com', invitedRole: 'editor', invitedGroup: 'consulting' },
+          timestamp: { toDate: () => new Date() }
+        },
+        {
+          id: 'act2',
+          projectId: 'project1',
+          userId: 'user2',
+          action: 'member_invited',
+          resourceType: 'member',
+          resourceId: 'inv2',
+          groupContext: 'client',
+          metadata: { invitedEmail: 'client@example.com', invitedRole: 'viewer', invitedGroup: 'client' },
+          timestamp: { toDate: () => new Date() }
+        }
+      ];
+
+      vi.mocked(activityLogService.getProjectActivityLog).mockResolvedValue({
+        activities: activitiesWithGroups,
+        lastDoc: null,
+        hasMore: false
+      });
+
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-group')).toBeInTheDocument();
+      });
+
+      // Apply client group filter
+      const groupFilter = screen.getByTestId('filter-group');
+      fireEvent.change(groupFilter, { target: { value: 'client' } });
+
+      await waitFor(() => {
+        const activityItems = screen.getAllByTestId('activity-item');
+        expect(activityItems.length).toBe(1);
+        expect(screen.getByText(/invited client@example.com/)).toBeInTheDocument();
+        expect(screen.queryByText(/invited user@example.com/)).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show all activities when group filter is cleared', async () => {
+      const activitiesWithGroups = [
+        {
+          id: 'act1',
+          projectId: 'project1',
+          userId: 'user1',
+          action: 'document_uploaded',
+          resourceType: 'document',
+          resourceId: 'doc1',
+          groupContext: 'consulting',
+          metadata: { documentName: 'doc1.pdf' },
+          timestamp: { toDate: () => new Date() }
+        },
+        {
+          id: 'act2',
+          projectId: 'project1',
+          userId: 'user2',
+          action: 'document_uploaded',
+          resourceType: 'document',
+          resourceId: 'doc2',
+          groupContext: 'client',
+          metadata: { documentName: 'doc2.pdf' },
+          timestamp: { toDate: () => new Date() }
+        }
+      ];
+
+      vi.mocked(activityLogService.getProjectActivityLog).mockResolvedValue({
+        activities: activitiesWithGroups,
+        lastDoc: null,
+        hasMore: false
+      });
+
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-group')).toBeInTheDocument();
+      });
+
+      // Apply filter
+      const groupFilter = screen.getByTestId('filter-group');
+      fireEvent.change(groupFilter, { target: { value: 'consulting' } });
+
+      await waitFor(() => {
+        expect(screen.getAllByTestId('activity-item').length).toBe(1);
+      });
+
+      // Clear filter
+      fireEvent.change(groupFilter, { target: { value: '' } });
+
+      await waitFor(() => {
+        expect(screen.getAllByTestId('activity-item').length).toBe(2);
+      });
+    });
+
+    it('should display group badge for activities with groupContext', async () => {
+      const activityWithGroup = {
+        id: 'act1',
+        projectId: 'project1',
+        userId: 'user1',
+        action: 'member_invited',
+        resourceType: 'member',
+        resourceId: 'inv1',
+        groupContext: 'consulting',
+        metadata: { invitedEmail: 'user@example.com', invitedRole: 'editor', invitedGroup: 'consulting' },
+        timestamp: { toDate: () => new Date() }
+      };
+
+      vi.mocked(activityLogService.getProjectActivityLog).mockResolvedValue({
+        activities: [activityWithGroup],
+        lastDoc: null,
+        hasMore: false
+      });
+
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('group-badge')).toBeInTheDocument();
+      });
+    });
+
+    it('should not display group badge for activities without groupContext', async () => {
+      const activityWithoutGroup = {
+        id: 'act1',
+        projectId: 'project1',
+        userId: 'user1',
+        action: 'document_uploaded',
+        resourceType: 'document',
+        resourceId: 'doc1',
+        groupContext: null,
+        metadata: { documentName: 'test.pdf' },
+        timestamp: { toDate: () => new Date() }
+      };
+
+      vi.mocked(activityLogService.getProjectActivityLog).mockResolvedValue({
+        activities: [activityWithoutGroup],
+        lastDoc: null,
+        hasMore: false
+      });
+
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('activity-item')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId('group-badge')).not.toBeInTheDocument();
+    });
+
+    it('should include group filter in clear filters functionality', async () => {
+      render(<ActivityLogPanel projectId="project1" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-group')).toBeInTheDocument();
+      });
+
+      // Apply group filter
+      const groupFilter = screen.getByTestId('filter-group');
+      fireEvent.change(groupFilter, { target: { value: 'consulting' } });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('clear-filters')).toBeInTheDocument();
+      });
+
+      // Clear all filters
+      const clearButton = screen.getByTestId('clear-filters');
+      fireEvent.click(clearButton);
+
+      await waitFor(() => {
+        expect(groupFilter.value).toBe('');
+      });
+    });
+  });
 });
