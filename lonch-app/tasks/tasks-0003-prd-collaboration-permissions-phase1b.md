@@ -87,7 +87,7 @@
   - [x] 3.7 Update InviteUserModal.test.jsx with group selection tests
   - [x] 3.8 Update invitationService.test.js with group invitation tests
 
-- [x] 4.0 Build group management UI components
+- [x] 4.0 Build group management UI components ✅ COMPLETE
   - [x] 4.1 Create `src/components/project/GroupBadge.jsx` component (Consulting=Teal, Client=Gold)
   - [x] 4.2 Create tests for GroupBadge in GroupBadge.test.jsx
   - [x] 4.3 Update ProjectMembersPanel.jsx to display GroupBadge next to each member
@@ -111,15 +111,15 @@
   - [x] 5.9 Update document upload handlers to include visibility field
   - [x] 5.10 Create tests for document visibility filtering in DocumentList.test.jsx
 
-- [ ] 6.0 Enhance activity logs with group context
-  - [ ] 6.1 Update all `logActivity()` calls to include groupContext parameter
-  - [ ] 6.2 Add groupContext to activity log display in ActivityLogPanel.jsx
-  - [ ] 6.3 Add group filter dropdown in ActivityLogPanel (All Groups / Consulting / Client)
-  - [ ] 6.4 Filter activity log entries based on user's group visibility
-  - [ ] 6.5 Show group badge in activity log entries where relevant
-  - [ ] 6.6 Update activity descriptions to mention group context (e.g., "invited to Consulting Group")
-  - [ ] 6.7 Create tests for group-aware activity logging in activityLogService.test.js
-  - [ ] 6.8 Update ActivityLogPanel.test.jsx with group filtering tests
+- [x] 6.0 Enhance activity logs with group context ✅ COMPLETE
+  - [x] 6.1 Update all `logActivity()` calls to include groupContext parameter
+  - [x] 6.2 Add groupContext to activity log display in ActivityLogPanel.jsx
+  - [x] 6.3 Add group filter dropdown in ActivityLogPanel (All Groups / Consulting / Client)
+  - [x] 6.4 Filter activity log entries based on user's group visibility
+  - [x] 6.5 Show group badge in activity log entries where relevant
+  - [x] 6.6 Update activity descriptions to mention group context (e.g., "invited to Consulting Group")
+  - [x] 6.7 Create tests for group-aware activity logging in activityLogService.test.js
+  - [x] 6.8 Update ActivityLogPanel.test.jsx with group filtering tests
 
 - [ ] 7.0 Build notification system with user preferences
   - [ ] 7.1 Create `src/services/notificationService.js` with Firestore operations

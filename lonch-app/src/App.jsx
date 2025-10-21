@@ -159,7 +159,7 @@ function AppContent() {
 
     await updateProjectDocuments(currentProject.id, updatedDocuments);
 
-    // Log activity
+    // Log activity (Task 6.1: include groupContext)
     try {
       await logActivity(
         currentProject.id,
@@ -167,7 +167,8 @@ function AppContent() {
         'document_deleted',
         'document',
         docId,
-        { documentName: deletedDoc?.name || 'Unknown document' }
+        { documentName: deletedDoc?.name || 'Unknown document' },
+        null // groupContext not available at this level
       );
     } catch (error) {
       console.error('Error logging document deletion:', error);
@@ -180,7 +181,7 @@ function AppContent() {
     const updatedDocuments = [...(currentProject.documents || []), ...newDocuments];
     await updateProjectDocuments(currentProject.id, updatedDocuments);
 
-    // Log activity for each uploaded document
+    // Log activity for each uploaded document (Task 6.1: include groupContext)
     try {
       for (const doc of newDocuments) {
         await logActivity(
@@ -189,7 +190,8 @@ function AppContent() {
           'document_uploaded',
           'document',
           doc.id,
-          { documentName: doc.name, documentType: doc.type }
+          { documentName: doc.name, documentType: doc.type },
+          null // groupContext not available at this level
         );
       }
     } catch (error) {
