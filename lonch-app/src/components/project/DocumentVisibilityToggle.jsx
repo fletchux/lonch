@@ -19,19 +19,6 @@ export default function DocumentVisibilityToggle({
     lg: 'text-base px-4 py-2'
   };
 
-  const getVisibilityLabel = (vis) => {
-    switch (vis) {
-      case VISIBILITY.CONSULTING_ONLY:
-        return '🔒 Consulting Only';
-      case VISIBILITY.CLIENT_ONLY:
-        return '🔒 Client Only';
-      case VISIBILITY.BOTH:
-        return '🌐 Both Groups';
-      default:
-        return 'Select Visibility';
-    }
-  };
-
   const getVisibilityColor = (vis) => {
     switch (vis) {
       case VISIBILITY.CONSULTING_ONLY:
