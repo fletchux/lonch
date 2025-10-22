@@ -40,7 +40,7 @@ vi.mock('../utils/emailTemplates', () => ({
     result = result.replace(/\{\{[^}]+\}\}/g, '');
     return result;
   }),
-  formatExpirationDate: vi.fn((date) => 'October 28, 2025'),
+  formatExpirationDate: vi.fn(() => 'October 28, 2025'),
   INVITATION_HTML_TEMPLATE: '<html>{{inviterName}} invited you to {{projectName}} as {{role}} in {{group}}. Link: {{acceptUrl}}</html>',
   INVITATION_TEXT_TEMPLATE: '{{inviterName}} invited you to {{projectName}} as {{role}} in {{group}}. Link: {{acceptUrl}}',
   INVITATION_SUBJECT_TEMPLATE: 'Invitation to {{projectName}}'
