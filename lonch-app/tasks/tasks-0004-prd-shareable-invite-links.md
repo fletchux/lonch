@@ -121,20 +121,20 @@
   - [x] 5.6 Update ActivityLogPanel to display link-related activities with group badges
   - [x] 5.7 Create tests in activityLogService.test.js for link activity logging
 
-- [ ] 6.0 Comprehensive testing and validation
-  - [ ] 6.1 Test link generation with all role/group combinations
-  - [ ] 6.2 Test copy to clipboard functionality
-  - [ ] 6.3 Test link acceptance with valid, active link
-  - [ ] 6.4 Test link acceptance with expired link (show error)
-  - [ ] 6.5 Test link acceptance with used link (show error)
-  - [ ] 6.6 Test link acceptance with revoked link (show error)
-  - [ ] 6.7 Test link acceptance when user is already project member
-  - [ ] 6.8 Test link revocation flow with confirmation dialog
-  - [ ] 6.9 Test permission filtering in Share Links tab (users see own links, admin sees all)
-  - [ ] 6.10 Test activity logging for all link actions
-  - [ ] 6.11 Run full test suite and ensure all tests pass: `npm test`
-  - [ ] 6.12 Run ESLint and fix any linting errors: `npx eslint .`
-  - [ ] 6.13 Run production build and verify no errors: `npm run build`
+- [x] 6.0 Comprehensive testing and validation
+  - [x] 6.1 Test link generation with all role/group combinations
+  - [x] 6.2 Test copy to clipboard functionality
+  - [x] 6.3 Test link acceptance with valid, active link
+  - [x] 6.4 Test link acceptance with expired link (show error)
+  - [x] 6.5 Test link acceptance with used link (show error)
+  - [x] 6.6 Test link acceptance with revoked link (show error)
+  - [x] 6.7 Test link acceptance when user is already project member
+  - [x] 6.8 Test link revocation flow with confirmation dialog
+  - [x] 6.9 Test permission filtering in Share Links tab (users see own links, admin sees all)
+  - [x] 6.10 Test activity logging for all link actions
+  - [x] 6.11 Run full test suite and ensure all tests pass: `npm test`
+  - [x] 6.12 Run ESLint and fix any linting errors: `npx eslint .`
+  - [x] 6.13 Run production build and verify no errors: `npm run build`
 
 ---
 
