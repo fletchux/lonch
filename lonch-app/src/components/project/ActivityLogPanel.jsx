@@ -30,6 +30,9 @@ export default function ActivityLogPanel({ projectId }) {
     { value: 'member_removed', label: 'Member Removed' },
     { value: 'role_changed', label: 'Role Changed' },
     { value: 'member_moved_to_group', label: 'Member Moved to Group' },
+    { value: 'invite_link_created', label: 'Invite Link Created' },
+    { value: 'invite_link_accepted', label: 'Invite Link Accepted' },
+    { value: 'invite_link_revoked', label: 'Invite Link Revoked' },
     { value: 'project_created', label: 'Project Created' },
     { value: 'project_updated', label: 'Project Updated' },
     { value: 'project_deleted', label: 'Project Deleted' }
@@ -174,6 +177,21 @@ export default function ActivityLogPanel({ projectId }) {
         const newGroup = activity.metadata?.newGroup === 'consulting' ? 'Consulting' : 'Client';
         return `${userName} moved ${activity.metadata?.targetUserEmail || 'a member'} from ${oldGroup} Group to ${newGroup} Group`;
       }
+      case 'invite_link_created': {
+        const role = activity.metadata?.role || 'member';
+        const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        return `${userName} created an invite link for ${role} in ${group}`;
+      }
+      case 'invite_link_accepted': {
+        const role = activity.metadata?.role || 'member';
+        const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        return `${userName} joined the project as ${role} in ${group} via invite link`;
+      }
+      case 'invite_link_revoked': {
+        const role = activity.metadata?.role || 'member';
+        const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        return `${userName} revoked an invite link for ${role} in ${group}`;
+      }
       case 'project_created':
         return `${userName} created the project`;
       case 'project_updated':
@@ -201,6 +219,12 @@ export default function ActivityLogPanel({ projectId }) {
         return '🔄';
       case 'member_moved_to_group':
         return '↔️';
+      case 'invite_link_created':
+        return '🔗';
+      case 'invite_link_accepted':
+        return '✅';
+      case 'invite_link_revoked':
+        return '🚫';
       case 'project_created':
         return '🎉';
       case 'project_updated':

@@ -112,14 +112,14 @@
   - [x] 4.14 Add tab label with count badge "Share Links"
   - [x] 4.15 Update ProjectMembersPanel.test.jsx to include Share Links tab tests (existing tests still pass)
 
-- [ ] 5.0 Add activity logging for link actions
-  - [ ] 5.1 Add activity log when link is created: action="invite_link_created", metadata includes role, group
-  - [ ] 5.2 Add activity log when link is accepted: action="invite_link_accepted", metadata includes new member email, role, group, creator
-  - [ ] 5.3 Add activity log when link is revoked: action="invite_link_revoked", metadata includes role, group, revoked by
-  - [ ] 5.4 Update `src/services/activityLogService.js` to handle link-related actions in getActionDescription()
-  - [ ] 5.5 Add emoji icons for link actions: created (🔗), accepted (✅), revoked (🚫)
-  - [ ] 5.6 Update ActivityLogPanel to display link-related activities with group badges
-  - [ ] 5.7 Create tests in activityLogService.test.js for link activity logging
+- [x] 5.0 Add activity logging for link actions
+  - [x] 5.1 Add activity log when link is created: action="invite_link_created", metadata includes role, group
+  - [x] 5.2 Add activity log when link is accepted: action="invite_link_accepted", metadata includes new member email, role, group, creator
+  - [x] 5.3 Add activity log when link is revoked: action="invite_link_revoked", metadata includes role, group, revoked by
+  - [x] 5.4 Update `src/services/activityLogService.js` to handle link-related actions in getActionDescription()
+  - [x] 5.5 Add emoji icons for link actions: created (🔗), accepted (✅), revoked (🚫)
+  - [x] 5.6 Update ActivityLogPanel to display link-related activities with group badges
+  - [x] 5.7 Create tests in activityLogService.test.js for link activity logging
 
 - [ ] 6.0 Comprehensive testing and validation
   - [ ] 6.1 Test link generation with all role/group combinations
