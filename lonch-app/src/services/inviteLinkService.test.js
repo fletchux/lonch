@@ -6,7 +6,6 @@ import {
   acceptInviteLink,
   revokeInviteLink
 } from './inviteLinkService';
-import * as firebase from '../config/firebase';
 import * as projectService from './projectService';
 import * as activityLogService from './activityLogService';
 

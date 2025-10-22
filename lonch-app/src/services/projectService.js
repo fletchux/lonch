@@ -151,6 +151,27 @@ export async function getUserProjects(userId) {
 }
 
 /**
+ * Get a single project by ID
+ * @param {string} projectId - Project ID
+ * @returns {Promise<Object|null>} Project document or null if not found
+ */
+export async function getProject(projectId) {
+  try {
+    const projectRef = doc(db, 'projects', projectId);
+    const projectDoc = await getDoc(projectRef);
+
+    if (!projectDoc.exists()) {
+      return null;
+    }
+
+    return projectDoc.data();
+  } catch (error) {
+    console.error('Error getting project:', error);
+    throw new Error(`Failed to get project: ${error.message}`);
+  }
+}
+
+/**
  * Update a project in Firestore
  * @param {string} projectId - Project ID
  * @param {Object} updates - Object containing fields to update
