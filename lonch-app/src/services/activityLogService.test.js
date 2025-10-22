@@ -55,7 +55,8 @@ describe('activityLogService', () => {
         'document_uploaded',
         'document',
         'doc789',
-        metadata
+        metadata,
+        null
       );
 
       expect(collection).toHaveBeenCalledWith(firebase.db, 'activityLogs');
@@ -65,6 +66,7 @@ describe('activityLogService', () => {
         action: 'document_uploaded',
         resourceType: 'document',
         resourceId: 'doc789',
+        groupContext: null,
         metadata,
         timestamp: 'mock-timestamp'
       });
@@ -75,9 +77,66 @@ describe('activityLogService', () => {
         action: 'document_uploaded',
         resourceType: 'document',
         resourceId: 'doc789',
+        groupContext: null,
         metadata,
         timestamp: 'mock-timestamp'
       });
+    });
+
+    // Task 6.7: Test group-aware activity logging
+    it('should log an activity with groupContext (consulting)', async () => {
+      const mockCollection = { id: 'activityLogs' };
+      const mockDocRef = { id: 'activity456' };
+      const metadata = { invitedEmail: 'user@example.com', invitedRole: 'editor', invitedGroup: 'consulting' };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(addDoc).mockResolvedValue(mockDocRef);
+
+      const result = await logActivity(
+        'project123',
+        'user456',
+        'member_invited',
+        'member',
+        'invitation789',
+        metadata,
+        'consulting'
+      );
+
+      expect(addDoc).toHaveBeenCalledWith(mockCollection, {
+        projectId: 'project123',
+        userId: 'user456',
+        action: 'member_invited',
+        resourceType: 'member',
+        resourceId: 'invitation789',
+        groupContext: 'consulting',
+        metadata,
+        timestamp: 'mock-timestamp'
+      });
+      expect(result.groupContext).toBe('consulting');
+    });
+
+    it('should log an activity with groupContext (client)', async () => {
+      const mockCollection = { id: 'activityLogs' };
+      const mockDocRef = { id: 'activity789' };
+      const metadata = { documentName: 'contract.pdf', newVisibility: 'client_only' };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(addDoc).mockResolvedValue(mockDocRef);
+
+      const result = await logActivity(
+        'project123',
+        'user456',
+        'document_visibility_changed',
+        'document',
+        'doc123',
+        metadata,
+        'client'
+      );
+
+      expect(addDoc).toHaveBeenCalledWith(mockCollection, expect.objectContaining({
+        groupContext: 'client'
+      }));
+      expect(result.groupContext).toBe('client');
     });
 
     it('should log activity without metadata', async () => {

@@ -1,8 +1,35 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DocumentList from './DocumentList';
+import { VISIBILITY, GROUP } from '../utils/groupPermissions';
+import * as projectService from '../services/projectService';
+import * as activityLogService from '../services/activityLogService';
+import { useProjectPermissions } from '../hooks/useProjectPermissions';
+
+// Mock the hooks and services
+vi.mock('../hooks/useProjectPermissions');
+vi.mock('../contexts/AuthContext', () => ({
+  useAuth: () => ({ currentUser: { uid: 'test-user-123' } })
+}));
+vi.mock('../services/projectService');
+vi.mock('../services/activityLogService');
 
 describe('DocumentList', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    // Default mock for permissions - can be overridden in specific tests
+    useProjectPermissions.mockReturnValue({
+      group: GROUP.CONSULTING,
+      canViewDocument: vi.fn(() => true),
+      canSetDocumentVisibility: vi.fn(() => true),
+      canInvite: true
+    });
+
+    vi.mocked(projectService.updateProject).mockResolvedValue({});
+    vi.mocked(activityLogService.logActivity).mockResolvedValue({});
+  });
+
   const mockDocuments = [
     {
       id: '1',
@@ -30,7 +57,7 @@ describe('DocumentList', () => {
   ];
 
   it('should render successfully with no documents', () => {
-    render(<DocumentList documents={[]} />);
+    render(<DocumentList documents={[]} projectId="test-project-123" />);
     expect(screen.getByText('No documents found')).toBeInTheDocument();
   });
 
@@ -86,10 +113,12 @@ describe('DocumentList', () => {
   });
 
   it('should filter documents by category', () => {
-    render(<DocumentList documents={mockDocuments} />);
+    render(<DocumentList documents={mockDocuments} projectId="test-project-123" />);
 
-    const select = screen.getByRole('combobox');
-    fireEvent.change(select, { target: { value: 'contract' } });
+    // Get the category filter select (it comes before the visibility toggles)
+    const selects = screen.getAllByRole('combobox');
+    const categorySelect = selects[0];
+    fireEvent.change(categorySelect, { target: { value: 'contract' } });
 
     expect(screen.getByText('contract.pdf')).toBeInTheDocument();
     expect(screen.queryByText('specifications.docx')).not.toBeInTheDocument();
@@ -97,15 +126,16 @@ describe('DocumentList', () => {
   });
 
   it('should show all documents when "all" category is selected', () => {
-    render(<DocumentList documents={mockDocuments} />);
+    render(<DocumentList documents={mockDocuments} projectId="test-project-123" />);
 
-    const select = screen.getByRole('combobox');
+    const selects = screen.getAllByRole('combobox');
+    const categorySelect = selects[0];
 
     // First filter to a specific category
-    fireEvent.change(select, { target: { value: 'contract' } });
+    fireEvent.change(categorySelect, { target: { value: 'contract' } });
 
     // Then back to all
-    fireEvent.change(select, { target: { value: 'all' } });
+    fireEvent.change(categorySelect, { target: { value: 'all' } });
 
     expect(screen.getByText('contract.pdf')).toBeInTheDocument();
     expect(screen.getByText('specifications.docx')).toBeInTheDocument();
@@ -113,10 +143,11 @@ describe('DocumentList', () => {
   });
 
   it('should show empty state when filtered category has no documents', () => {
-    render(<DocumentList documents={[mockDocuments[0]]} />);
+    render(<DocumentList documents={[mockDocuments[0]]} projectId="test-project-123" />);
 
-    const select = screen.getByRole('combobox');
-    fireEvent.change(select, { target: { value: 'specifications' } });
+    const selects = screen.getAllByRole('combobox');
+    const categorySelect = selects[0];
+    fireEvent.change(categorySelect, { target: { value: 'specifications' } });
 
     expect(screen.getByText('No documents found')).toBeInTheDocument();
     expect(screen.getByText('No documents in the "Specifications" category')).toBeInTheDocument();
@@ -188,7 +219,246 @@ describe('DocumentList', () => {
       name: 'minimal.pdf'
     }];
 
-    const { container } = render(<DocumentList documents={minimalDoc} />);
+    const { container } = render(<DocumentList documents={minimalDoc} projectId="test-project-123" />);
     expect(container.querySelector('table')).toBeTruthy();
+  });
+
+  // Task 5.10: Document visibility filtering tests
+  describe('Document Visibility Filtering', () => {
+    const documentsWithVisibility = [
+      {
+        id: '1',
+        name: 'consulting-only.pdf',
+        category: 'contract',
+        size: 1024000,
+        uploadedAt: '2024-01-15T10:00:00Z',
+        uploadedBy: 'Consultant',
+        visibility: VISIBILITY.CONSULTING_ONLY
+      },
+      {
+        id: '2',
+        name: 'client-only.pdf',
+        category: 'specifications',
+        size: 512000,
+        uploadedAt: '2024-01-16T14:30:00Z',
+        uploadedBy: 'Client',
+        visibility: VISIBILITY.CLIENT_ONLY
+      },
+      {
+        id: '3',
+        name: 'both-groups.pdf',
+        category: 'other',
+        size: 2048,
+        uploadedAt: '2024-01-17T09:15:00Z',
+        uploadedBy: 'Admin',
+        visibility: VISIBILITY.BOTH
+      }
+    ];
+
+    it('should show Visibility column header', () => {
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+      expect(screen.getByText('Visibility')).toBeInTheDocument();
+    });
+
+    it('should filter out documents consulting user cannot see', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: (visibility) => {
+          // Consulting users can see consulting_only and both
+          return visibility === VISIBILITY.CONSULTING_ONLY || visibility === VISIBILITY.BOTH;
+        },
+        canSetDocumentVisibility: vi.fn(() => true),
+        canInvite: true
+      });
+
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Should see consulting-only and both
+      expect(screen.getByText('consulting-only.pdf')).toBeInTheDocument();
+      expect(screen.getByText('both-groups.pdf')).toBeInTheDocument();
+
+      // Should NOT see client-only
+      expect(screen.queryByText('client-only.pdf')).not.toBeInTheDocument();
+    });
+
+    it('should filter out documents client user cannot see', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CLIENT,
+        canViewDocument: (visibility) => {
+          // Client users can see client_only and both
+          return visibility === VISIBILITY.CLIENT_ONLY || visibility === VISIBILITY.BOTH;
+        },
+        canSetDocumentVisibility: vi.fn(() => false),
+        canInvite: false
+      });
+
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Should see client-only and both
+      expect(screen.getByText('client-only.pdf')).toBeInTheDocument();
+      expect(screen.getByText('both-groups.pdf')).toBeInTheDocument();
+
+      // Should NOT see consulting-only
+      expect(screen.queryByText('consulting-only.pdf')).not.toBeInTheDocument();
+    });
+
+    it('should show all documents to users with full access', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: vi.fn(() => true), // Can see everything
+        canSetDocumentVisibility: vi.fn(() => true),
+        canInvite: true
+      });
+
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Should see all documents
+      expect(screen.getByText('consulting-only.pdf')).toBeInTheDocument();
+      expect(screen.getByText('client-only.pdf')).toBeInTheDocument();
+      expect(screen.getByText('both-groups.pdf')).toBeInTheDocument();
+    });
+
+    it('should render DocumentVisibilityToggle for each visible document', () => {
+      const { container } = render(
+        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />
+      );
+
+      const visibilityToggles = container.querySelectorAll('[data-testid="visibility-toggle"]');
+      expect(visibilityToggles.length).toBe(3);
+    });
+
+    it('should disable visibility toggle for users without permission', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CLIENT,
+        canViewDocument: vi.fn(() => true),
+        canSetDocumentVisibility: vi.fn(() => false), // No permission
+        canInvite: false
+      });
+
+      const { container } = render(
+        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />
+      );
+
+      const visibilitySelects = container.querySelectorAll('[data-testid="visibility-select"]');
+      visibilitySelects.forEach(select => {
+        expect(select).toBeDisabled();
+      });
+    });
+
+    it('should enable visibility toggle for users with permission', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: vi.fn(() => true),
+        canSetDocumentVisibility: vi.fn(() => true), // Has permission
+        canInvite: true
+      });
+
+      const { container } = render(
+        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />
+      );
+
+      const visibilitySelects = container.querySelectorAll('[data-testid="visibility-select"]');
+      visibilitySelects.forEach(select => {
+        expect(select).not.toBeDisabled();
+      });
+    });
+
+    it('should call updateProject and log activity when visibility changes', async () => {
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      const visibilitySelects = screen.getAllByTestId('visibility-select');
+      const firstSelect = visibilitySelects[0];
+
+      // Change visibility
+      fireEvent.change(firstSelect, { target: { value: VISIBILITY.BOTH } });
+
+      await waitFor(() => {
+        expect(projectService.updateProject).toHaveBeenCalledWith(
+          'test-project-123',
+          expect.objectContaining({
+            documents: expect.arrayContaining([
+              expect.objectContaining({
+                id: '1',
+                visibility: VISIBILITY.BOTH
+              })
+            ])
+          })
+        );
+      });
+
+      await waitFor(() => {
+        expect(activityLogService.logActivity).toHaveBeenCalledWith(
+          'test-project-123',
+          'test-user-123',
+          'document_visibility_changed',
+          'document',
+          '1',
+          expect.objectContaining({
+            documentName: 'consulting-only.pdf',
+            oldVisibility: VISIBILITY.CONSULTING_ONLY,
+            newVisibility: VISIBILITY.BOTH
+          }),
+          GROUP.CONSULTING
+        );
+      });
+    });
+
+    it('should default to BOTH visibility for documents without visibility field', () => {
+      const docsWithoutVisibility = [
+        {
+          id: '1',
+          name: 'legacy-doc.pdf',
+          category: 'contract',
+          size: 1024,
+          uploadedAt: '2024-01-15T10:00:00Z'
+          // No visibility field
+        }
+      ];
+
+      const { container } = render(
+        <DocumentList documents={docsWithoutVisibility} projectId="test-project-123" />
+      );
+
+      const visibilitySelect = container.querySelector('[data-testid="visibility-select"]');
+      expect(visibilitySelect.value).toBe(VISIBILITY.BOTH);
+    });
+
+    it('should show correct document count after visibility filtering', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CLIENT,
+        canViewDocument: (visibility) => {
+          return visibility === VISIBILITY.CLIENT_ONLY || visibility === VISIBILITY.BOTH;
+        },
+        canSetDocumentVisibility: vi.fn(() => false),
+        canInvite: false
+      });
+
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Client can only see 2 documents (client-only and both)
+      expect(screen.getByText('Showing 2 documents')).toBeInTheDocument();
+    });
+
+    it('should combine category and visibility filters correctly', () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: (visibility) => {
+          return visibility === VISIBILITY.CONSULTING_ONLY || visibility === VISIBILITY.BOTH;
+        },
+        canSetDocumentVisibility: vi.fn(() => true),
+        canInvite: true
+      });
+
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Filter by category
+      const categorySelect = screen.getAllByRole('combobox')[0]; // First combobox is category filter
+      fireEvent.change(categorySelect, { target: { value: 'contract' } });
+
+      // Should only show consulting-only.pdf (category=contract, visibility=consulting_only)
+      expect(screen.getByText('consulting-only.pdf')).toBeInTheDocument();
+      expect(screen.queryByText('both-groups.pdf')).not.toBeInTheDocument();
+      expect(screen.queryByText('client-only.pdf')).not.toBeInTheDocument();
+    });
   });
 });

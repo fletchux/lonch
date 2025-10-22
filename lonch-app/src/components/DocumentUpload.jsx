@@ -1,8 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { extractDataFromDocument } from '../services/documentExtraction';
+import { useProjectPermissions } from '../hooks/useProjectPermissions';
+import { getDefaultDocumentVisibility } from '../utils/groupPermissions';
 
-export default function DocumentUpload({ onFilesSelected, onExtractionComplete }) {
+export default function DocumentUpload({ projectId, onFilesSelected, onExtractionComplete }) {
+  const permissions = useProjectPermissions(projectId);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
   const [extractionStatus, setExtractionStatus] = useState({});
@@ -27,6 +30,9 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
 
     // Add accepted files to selected files list
     if (acceptedFiles.length > 0) {
+      // Task 5.7: Set default visibility based on uploader's group
+      const defaultVisibility = getDefaultDocumentVisibility(permissions.group);
+
       const filesWithMetadata = acceptedFiles.map(file => ({
         file,
         id: `${file.name}-${Date.now()}`,
@@ -34,7 +40,8 @@ export default function DocumentUpload({ onFilesSelected, onExtractionComplete }
         name: file.name,
         size: file.size,
         uploadedAt: new Date().toISOString(),
-        uploadedBy: 'You'
+        uploadedBy: 'You',
+        visibility: defaultVisibility // Task 5.9: Include visibility field
       }));
 
       setSelectedFiles(prev => {

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { getProjectActivityLog, filterByUser, filterByAction, filterByDateRange } from '../../services/activityLogService';
 import { getProjectMembers } from '../../services/projectService';
 import { getUser } from '../../services/userService';
+import GroupBadge from './GroupBadge';
 
 export default function ActivityLogPanel({ projectId }) {
   const [activities, setActivities] = useState([]);
@@ -13,19 +14,25 @@ export default function ActivityLogPanel({ projectId }) {
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(false);
 
-  // Filter states
+  // Filter states (Task 6.3: Add group filter)
   const [filterUser, setFilterUser] = useState('');
   const [filterAction, setFilterAction] = useState('');
+  const [filterGroup, setFilterGroup] = useState('');
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
 
-  // Available action types for filtering
+  // Available action types for filtering (Task 6.2)
   const actionTypes = [
     { value: 'document_uploaded', label: 'Document Uploaded' },
     { value: 'document_deleted', label: 'Document Deleted' },
+    { value: 'document_visibility_changed', label: 'Document Visibility Changed' },
     { value: 'member_invited', label: 'Member Invited' },
     { value: 'member_removed', label: 'Member Removed' },
     { value: 'role_changed', label: 'Role Changed' },
+    { value: 'member_moved_to_group', label: 'Member Moved to Group' },
+    { value: 'invite_link_created', label: 'Invite Link Created' },
+    { value: 'invite_link_accepted', label: 'Invite Link Accepted' },
+    { value: 'invite_link_revoked', label: 'Invite Link Revoked' },
     { value: 'project_created', label: 'Project Created' },
     { value: 'project_updated', label: 'Project Updated' },
     { value: 'project_deleted', label: 'Project Deleted' }
@@ -39,7 +46,7 @@ export default function ActivityLogPanel({ projectId }) {
   useEffect(() => {
     fetchActivities();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId, filterUser, filterAction, filterStartDate, filterEndDate]);
+  }, [projectId, filterUser, filterAction, filterGroup, filterStartDate, filterEndDate]);
 
   async function fetchMembers() {
     try {
@@ -94,10 +101,16 @@ export default function ActivityLogPanel({ projectId }) {
 
       setUserDetails(details);
 
+      // Task 6.4: Filter by group on client-side (since Firestore doesn't have a filterByGroup query)
+      let filteredActivities = result.activities;
+      if (filterGroup) {
+        filteredActivities = result.activities.filter(activity => activity.groupContext === filterGroup);
+      }
+
       if (loadMore) {
-        setActivities([...activities, ...result.activities]);
+        setActivities([...activities, ...filteredActivities]);
       } else {
-        setActivities(result.activities);
+        setActivities(filteredActivities);
       }
 
       setLastDoc(result.lastDoc || null);
@@ -117,6 +130,7 @@ export default function ActivityLogPanel({ projectId }) {
   function handleClearFilters() {
     setFilterUser('');
     setFilterAction('');
+    setFilterGroup('');
     setFilterStartDate('');
     setFilterEndDate('');
   }
@@ -138,21 +152,46 @@ export default function ActivityLogPanel({ projectId }) {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  // Task 6.2, 6.6: Update descriptions to include group context
   function getActionDescription(activity) {
     const user = userDetails[activity.userId];
     const userName = user?.displayName || user?.email || 'Unknown user';
+    const groupName = activity.metadata?.invitedGroup === 'consulting' ? 'Consulting Group' :
+                      activity.metadata?.invitedGroup === 'client' ? 'Client Group' : '';
 
     switch (activity.action) {
       case 'document_uploaded':
-        return `${userName} uploaded a document`;
+        return `${userName} uploaded a document${activity.metadata?.documentName ? `: ${activity.metadata.documentName}` : ''}`;
       case 'document_deleted':
-        return `${userName} deleted a document`;
+        return `${userName} deleted a document${activity.metadata?.documentName ? `: ${activity.metadata.documentName}` : ''}`;
+      case 'document_visibility_changed':
+        return `${userName} changed visibility of ${activity.metadata?.documentName || 'a document'}`;
       case 'member_invited':
-        return `${userName} invited ${activity.metadata?.invitedEmail || 'a user'} as ${activity.metadata?.invitedRole || 'member'}`;
+        return `${userName} invited ${activity.metadata?.invitedEmail || 'a user'} as ${activity.metadata?.invitedRole || 'member'}${groupName ? ` to ${groupName}` : ''}`;
       case 'member_removed':
         return `${userName} removed ${activity.metadata?.removedUserEmail || 'a member'}`;
       case 'role_changed':
         return `${userName} changed ${activity.metadata?.targetUserEmail || 'a member'}'s role from ${activity.metadata?.oldRole || '?'} to ${activity.metadata?.newRole || '?'}`;
+      case 'member_moved_to_group': {
+        const oldGroup = activity.metadata?.oldGroup === 'consulting' ? 'Consulting' : 'Client';
+        const newGroup = activity.metadata?.newGroup === 'consulting' ? 'Consulting' : 'Client';
+        return `${userName} moved ${activity.metadata?.targetUserEmail || 'a member'} from ${oldGroup} Group to ${newGroup} Group`;
+      }
+      case 'invite_link_created': {
+        const role = activity.metadata?.role || 'member';
+        const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        return `${userName} created an invite link for ${role} in ${group}`;
+      }
+      case 'invite_link_accepted': {
+        const role = activity.metadata?.role || 'member';
+        const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        return `${userName} joined the project as ${role} in ${group} via invite link`;
+      }
+      case 'invite_link_revoked': {
+        const role = activity.metadata?.role || 'member';
+        const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
+        return `${userName} revoked an invite link for ${role} in ${group}`;
+      }
       case 'project_created':
         return `${userName} created the project`;
       case 'project_updated':
@@ -170,12 +209,22 @@ export default function ActivityLogPanel({ projectId }) {
         return '📄';
       case 'document_deleted':
         return '🗑️';
+      case 'document_visibility_changed':
+        return '👁️';
       case 'member_invited':
         return '✉️';
       case 'member_removed':
         return '👋';
       case 'role_changed':
         return '🔄';
+      case 'member_moved_to_group':
+        return '↔️';
+      case 'invite_link_created':
+        return '🔗';
+      case 'invite_link_accepted':
+        return '✅';
+      case 'invite_link_revoked':
+        return '🚫';
       case 'project_created':
         return '🎉';
       case 'project_updated':
@@ -187,7 +236,7 @@ export default function ActivityLogPanel({ projectId }) {
     }
   }
 
-  const hasActiveFilters = filterUser || filterAction || filterStartDate || filterEndDate;
+  const hasActiveFilters = filterUser || filterAction || filterGroup || filterStartDate || filterEndDate;
 
   if (loading && activities.length === 0) {
     return <div className="text-center py-8">Loading activity log...</div>;
@@ -199,10 +248,10 @@ export default function ActivityLogPanel({ projectId }) {
 
   return (
     <div className="space-y-4">
-      {/* Filter Controls */}
+      {/* Filter Controls (Task 6.3: Add group filter) */}
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Filter by User */}
           <div>
             <label htmlFor="filter-user" className="block text-xs font-medium text-gray-600 mb-1">
@@ -245,6 +294,24 @@ export default function ActivityLogPanel({ projectId }) {
                   {type.label}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Filter by Group (Task 6.3) */}
+          <div>
+            <label htmlFor="filter-group" className="block text-xs font-medium text-gray-600 mb-1">
+              Group
+            </label>
+            <select
+              id="filter-group"
+              value={filterGroup}
+              onChange={(e) => setFilterGroup(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              data-testid="filter-group"
+            >
+              <option value="">All Groups</option>
+              <option value="consulting">Consulting Group</option>
+              <option value="client">Client Group</option>
             </select>
           </div>
 
@@ -298,9 +365,8 @@ export default function ActivityLogPanel({ projectId }) {
             {hasActiveFilters ? 'No activities match your filters' : 'No activity yet'}
           </div>
         ) : (
-          activities.map((activity, index) => {
+          activities.map((activity) => {
             const user = userDetails[activity.userId];
-            const isLastItem = index === activities.length - 1;
 
             return (
               <div
@@ -313,13 +379,17 @@ export default function ActivityLogPanel({ projectId }) {
                   {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
                 </div>
 
-                {/* Activity Content */}
+                {/* Activity Content (Task 6.2: Add groupContext display) */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-lg">{getActionIcon(activity.action)}</span>
                     <p className="text-sm text-gray-900">
                       {getActionDescription(activity)}
                     </p>
+                    {/* Task 6.5: Show group badge where relevant */}
+                    {activity.groupContext && (
+                      <GroupBadge group={activity.groupContext} size="sm" />
+                    )}
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
                     {formatTimestamp(activity.timestamp)}

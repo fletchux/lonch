@@ -80,6 +80,7 @@ describe('invitationService', () => {
         projectId: 'project123',
         email: 'user@example.com',
         role: 'editor',
+        group: 'client',
         invitedBy: 'owner123',
         status: 'pending',
         acceptedAt: null,
@@ -137,6 +138,48 @@ describe('invitationService', () => {
 
       await expect(createInvitation('project123', 'user@example.com', 'editor', 'owner123'))
         .rejects.toThrow('Failed to create invitation: Failed to get user invitations: Firestore error');
+    });
+
+    it('should create invitation with default group "client" when group not specified', async () => {
+      const mockDoc = { id: 'project123_user@example.com_1700000000000' };
+      const mockCollection = { id: 'invitations' };
+      const mockQuery = { id: 'query' };
+      const emptySnapshot = { forEach: () => {}, empty: true };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(query).mockReturnValue(mockQuery);
+      vi.mocked(where).mockReturnValue({ field: 'email', operator: '==', value: 'user@example.com' });
+      vi.mocked(getDocs).mockResolvedValue(emptySnapshot);
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+
+      const result = await createInvitation('project123', 'user@example.com', 'viewer', 'admin123');
+
+      expect(setDoc).toHaveBeenCalledWith(mockDoc, expect.objectContaining({
+        group: 'client'
+      }));
+      expect(result.group).toBe('client');
+    });
+
+    it('should create invitation with group "consulting" when explicitly specified', async () => {
+      const mockDoc = { id: 'project123_user@example.com_1700000000000' };
+      const mockCollection = { id: 'invitations' };
+      const mockQuery = { id: 'query' };
+      const emptySnapshot = { forEach: () => {}, empty: true };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(query).mockReturnValue(mockQuery);
+      vi.mocked(where).mockReturnValue({ field: 'email', operator: '==', value: 'user@example.com' });
+      vi.mocked(getDocs).mockResolvedValue(emptySnapshot);
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+
+      const result = await createInvitation('project123', 'user@example.com', 'admin', 'owner123', 'consulting');
+
+      expect(setDoc).toHaveBeenCalledWith(mockDoc, expect.objectContaining({
+        group: 'consulting'
+      }));
+      expect(result.group).toBe('consulting');
     });
   });
 
@@ -253,6 +296,7 @@ describe('invitationService', () => {
         projectId: 'project123',
         email: 'user@example.com',
         role: 'editor',
+        group: 'client',
         invitedBy: 'owner123',
         status: 'pending',
         expiresAt: futureDate
@@ -276,7 +320,7 @@ describe('invitationService', () => {
 
       await acceptInvitation('inv_token_123', 'user456');
 
-      expect(projectService.addProjectMember).toHaveBeenCalledWith('project123', 'user456', 'editor', 'owner123');
+      expect(projectService.addProjectMember).toHaveBeenCalledWith('project123', 'user456', 'editor', 'owner123', 'client');
       expect(updateDoc).toHaveBeenCalledWith(mockDoc, {
         status: 'accepted',
         acceptedAt: 'mock-timestamp'
@@ -342,6 +386,44 @@ describe('invitationService', () => {
 
       await expect(acceptInvitation('inv_token_123', 'user456'))
         .rejects.toThrow('Invitation has expired');
+    });
+
+    it('should accept invitation with consulting group and add user to project', async () => {
+      const futureDate = new Date(1700000000000 + 86400000); // Mock Date.now() + 1 day
+      const mockInvitation = {
+        id: 'inv123',
+        projectId: 'project123',
+        email: 'consultant@example.com',
+        role: 'admin',
+        group: 'consulting',
+        invitedBy: 'owner123',
+        status: 'pending',
+        expiresAt: futureDate
+      };
+      const mockCollection = { id: 'invitations' };
+      const mockQuery = { id: 'query' };
+      const mockDoc = { id: 'inv123' };
+      const mockSnapshot = {
+        empty: false,
+        forEach: (callback) => {
+          callback({ data: () => mockInvitation });
+        }
+      };
+
+      vi.mocked(collection).mockReturnValue(mockCollection);
+      vi.mocked(query).mockReturnValue(mockQuery);
+      vi.mocked(getDocs).mockResolvedValue(mockSnapshot);
+      vi.mocked(doc).mockReturnValue(mockDoc);
+      vi.mocked(updateDoc).mockResolvedValue(undefined);
+      vi.mocked(projectService.addProjectMember).mockResolvedValue(undefined);
+
+      await acceptInvitation('inv_token_456', 'user789');
+
+      expect(projectService.addProjectMember).toHaveBeenCalledWith('project123', 'user789', 'admin', 'owner123', 'consulting');
+      expect(updateDoc).toHaveBeenCalledWith(mockDoc, {
+        status: 'accepted',
+        acceptedAt: 'mock-timestamp'
+      });
     });
   });
 

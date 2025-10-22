@@ -30,7 +30,17 @@ import {
  *   checklistTemplate: object | null,
  *   stakeholderTemplate: object | null,
  *   teamTemplate: object | null,
- *   documents: array,
+ *   documents: array of {
+ *     id: string,
+ *     name: string,
+ *     category: string,
+ *     size: number,
+ *     type: string,
+ *     visibility: 'consulting_only' | 'client_only' | 'both' (defaults to 'both'),
+ *     uploadedAt: timestamp,
+ *     uploadedBy: string (userId),
+ *     ...other metadata
+ *   },
  *   extractedData: object | null,
  *   extractionConflicts: object | null,
  *   manuallyEditedFields: array,
@@ -46,6 +56,7 @@ import {
  *   projectId: string,
  *   userId: string,
  *   role: 'owner' | 'admin' | 'editor' | 'viewer',
+ *   group: 'consulting' | 'client',
  *   invitedBy: string (userId of inviter),
  *   joinedAt: timestamp,
  *   lastActiveAt: timestamp
@@ -140,6 +151,27 @@ export async function getUserProjects(userId) {
 }
 
 /**
+ * Get a single project by ID
+ * @param {string} projectId - Project ID
+ * @returns {Promise<Object|null>} Project document or null if not found
+ */
+export async function getProject(projectId) {
+  try {
+    const projectRef = doc(db, 'projects', projectId);
+    const projectDoc = await getDoc(projectRef);
+
+    if (!projectDoc.exists()) {
+      return null;
+    }
+
+    return projectDoc.data();
+  } catch (error) {
+    console.error('Error getting project:', error);
+    throw new Error(`Failed to get project: ${error.message}`);
+  }
+}
+
+/**
  * Update a project in Firestore
  * @param {string} projectId - Project ID
  * @param {Object} updates - Object containing fields to update
@@ -186,9 +218,10 @@ export async function deleteProject(projectId) {
  * @param {string} userId - User ID to add as member
  * @param {string} role - Role to assign ('owner' | 'admin' | 'editor' | 'viewer')
  * @param {string} invitedBy - User ID of the person who invited this member
+ * @param {string} group - Group to assign ('consulting' | 'client'), defaults to 'consulting'
  * @returns {Promise<Object>} The created project member document
  */
-export async function addProjectMember(projectId, userId, role, invitedBy) {
+export async function addProjectMember(projectId, userId, role, invitedBy, group = 'consulting') {
   try {
     const memberId = `${projectId}_${userId}`;
     const memberRef = doc(db, 'projectMembers', memberId);
@@ -198,6 +231,7 @@ export async function addProjectMember(projectId, userId, role, invitedBy) {
       projectId,
       userId,
       role,
+      group,
       invitedBy,
       joinedAt: serverTimestamp(),
       lastActiveAt: serverTimestamp()
@@ -333,5 +367,102 @@ export async function getUserRoleInProject(userId, projectId) {
   } catch (error) {
     console.error('Error getting user role in project:', error);
     throw new Error(`Failed to get user role in project: ${error.message}`);
+  }
+}
+
+/**
+ * Get user's group in a project
+ * @param {string} userId - User ID
+ * @param {string} projectId - Project ID
+ * @returns {Promise<string|null>} User's group ('consulting' | 'client') or null if not a member
+ */
+export async function getUserGroupInProject(userId, projectId) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+    const memberDoc = await getDoc(memberRef);
+
+    if (!memberDoc.exists()) {
+      return null;
+    }
+
+    return memberDoc.data().group || 'consulting'; // Default to 'consulting' for backwards compatibility
+  } catch (error) {
+    console.error('Error getting user group in project:', error);
+    throw new Error(`Failed to get user group in project: ${error.message}`);
+  }
+}
+
+/**
+ * Update a member's group in a project
+ * @param {string} projectId - Project ID
+ * @param {string} userId - User ID whose group to update
+ * @param {string} newGroup - New group to assign ('consulting' | 'client')
+ * @returns {Promise<void>}
+ */
+export async function updateMemberGroup(projectId, userId, newGroup) {
+  try {
+    const memberId = `${projectId}_${userId}`;
+    const memberRef = doc(db, 'projectMembers', memberId);
+
+    await updateDoc(memberRef, {
+      group: newGroup,
+      lastActiveAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating member group:', error);
+    throw new Error(`Failed to update member group: ${error.message}`);
+  }
+}
+
+/**
+ * Migration helper: Add default group='consulting' to all existing project members
+ * This function should be run once to migrate existing data when upgrading to Phase 1B
+ * @returns {Promise<Object>} Migration results with counts
+ */
+export async function migrateExistingMembersToGroups() {
+  try {
+    const membersRef = collection(db, 'projectMembers');
+    const querySnapshot = await getDocs(membersRef);
+
+    let updated = 0;
+    let alreadyHasGroup = 0;
+    let errors = 0;
+
+    for (const memberDoc of querySnapshot.docs) {
+      try {
+        const memberData = memberDoc.data();
+
+        // Skip if member already has a group field
+        if (memberData.group) {
+          alreadyHasGroup++;
+          continue;
+        }
+
+        // Add group='consulting' as default for existing members
+        await updateDoc(memberDoc.ref, {
+          group: 'consulting'
+        });
+
+        updated++;
+      } catch (error) {
+        console.error(`Error migrating member ${memberDoc.id}:`, error);
+        errors++;
+      }
+    }
+
+    const results = {
+      total: querySnapshot.size,
+      updated,
+      alreadyHasGroup,
+      errors,
+      success: errors === 0
+    };
+
+    console.log('Migration results:', results);
+    return results;
+  } catch (error) {
+    console.error('Error running migration:', error);
+    throw new Error(`Failed to migrate existing members: ${error.message}`);
   }
 }

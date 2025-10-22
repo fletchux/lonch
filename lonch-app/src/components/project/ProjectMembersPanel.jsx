@@ -1,23 +1,30 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
-import { getProjectMembers, updateMemberRole, removeMember } from '../../services/projectService';
+import { getProjectMembers, updateMemberRole, removeMember, updateMemberGroup } from '../../services/projectService';
 import { getUser } from '../../services/userService';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { ROLES, getRoleDisplayName } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 import RoleBadge from '../shared/RoleBadge';
+import GroupBadge from './GroupBadge';
 import { logActivity } from '../../services/activityLogService';
+import { createNotification, shouldNotifyUser } from '../../services/notificationService';
+import ShareLinksTab from './ShareLinksTab';
 
 export default function ProjectMembersPanel({ projectId }) {
   const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
+  const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
   const [memberDetails, setMemberDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [groupFilter, setGroupFilter] = useState('all');
   const [confirmRemove, setConfirmRemove] = useState(null);
   const [confirmRoleChange, setConfirmRoleChange] = useState(null);
+  const [confirmGroupChange, setConfirmGroupChange] = useState(null);
 
   useEffect(() => {
     fetchMembers();
@@ -87,6 +94,23 @@ export default function ProjectMembersPanel({ projectId }) {
         // Don't fail the operation if logging fails
       }
 
+      // Send notification to the user whose role was changed
+      try {
+        const shouldNotify = await shouldNotifyUser(member.userId, 'role_change');
+        if (shouldNotify) {
+          await createNotification(
+            member.userId,
+            'role_change',
+            `Your role has been changed from ${getRoleDisplayName(oldRole)} to ${getRoleDisplayName(newRole)}`,
+            `/projects/${projectId}`,
+            projectId
+          );
+        }
+      } catch (notificationError) {
+        console.error('Failed to create notification for role change:', notificationError);
+        // Don't fail the operation if notification fails
+      }
+
       await fetchMembers();
       setConfirmRoleChange(null);
     } catch (err) {
@@ -135,8 +159,77 @@ export default function ProjectMembersPanel({ projectId }) {
     }
   }
 
-  // Filter members based on search term
+  async function handleGroupChange(member, newGroup) {
+    if (!permissions.canMoveUserBetweenGroups()) {
+      alert('You do not have permission to change user groups');
+      return;
+    }
+
+    setConfirmGroupChange({ member, newGroup });
+  }
+
+  async function confirmGroupChangeAction() {
+    const { member, newGroup } = confirmGroupChange;
+    const oldGroup = member.group || 'consulting';
+    try {
+      await updateMemberGroup(projectId, member.userId, newGroup);
+
+      // Log the activity
+      try {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'member_moved_to_group',
+          'member',
+          member.userId,
+          {
+            targetUserId: member.userId,
+            targetUserEmail: memberDetails[member.userId]?.email,
+            oldGroup,
+            newGroup
+          },
+          newGroup
+        );
+      } catch (logError) {
+        console.error('Failed to log activity:', logError);
+      }
+
+      // Send notification to the user whose group was changed
+      try {
+        const shouldNotify = await shouldNotifyUser(member.userId, 'group_change');
+        if (shouldNotify) {
+          const oldGroupName = oldGroup === GROUP.CONSULTING ? 'Consulting Group' : 'Client Group';
+          const newGroupName = newGroup === GROUP.CONSULTING ? 'Consulting Group' : 'Client Group';
+          await createNotification(
+            member.userId,
+            'group_change',
+            `You have been moved from ${oldGroupName} to ${newGroupName}. Your document visibility has been updated.`,
+            `/projects/${projectId}`,
+            projectId
+          );
+        }
+      } catch (notificationError) {
+        console.error('Failed to create notification for group change:', notificationError);
+        // Don't fail the operation if notification fails
+      }
+
+      await fetchMembers();
+      setConfirmGroupChange(null);
+    } catch (err) {
+      console.error('Error updating group:', err);
+      alert('Failed to update group: ' + err.message);
+    }
+  }
+
+  // Filter members based on search term and group
   const filteredMembers = members.filter(member => {
+    // Group filter
+    if (groupFilter !== 'all') {
+      const memberGroup = member.group || 'consulting';
+      if (memberGroup !== groupFilter) return false;
+    }
+
+    // Search filter
     if (!searchTerm) return true;
     const userDetails = memberDetails[member.userId];
     const searchLower = searchTerm.toLowerCase();
@@ -164,19 +257,55 @@ export default function ProjectMembersPanel({ projectId }) {
     return date.toLocaleDateString();
   }
 
-  if (loading) {
+  // Only show loading/error for members tab
+  if (loading && activeTab === 'members') {
     return <div className="text-center py-8">Loading members...</div>;
   }
 
-  if (error) {
+  if (error && activeTab === 'members') {
     return <div className="text-center py-8 text-red-600">Error: {error}</div>;
   }
 
   return (
     <div className="space-y-4">
-      {/* Search/Filter */}
-      {members.length > 5 && (
-        <div className="mb-4">
+      {/* Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8" data-testid="members-tabs">
+          <button
+            onClick={() => setActiveTab('members')}
+            className={`
+              py-2 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'members'
+                ? 'border-teal-600 text-teal-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }
+            `}
+            data-testid="members-tab"
+          >
+            Members ({members.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('shareLinks')}
+            className={`
+              py-2 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'shareLinks'
+                ? 'border-teal-600 text-teal-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }
+            `}
+            data-testid="share-links-tab"
+          >
+            Share Links
+          </button>
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'members' && (
+        <>
+          {/* Search/Filter */}
+          <div className="mb-4 space-y-2">
+        {members.length > 5 && (
           <input
             type="text"
             placeholder="Search members by name, email, or role..."
@@ -184,8 +313,21 @@ export default function ProjectMembersPanel({ projectId }) {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
+        )}
+        <div className="flex gap-2">
+          <label className="text-sm font-medium text-gray-700">Group:</label>
+          <select
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+            data-testid="group-filter"
+          >
+            <option value="all">All Groups</option>
+            <option value={GROUP.CONSULTING}>Consulting Group</option>
+            <option value={GROUP.CLIENT}>Client Group</option>
+          </select>
         </div>
-      )}
+      </div>
 
       {/* Members List */}
       <div className="space-y-2">
@@ -221,6 +363,7 @@ export default function ProjectMembersPanel({ projectId }) {
                           <span className="text-sm text-gray-500 ml-2">(You)</span>
                         )}
                       </h4>
+                      <GroupBadge group={member.group || 'consulting'} />
                     </div>
                     <p className="text-sm text-gray-500">{userDetails?.email || 'No email'}</p>
                     <p className="text-xs text-gray-400 mt-1">
@@ -245,6 +388,19 @@ export default function ProjectMembersPanel({ projectId }) {
                       </select>
                     ) : (
                       <RoleBadge role={member.role} />
+                    )}
+
+                    {/* Group Dropdown */}
+                    {permissions.canMoveUserBetweenGroups() && !isCurrentUser && (
+                      <select
+                        value={member.group || 'consulting'}
+                        onChange={(e) => handleGroupChange(member, e.target.value)}
+                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+                        data-testid="group-select"
+                      >
+                        <option value={GROUP.CONSULTING}>Consulting</option>
+                        <option value={GROUP.CLIENT}>Client</option>
+                      </select>
                     )}
                   </div>
 
@@ -320,6 +476,43 @@ export default function ProjectMembersPanel({ projectId }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Group Change Confirmation Dialog */}
+      {confirmGroupChange && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-2">Confirm Group Change</h3>
+            <p className="text-gray-600 mb-4">
+              Move <strong>{memberDetails[confirmGroupChange.member.userId]?.displayName}</strong> from{' '}
+              <strong>{confirmGroupChange.member.group === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong> to{' '}
+              <strong>{confirmGroupChange.newGroup === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong>?
+              This will change their document visibility.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmGroupChange(null)}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmGroupChangeAction}
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                data-testid="confirm-group-change"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+        </>
+      )}
+
+      {/* Share Links Tab */}
+      {activeTab === 'shareLinks' && (
+        <ShareLinksTab projectId={projectId} />
       )}
     </div>
   );

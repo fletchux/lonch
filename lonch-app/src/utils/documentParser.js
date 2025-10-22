@@ -5,10 +5,11 @@
 
 /**
  * Extract text from a PDF file (MOCKED for development)
- * @param {File} file - PDF file to parse
+ * @param {File} _file - PDF file to parse (currently unused in mock)
  * @returns {Promise<string>} - Extracted text content
  */
-export const extractTextFromPDF = async (file) => {
+// eslint-disable-next-line no-unused-vars
+export const extractTextFromPDF = async (_file) => {
   try {
     // TODO: Replace with actual PDF parsing library (pdf.js works in browser)
     // For now, return mock data for UI testing
