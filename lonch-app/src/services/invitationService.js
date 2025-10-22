@@ -10,8 +10,10 @@ import {
   where,
   serverTimestamp
 } from 'firebase/firestore';
-import { addProjectMember } from './projectService';
+import { addProjectMember, getProject } from './projectService';
 import { createNotification, shouldNotifyUser } from './notificationService';
+import { getUser } from './userService';
+import { sendInvitationEmail as sendEmail } from './emailService';
 
 /**
  * Invitation Service
@@ -57,38 +59,39 @@ function calculateExpirationDate() {
 
 /**
  * Send email notification for invitation
- * TODO: Integrate with Firebase Extensions (Trigger Email) or SendGrid
- * @param {string} email - Recipient email
- * @param {string} token - Invitation token
- * @param {string} projectId - Project ID
- * @param {string} group - Group being invited to ('consulting' | 'client')
+ * Uses emailService to queue email via Firebase Extensions
+ * @param {Object} invitation - Invitation object with email, role, group, token, projectId, expiresAt
+ * @param {string} inviterUserId - User ID of person sending invitation
+ * @returns {Promise<void>}
  */
-async function sendInvitationEmail(email, token, projectId, group) {
-  // Placeholder for email notification
-  // In production, this would integrate with:
-  // - Firebase Extensions: Trigger Email extension
-  // - OR SendGrid/other email service
+async function sendInvitationEmail(invitation, inviterUserId) {
+  try {
+    // Get project and inviter information
+    const [project, inviter] = await Promise.all([
+      getProject(invitation.projectId),
+      getUser(inviterUserId)
+    ]);
 
-  const inviteLink = `${window.location.origin}/invite/${token}`;
-  const groupName = group === 'consulting' ? 'Consulting Group' : 'Client Group';
+    if (!project || !inviter) {
+      throw new Error('Project or inviter not found');
+    }
 
-  console.log('Email notification placeholder:', {
-    to: email,
-    subject: `You've been invited to collaborate on a project (${groupName})`,
-    inviteLink,
-    projectId,
-    group: groupName
-  });
+    const inviterName = inviter.displayName || inviter.email || 'A team member';
+    const projectName = project.name || 'a project';
 
-  // TODO: Implement actual email sending when email service is configured
-  // Example with Firebase Extensions:
-  // await addDoc(collection(db, 'mail'), {
-  //   to: email,
-  //   message: {
-  //     subject: 'You\'ve been invited to collaborate on a project',
-  //     html: `<p>Click here to accept: <a href="${inviteLink}">${inviteLink}</a></p>`
-  //   }
-  // });
+    // Send email using email service
+    await sendEmail(invitation, inviterName, projectName);
+
+    console.log('Invitation email sent successfully:', {
+      to: invitation.email,
+      projectId: invitation.projectId,
+      role: invitation.role,
+      group: invitation.group
+    });
+  } catch (error) {
+    console.error('Error sending invitation email:', error);
+    throw error; // Re-throw to be handled by caller
+  }
 }
 
 /**
@@ -133,9 +136,11 @@ export async function createInvitation(projectId, email, role, invitedBy, group 
 
     await setDoc(invitationRef, invitationData);
 
-    // Send email notification (placeholder)
+    // Send email notification
+    // Always send email for new invitations - user may not have an account yet
+    // If they have an account and preferences, those are checked in emailService
     try {
-      await sendInvitationEmail(email, token, projectId, group);
+      await sendInvitationEmail(invitationData, invitedBy);
     } catch (emailError) {
       console.error('Failed to send invitation email:', emailError);
       // Don't fail the invitation creation if email fails
