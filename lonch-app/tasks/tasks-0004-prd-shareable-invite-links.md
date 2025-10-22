@@ -2,7 +2,7 @@
 
 **Based on PRD:** `0004-prd-shareable-invite-links.md`
 **Feature:** Shareable Invite Links
-**Status:** 📋 Not Started
+**Status:** ✅ Complete
 
 **Extends:** PRD #0003 Collaboration & Permissions (Phase 1A & 1B)
 
