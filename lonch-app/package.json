@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "test-email": "node --env-file=.env scripts/test-email.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
