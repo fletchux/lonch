@@ -40,6 +40,31 @@
 - Dev server needs restart after Tailwind config changes
 - PostCSS config must use `tailwindcss: {}` format for v3
 
+## Session Startup
+
+### Menu-Driven Workflow Selection
+When starting a session, use the intelligent session startup workflow:
+
+**Trigger phrases:** "start lonch feature", "begin session"
+
+**What it does:**
+1. Detects current directory (home vs project)
+2. Loads project context automatically
+3. Presents menu of common workflows:
+   - 🚀 Start new feature (`/shazam`)
+   - 🔄 Resume existing work (`/resume`)
+   - 📋 Review PRDs/Specs
+   - ✅ Quick commit & push
+   - 🎨 Other (open-ended)
+
+**See:** `.claude/session-startup.md` for full workflow details
+
+### Quick Commands
+- `/shazam` - Complete feature setup (PRD → Tasks → Issue → Branch)
+- `/resume` - Load context and continue existing work
+- `/lonchit` - Wrap up and ship (tests, commit, push, docs)
+- See `.claude/commands/README.md` for all slash commands
+
 ## Workflow Preferences
 
 ### Before Committing
@@ -76,6 +101,19 @@
 
 ```
 lonch-app/
+├── .claude/
+│   ├── commands/           # Slash commands (shazam, resume, lonchit, etc.)
+│   ├── workflows/          # Detailed workflow files (PRD, tasks)
+│   ├── session-startup.md  # Menu-driven session initialization
+│   └── lonch-preferences.md # This file
+├── .github/
+│   ├── WORKFLOWS.md        # Complete workflow documentation
+│   ├── GETTING_STARTED.md  # Onboarding guide
+│   └── GITHUB_CLI_REFERENCE.md
+├── specs/                  # PRDs and task lists (formerly /tasks/)
+│   ├── 0001-prd-upload-contracts-and-specs.md
+│   ├── tasks-0001-prd-upload-contracts-and-specs.md
+│   └── ... (all PRDs and task lists)
 ├── src/
 │   ├── components/
 │   │   ├── icons/          # Reusable icon components
@@ -118,5 +156,21 @@ lonch-app/
 
 ---
 
-*Last Updated: 2025-10-14*
+## Recent Changes (2025-10-24)
+
+### Workflow Reorganization
+- ✅ Moved `/tasks/` → `/specs/` for PRDs and task lists
+- ✅ Created session startup workflow (`.claude/session-startup.md`)
+- ✅ Moved `resume` to slash commands (`.claude/commands/resume.md`)
+- ✅ Created `lonchit` slash command (`.claude/commands/lonchit.md`)
+- ✅ Created slash command reference (`.claude/commands/README.md`)
+- ✅ Updated all workflow files to reference `/specs/`
+
+### Directory Changes
+- All PRDs moved from `docs/prds/` to `specs/`
+- All task lists moved from `docs/prds/` to `specs/`
+
+---
+
+*Last Updated: 2025-10-24*
 *This file helps maintain consistency across development sessions*

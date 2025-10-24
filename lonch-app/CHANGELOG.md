@@ -2,6 +2,42 @@
 
 ## [Unreleased]
 
+### Added - 2025-10-24 - Workflow Automation Reorganization
+**Claude Code Workflow System Enhancement**
+
+Reorganized and enhanced the development workflow automation system for improved efficiency and developer experience.
+
+#### Workflow Changes
+- **Directory Structure:** Renamed `/tasks/` → `/specs/` for PRDs and task lists (better semantic clarity)
+- **Session Startup:** Created intelligent session initialization with menu-driven workflow selection (`.claude/session-startup.md`)
+- **Slash Commands:**
+  - Moved `resume` from `.github/commands/` → `.claude/commands/resume.md` (now a slash command)
+  - Created `/lonchit` slash command for wrap-up and ship workflow
+  - Created comprehensive command reference (`.claude/commands/README.md`)
+- **File Organization:** Moved 11 PRD and task files from `docs/prds/` → `specs/`
+
+#### Files Modified
+- Updated all workflow files to reference `/specs/` instead of `/tasks/`:
+  - `.claude/workflows/create-prd.md`
+  - `.claude/workflows/generate-tasks.md`
+  - `.claude/commands/shazam.md`
+  - `.claude/commands/generate-tasks.md`
+  - `.github/WORKFLOWS.md`
+- Enhanced `.claude/lonch-preferences.md` with session startup info and updated project structure
+
+#### New Features
+- **Session Menu:** Say "start lonch feature" to get intelligent workflow menu with 5 options
+- **Quick Commands:** `/shazam`, `/resume`, `/lonchit` now all available as slash commands
+- **Better Documentation:** Comprehensive README for all slash commands with usage examples
+
+#### Benefits
+- Faster session startup with context-aware menus
+- Consistent workflow execution via slash commands
+- Improved discoverability of available workflows
+- Clearer separation between specs (PRDs/tasks) and code
+
+---
+
 ### Added - 2025-10-21 - Phase 1B Complete ✅
 **Collaboration & Permissions - Phase 1B (Dual-Group Architecture)**
 

@@ -7,7 +7,7 @@ To guide an AI assistant in creating a detailed, step-by-step task list in Markd
 ## Output
 
 - **Format:** Markdown (`.md`)
-- **Location:** `/tasks/`
+- **Location:** `/specs/`
 - **Filename:** `tasks-[prd-file-name].md` (e.g., `tasks-0001-prd-user-profile-editing.md`)
 
 ## Process
@@ -27,12 +27,12 @@ To guide an AI assistant in creating a detailed, step-by-step task list in Markd
 8.  **Create GitHub Issue:** After generating the task list, create a GitHub issue for this PRD:
     ```bash
     gh issue create --title "PRD-XXXX: Feature Name" \
-      --body "$(cat tasks/XXXX-prd-feature-name.md)" \
+      --body "$(cat specs/XXXX-prd-feature-name.md)" \
       --label "feature,prd-XXXX"
     ```
     Add the issue number to the task file header.
 9.  **Generate Final Output:** Combine the parent tasks, sub-tasks, relevant files, GitHub issue reference, and notes into the final Markdown structure.
-10. **Save Task List:** Save the generated document in the `/tasks/` directory with the filename `tasks-[prd-file-name].md`, where `[prd-file-name]` matches the base name of the input PRD file (e.g., if the input was `0001-prd-user-profile-editing.md`, the output is `tasks-0001-prd-user-profile-editing.md`).
+10. **Save Task List:** Save the generated document in the `/specs/` directory with the filename `tasks-[prd-file-name].md`, where `[prd-file-name]` matches the base name of the input PRD file (e.g., if the input was `0001-prd-user-profile-editing.md`, the output is `tasks-0001-prd-user-profile-editing.md`).
 
 ## Output Format
 
@@ -42,7 +42,7 @@ The generated task list _must_ follow this structure:
 # Task List: PRD-XXXX Feature Name
 
 **GitHub Issue:** #XX
-**PRD:** tasks/XXXX-prd-feature-name.md
+**PRD:** specs/XXXX-prd-feature-name.md
 **Status:** Not Started
 
 ## Relevant Files

@@ -24,7 +24,7 @@
 Execute /.claude/workflows/create-prd.md workflow:
 - Ask clarifying questions about the feature
 - Generate detailed PRD
-- Save to `/tasks/XXXX-prd-feature-name.md`
+- Save to `/specs/XXXX-prd-feature-name.md`
 - Note the PRD number (e.g., 0006)
 
 ### Step 3: Generate Tasks
@@ -34,7 +34,7 @@ Execute /.claude/workflows/generate-tasks.md workflow:
 - Wait for user "Go" confirmation
 - Generate detailed sub-tasks with TDD structure
 - **Automatically create GitHub issue**
-- Save task list to `/tasks/tasks-XXXX-prd-feature-name.md`
+- Save task list to `/specs/tasks-XXXX-prd-feature-name.md`
 - Capture issue number (e.g., #45)
 
 ### Step 4: Create Feature Branch
@@ -53,8 +53,8 @@ gh issue edit XX --add-label "in-progress"
 # Add start comment
 gh issue comment XX --body "🚀 Started feature development
 
-**PRD:** tasks/XXXX-prd-feature-name.md
-**Task List:** tasks/tasks-XXXX-prd-feature-name.md
+**PRD:** specs/XXXX-prd-feature-name.md
+**Task List:** specs/tasks-XXXX-prd-feature-name.md
 **Branch:** feature/XX-feature-name
 **Approach:** TDD (tests before implementation)
 
@@ -72,14 +72,14 @@ Display summary to user:
 ```
 ✨ SHAZAM! Feature setup complete!
 
-📋 PRD: tasks/XXXX-prd-feature-name.md
-📝 Tasks: tasks/tasks-XXXX-prd-feature-name.md
+📋 PRD: specs/XXXX-prd-feature-name.md
+📝 Tasks: specs/tasks-XXXX-prd-feature-name.md
 🎫 Issue: #XX - [Feature Name]
 🌿 Branch: feature/XX-feature-name
 🏷️  Status: in-progress
 
 Ready to code! Next steps:
-1. Review the task list: cat tasks/tasks-XXXX-prd-feature-name.md
+1. Review the task list: cat specs/tasks-XXXX-prd-feature-name.md
 2. Start implementation: /process-task-list
 3. Follow TDD: Write tests → Implement → Verify
 

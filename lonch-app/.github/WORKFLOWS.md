@@ -328,7 +328,7 @@ Automates the complete setup for a new feature:
 2. **Create PRD:**
    - Interactive Q&A about your feature
    - Generates detailed PRD document
-   - Saves to `/tasks/XXXX-prd-feature-name.md`
+   - Saves to `/specs/XXXX-prd-feature-name.md`
 
 3. **Generate Tasks:**
    - Analyzes PRD and codebase
@@ -353,8 +353,8 @@ Automates the complete setup for a new feature:
 ```
 ✨ SHAZAM! Feature setup complete!
 
-📋 PRD: tasks/0006-prd-notification-system.md
-📝 Tasks: tasks/tasks-0006-prd-notification-system.md
+📋 PRD: specs/0006-prd-notification-system.md
+📝 Tasks: specs/tasks-0006-prd-notification-system.md
 🎫 Issue: #45 - Notification System
 🌿 Branch: feature/45-notification-system
 🏷️  Status: in-progress

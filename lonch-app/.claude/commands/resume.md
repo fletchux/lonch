@@ -11,7 +11,7 @@ When the user says "resume" or "start session", execute this workflow to get ori
 - Read `README.md` (first 100 lines) to understand project overview
 
 ### 2. Check Current Task Status
-- Find and read the active task list file in `tasks/` directory
+- Find and read the active task list file in `specs/` directory
 - Identify which tasks are complete (marked with [x])
 - Identify the next pending task (marked with [ ])
 - Note the overall progress percentage
