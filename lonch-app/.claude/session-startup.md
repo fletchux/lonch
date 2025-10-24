@@ -82,21 +82,26 @@ Display a friendly menu with current context:
    - Shows next pending tasks
    - Uses /resume workflow
 
-3. 📋 Review PRDs/Specs
+3. 🔧 Fix a bug
+   - Document issue with guided questions
+   - Create GitHub issue and bug-fix branch
+   - Uses fixit workflow with TDD
+
+4. 📋 Review PRDs/Specs
    - Browse existing PRDs
    - Check task progress
    - Generate new tasks for existing PRD
 
-4. ✅ Quick commit & push
+5. ✅ Quick commit & push
    - Review changes
    - Commit to current branch
    - Push to remote
 
-5. 🎨 Other
+6. 🎨 Other
    - Open-ended assistance
    - Custom workflow
 
-**Select an option (1-5):**
+**Select an option (1-6):**
 ```
 
 ### Step 6: Execute Selected Workflow
@@ -119,7 +124,15 @@ Based on user selection:
    - Show recent commits
    - Present continuation options
 
-#### Option 3: Review PRDs/Specs
+#### Option 3: Fix a Bug
+1. Execute `fixit` workflow (`.claude/fixit-workflow.md`)
+   - Ask conversational questions about the bug
+   - Create bug report in `bugs/` directory
+   - Create GitHub issue
+   - Create bug-fix branch
+   - Guide through TDD fix process
+
+#### Option 4: Review PRDs/Specs
 1. List all PRDs in `specs/` directory
 2. For each PRD, show:
    - PRD number and name
@@ -130,14 +143,14 @@ Based on user selection:
    - Generate tasks for PRD
    - Continue work on existing tasks
 
-#### Option 4: Quick Commit & Push
+#### Option 5: Quick Commit & Push
 1. Run `git status` to show changes
 2. Review changed files
 3. Ask for commit message
 4. Stage, commit, and push
 5. Update GitHub issue if applicable
 
-#### Option 5: Other
+#### Option 6: Other
 1. Ask user what they need help with
 2. Provide open-ended assistance
 

@@ -53,6 +53,7 @@ When starting a session, use the intelligent session startup workflow:
 3. Presents menu of common workflows:
    - 🚀 Start new feature (`/shazam`)
    - 🔄 Resume existing work (`/resume`)
+   - 🔧 Fix a bug (`fixit`)
    - 📋 Review PRDs/Specs
    - ✅ Quick commit & push
    - 🎨 Other (open-ended)
@@ -63,6 +64,7 @@ When starting a session, use the intelligent session startup workflow:
 - `/shazam` - Complete feature setup (PRD → Tasks → Issue → Branch)
 - `/resume` - Load context and continue existing work
 - `/lonchit` - Wrap up and ship (tests, commit, push, docs)
+- `fixit` - Bug fixing workflow (Questions → Bug Report → TDD Fix)
 - See `.claude/commands/README.md` for all slash commands
 
 ## Workflow Preferences
@@ -104,6 +106,7 @@ lonch-app/
 ├── .claude/
 │   ├── commands/           # Slash commands (shazam, resume, lonchit, etc.)
 │   ├── workflows/          # Detailed workflow files (PRD, tasks)
+│   ├── fixit-workflow.md   # Bug fixing workflow
 │   ├── session-startup.md  # Menu-driven session initialization
 │   └── lonch-preferences.md # This file
 ├── .github/
@@ -114,6 +117,10 @@ lonch-app/
 │   ├── 0001-prd-upload-contracts-and-specs.md
 │   ├── tasks-0001-prd-upload-contracts-and-specs.md
 │   └── ... (all PRDs and task lists)
+├── bugs/                   # Bug reports and issue tracking
+│   ├── README.md           # Bug tracking system documentation
+│   ├── BUG-REPORT-TEMPLATE.md  # Template for new bug reports
+│   └── YYYY-MM-DD-*.md     # Individual bug reports
 ├── src/
 │   ├── components/
 │   │   ├── icons/          # Reusable icon components
@@ -156,9 +163,16 @@ lonch-app/
 
 ---
 
-## Recent Changes (2025-10-24)
+## Recent Changes
 
-### Workflow Reorganization
+### 2025-10-24 - Bug Fixing Workflow
+- ✅ Created `fixit` workflow for bug fixing (`.claude/fixit-workflow.md`)
+- ✅ Created `bugs/` directory for bug reports
+- ✅ Added bug report template (`bugs/BUG-REPORT-TEMPLATE.md`)
+- ✅ Updated session startup menu with "Fix a bug" option
+- ✅ TDD-focused bug fixing process
+
+### 2025-10-24 - Workflow Reorganization
 - ✅ Moved `/tasks/` → `/specs/` for PRDs and task lists
 - ✅ Created session startup workflow (`.claude/session-startup.md`)
 - ✅ Moved `resume` to slash commands (`.claude/commands/resume.md`)
@@ -169,6 +183,7 @@ lonch-app/
 ### Directory Changes
 - All PRDs moved from `docs/prds/` to `specs/`
 - All task lists moved from `docs/prds/` to `specs/`
+- Bug reports now stored in `bugs/`
 
 ---
 

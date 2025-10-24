@@ -2,6 +2,57 @@
 
 ## [Unreleased]
 
+### Added - 2025-10-24 - Bug Fixing Workflow System
+**TDD-Focused Bug Resolution Workflow**
+
+Created a comprehensive bug fixing workflow that streamlines issue resolution from discovery to deployment with Test-Driven Development approach.
+
+#### New Files Created
+- **`.claude/fixit-workflow.md`** - Complete bug fixing workflow with conversational questions
+- **`bugs/README.md`** - Bug tracking system documentation
+- **`bugs/BUG-REPORT-TEMPLATE.md`** - Structured template for bug reports
+
+#### Workflow Features
+- **Conversational Information Gathering:** 6 flexible questions to understand bugs
+  - What's happening?
+  - Where is it happening?
+  - What should happen instead?
+  - Reproduction steps?
+  - Technical details? (optional)
+  - Urgency/severity?
+- **Automated Setup:**
+  - Creates bug report: `bugs/YYYY-MM-DD-short-description.md`
+  - Creates GitHub issue with bug details
+  - Auto-creates branch: `bug/XX-short-description`
+  - Marks issue as "in-progress"
+- **TDD Process:**
+  - Write failing test that reproduces bug
+  - Implement fix
+  - Verify test passes
+  - Run full test suite (no regressions)
+  - Manual verification
+- **Integration:** Works with existing workflows (`/lonchit` for completion)
+
+#### Session Startup Enhancement
+- Added "Fix a bug" option to session startup menu (option 3)
+- Menu now has 6 options instead of 5
+- Updated `.claude/session-startup.md` with fixit workflow integration
+
+#### Documentation Updates
+- Updated `.claude/lonch-preferences.md` with bug fixing workflow reference
+- Added `bugs/` directory to project structure documentation
+- Severity level guidelines (Critical/High/Medium/Low)
+
+#### Benefits
+- Streamlined bug reporting and fixing
+- Consistent documentation for all issues
+- TDD approach prevents regressions
+- Links bug reports to GitHub issues
+- Clear branch naming for bug fixes
+- Integrated with existing quality workflows
+
+---
+
 ### Added - 2025-10-24 - Workflow Automation Reorganization
 **Claude Code Workflow System Enhancement**
 
