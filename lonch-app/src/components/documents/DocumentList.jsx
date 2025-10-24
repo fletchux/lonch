@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { useProjectPermissions } from '../hooks/useProjectPermissions';
-import DocumentVisibilityToggle from './project/DocumentVisibilityToggle';
-import { VISIBILITY } from '../utils/groupPermissions';
-import { updateProject } from '../services/projectService';
-import { logActivity } from '../services/activityLogService';
-import { useAuth } from '../contexts/AuthContext';
+import { useProjectPermissions } from '../../hooks/useProjectPermissions';
+import DocumentVisibilityToggle from '../project/DocumentVisibilityToggle';
+import { VISIBILITY } from '../../utils/groupPermissions';
+import { updateProject } from '../../services/projectService';
+import { logActivity } from '../../services/activityLogService';
+import { useAuth } from '../../contexts/AuthContext';
 
 /**
  * DocumentList Component

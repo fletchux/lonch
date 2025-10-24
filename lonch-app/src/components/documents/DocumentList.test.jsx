@@ -1,18 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DocumentList from './DocumentList';
-import { VISIBILITY, GROUP } from '../utils/groupPermissions';
-import * as projectService from '../services/projectService';
-import * as activityLogService from '../services/activityLogService';
-import { useProjectPermissions } from '../hooks/useProjectPermissions';
+import { VISIBILITY, GROUP } from '../../utils/groupPermissions';
+import * as projectService from '../../services/projectService';
+import * as activityLogService from '../../services/activityLogService';
+import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 
 // Mock the hooks and services
-vi.mock('../hooks/useProjectPermissions');
-vi.mock('../contexts/AuthContext', () => ({
+vi.mock('../../hooks/useProjectPermissions');
+vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({ currentUser: { uid: 'test-user-123' } })
 }));
-vi.mock('../services/projectService');
-vi.mock('../services/activityLogService');
+vi.mock('../../services/projectService');
+vi.mock('../../services/activityLogService');
 
 describe('DocumentList', () => {
   beforeEach(() => {

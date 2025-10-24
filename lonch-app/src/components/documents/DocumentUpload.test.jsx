@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DocumentUpload from './DocumentUpload';
-import { VISIBILITY, GROUP } from '../utils/groupPermissions';
+import { VISIBILITY, GROUP } from '../../utils/groupPermissions';
 
 // Mock useProjectPermissions hook
-vi.mock('../hooks/useProjectPermissions', () => ({
+vi.mock('../../hooks/useProjectPermissions', () => ({
   useProjectPermissions: vi.fn(() => ({
     group: GROUP.CONSULTING,
     canViewDocument: vi.fn(() => true),

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { extractDataFromDocument } from '../services/documentExtraction';
-import { useProjectPermissions } from '../hooks/useProjectPermissions';
-import { getDefaultDocumentVisibility } from '../utils/groupPermissions';
+import { extractDataFromDocument } from '../../services/documentExtraction';
+import { useProjectPermissions } from '../../hooks/useProjectPermissions';
+import { getDefaultDocumentVisibility } from '../../utils/groupPermissions';
 
 export default function DocumentUpload({ projectId, onFilesSelected, onExtractionComplete }) {
   const permissions = useProjectPermissions(projectId);

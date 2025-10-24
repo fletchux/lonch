@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
-import DocumentList from '../DocumentList';
+import DocumentList from '../documents/DocumentList';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import ProjectMembersPanel from '../project/ProjectMembersPanel';

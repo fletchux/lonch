@@ -1,7 +1,7 @@
 import { FileText, CheckSquare, Users } from '../icons';
 import { templates } from '../../data/templates';
-import DocumentUpload from '../DocumentUpload';
-import ExtractionIndicator from '../ExtractionIndicator';
+import DocumentUpload from '../documents/DocumentUpload';
+import ExtractionIndicator from '../common/ExtractionIndicator';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import { mergeExtractedData, mapToProjectData } from '../../services/documentExtraction';

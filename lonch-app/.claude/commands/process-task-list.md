@@ -1,1 +1,1 @@
-Please process the task list using /ai-dev-tasks/process-task-list.md
+Please process the task list using /.claude/workflows/process-task-list.md
