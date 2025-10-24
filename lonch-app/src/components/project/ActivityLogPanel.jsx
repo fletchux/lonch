@@ -180,7 +180,7 @@ export default function ActivityLogPanel({ projectId }) {
       case 'invite_link_created': {
         const role = activity.metadata?.role || 'member';
         const group = activity.metadata?.group === 'consulting' ? 'Consulting Group' : 'Client Group';
-        return `${userName} created an invite link for ${role} in ${group}`;
+        return `${userName} created an invite link that will allow someone to join as ${role} in ${group}`;
       }
       case 'invite_link_accepted': {
         const role = activity.metadata?.role || 'member';

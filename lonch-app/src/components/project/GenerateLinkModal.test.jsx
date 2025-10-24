@@ -218,7 +218,8 @@ describe('GenerateLinkModal', () => {
     });
 
     expect(screen.getByTestId('generated-link-input')).toHaveValue(mockLink.url);
-    expect(mockOnLinkGenerated).toHaveBeenCalledWith(mockLink);
+    // onLinkGenerated should NOT be called during generation (only when Done is clicked)
+    expect(mockOnLinkGenerated).not.toHaveBeenCalled();
   });
 
   it('should show link details after generation', async () => {
@@ -248,6 +249,53 @@ describe('GenerateLinkModal', () => {
 
     expect(screen.getByText(/Expires:/)).toBeInTheDocument();
     expect(screen.getByText(/This link will expire in 7 days/)).toBeInTheDocument();
+  });
+
+  it('should NOT close modal immediately after link generation', async () => {
+    // BUG REPRODUCTION TEST
+    // This test verifies that onLinkGenerated is NOT called during generation
+    // It should only be called when user clicks "Done" button
+
+    const mockLink = {
+      id: 'link-123',
+      token: 'token-abc',
+      url: 'http://localhost:5173/invite/token-abc',
+      role: 'viewer',
+      group: 'client',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    };
+
+    vi.mocked(inviteLinkService.generateInviteLink).mockResolvedValue(mockLink);
+
+    render(
+      <GenerateLinkModal
+        projectId="project-123"
+        onClose={mockOnClose}
+        onLinkGenerated={mockOnLinkGenerated}
+      />
+    );
+
+    // Click Generate Link button
+    fireEvent.click(screen.getByTestId('generate-button'));
+
+    // Wait for link to be generated and displayed
+    await waitFor(() => {
+      expect(screen.getByTestId('generated-link-input')).toBeInTheDocument();
+    });
+
+    // onLinkGenerated should NOT have been called yet
+    // (Bug: currently it IS called, which closes the modal)
+    expect(mockOnLinkGenerated).not.toHaveBeenCalled();
+
+    // User should see the link and be able to copy it
+    expect(screen.getByTestId('copy-link-button')).toBeInTheDocument();
+    expect(screen.getByText('Done')).toBeInTheDocument();
+
+    // Now click Done button
+    fireEvent.click(screen.getByText('Done'));
+
+    // NOW onLinkGenerated should be called (to refresh the list)
+    expect(mockOnLinkGenerated).toHaveBeenCalledWith(mockLink);
   });
 
   it('should copy link to clipboard when Copy button is clicked', async () => {
