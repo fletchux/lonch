@@ -39,16 +39,21 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
       );
 
       setGeneratedLink(link);
-
-      if (onLinkGenerated) {
-        onLinkGenerated(link);
-      }
+      // Don't call onLinkGenerated here - let user see and copy the link first
     } catch (err) {
       console.error('Error generating invite link:', err);
       setError(err.message || 'Failed to generate invite link');
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleDone() {
+    // Call onLinkGenerated when user clicks Done (to refresh the links list)
+    if (onLinkGenerated && generatedLink) {
+      onLinkGenerated(generatedLink);
+    }
+    onClose();
   }
 
   async function handleCopyLink() {
@@ -256,7 +261,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
             </>
           ) : (
             <button
-              onClick={onClose}
+              onClick={handleDone}
               className="px-6 py-2 bg-[#2D9B9B] text-white rounded-md hover:bg-[#267d7d] transition-colors"
             >
               Done
