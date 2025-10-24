@@ -9,7 +9,34 @@ This guide walks you through the complete development workflow for starting a ne
 - Node.js and npm installed
 - Test coverage package installed (`@vitest/coverage-v8`)
 
-## Complete Workflow: From Idea to Production
+## Quick Start: The "shazam" Command
+
+**Want to skip the manual steps?** Use the automated workflow:
+
+```bash
+resume      # Check project state
+/shazam     # 🚀 Automates steps 2-6 below!
+```
+
+The `shazam` command will:
+1. ✅ Check you're on main with clean state
+2. ✅ Pull latest changes
+3. ✅ Walk you through creating a PRD
+4. ✅ Generate tasks with TDD structure
+5. ✅ Create GitHub issue automatically
+6. ✅ Create feature branch
+7. ✅ Mark issue as in-progress
+8. ✅ Ready to code with `/process-task-list`
+
+**Result:** From idea to ready-to-code in one command!
+
+Then continue with step 7 (Process Tasks) below.
+
+---
+
+## Complete Workflow: From Idea to Production (Manual Steps)
+
+**Note:** Use `/shazam` to automate steps 2-6, or follow manually below:
 
 ### 1. Start Your Session
 
@@ -307,15 +334,18 @@ gh pr merge 45 --squash --delete-branch
 | Step | Command | Purpose |
 |------|---------|---------|
 | Start | `resume` | Check project state |
+| **🚀 Quick Start** | **`/shazam`** | **Automate PRD → Tasks → Branch → Issue** |
 | Sync | `git pull origin main` | Get latest changes |
-| PRD | `/create-prd` | Define feature requirements |
-| Tasks | `/generate-tasks` | Break into tasks + create issue |
-| Branch | `git checkout -b feature/XX-name` | Create feature branch |
-| Status | `gh issue edit XX --add-label "in-progress"` | Mark issue in-progress |
+| PRD | `/create-prd` | Define feature requirements (manual) |
+| Tasks | `/generate-tasks` | Break into tasks + create issue (manual) |
+| Branch | `git checkout -b feature/XX-name` | Create feature branch (manual) |
+| Status | `gh issue edit XX --add-label "in-progress"` | Mark issue in-progress (manual) |
 | Build | `/process-task-list` | TDD implementation |
 | Ship | `lonchit` | Quality checks + commit + push |
 | PR | `gh pr create` | Create pull request |
 | Merge | `gh pr merge XX --squash` | Merge to main |
+
+**Note:** Use `/shazam` to automate the manual steps (PRD through Status). Or do them manually if you prefer more control.
 
 ---
 

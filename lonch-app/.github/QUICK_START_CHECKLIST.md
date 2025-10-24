@@ -2,7 +2,26 @@
 
 Use this as a quick reference when starting a new feature.
 
-## ☑️ Pre-Work Checklist
+## 🚀 Super Quick Start (Automated)
+
+**Want to skip manual setup? Use the `shazam` command:**
+
+```
+[ ] Run: resume
+[ ] Run: /shazam
+[ ] Follow prompts for PRD creation
+[ ] Say "Go" when asked
+[ ] Note issue number and branch created
+[ ] Jump to "Development Phase" below ⬇️
+```
+
+**That's it!** `shazam` automates everything from PRD to ready-to-code.
+
+---
+
+## ☑️ Manual Setup (If Not Using Shazam)
+
+### Pre-Work Checklist
 
 ```
 [ ] Run: resume
@@ -11,7 +30,7 @@ Use this as a quick reference when starting a new feature.
 [ ] Check: gh issue list (no duplicate features)
 ```
 
-## ☑️ Planning Phase
+### Planning Phase
 
 ```
 [ ] Run: /create-prd
@@ -23,13 +42,15 @@ Use this as a quick reference when starting a new feature.
 [ ] Note the GitHub issue number created (e.g., #45)
 ```
 
-## ☑️ Setup Phase
+### Setup Phase
 
 ```
 [ ] Create branch: git checkout -b feature/XX-feature-name
 [ ] Mark issue in-progress: gh issue edit XX --add-label "in-progress"
 [ ] Add start comment: gh issue comment XX --body "🚀 Started work..."
 ```
+
+---
 
 ## ☑️ Development Phase (TDD)
 

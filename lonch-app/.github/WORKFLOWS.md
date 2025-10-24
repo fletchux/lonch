@@ -308,6 +308,72 @@ git checkout <wrong-branch>
 git reset --hard HEAD~1  # Remove from wrong branch
 ```
 
+## "shazam" - Launch New Feature
+
+**The ultimate feature kickstart command!**
+
+Use this workflow when you want to start a new feature from scratch with full automation.
+
+**Trigger phrase:** "shazam"
+
+### What It Does
+
+Automates the complete setup for a new feature:
+
+1. **Pre-flight Checks:**
+   - Verifies you're on main branch
+   - Checks for uncommitted changes
+   - Pulls latest from origin/main
+
+2. **Create PRD:**
+   - Interactive Q&A about your feature
+   - Generates detailed PRD document
+   - Saves to `/tasks/XXXX-prd-feature-name.md`
+
+3. **Generate Tasks:**
+   - Analyzes PRD and codebase
+   - Creates parent tasks
+   - Generates TDD-structured sub-tasks
+   - **Automatically creates GitHub issue**
+
+4. **Create Branch:**
+   - Creates `feature/XX-feature-name` branch
+   - XX is the auto-generated issue number
+
+5. **Update GitHub:**
+   - Marks issue as "in-progress"
+   - Adds setup completion comment
+
+6. **Ready to Code:**
+   - Everything set up for `/process-task-list`
+   - TDD workflow ready to go
+
+### Expected Output
+
+```
+✨ SHAZAM! Feature setup complete!
+
+📋 PRD: tasks/0006-prd-notification-system.md
+📝 Tasks: tasks/tasks-0006-prd-notification-system.md
+🎫 Issue: #45 - Notification System
+🌿 Branch: feature/45-notification-system
+🏷️  Status: in-progress
+
+Ready to code! Next steps:
+1. Review task list
+2. Start: /process-task-list
+3. Follow TDD workflow
+
+When done: lonchit
+```
+
+### Prerequisites
+
+- On main branch
+- Clean working directory
+- GitHub CLI authenticated
+- Latest code pulled
+
 ## Other Common Workflows
 
 ### "Quick Commit"
