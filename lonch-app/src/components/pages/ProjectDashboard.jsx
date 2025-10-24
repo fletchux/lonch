@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
 import DocumentList from '../documents/DocumentList';
+import DocumentUpload from '../documents/DocumentUpload';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import ProjectMembersPanel from '../project/ProjectMembersPanel';
 import InviteUserModal from '../project/InviteUserModal';
 import ActivityLogPanel from '../project/ActivityLogPanel';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
+import { updateProject } from '../../services/projectService';
 
 export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories, onNavigateSettings }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   const permissions = useProjectPermissions(project?.id);
 
   // Handle document download
@@ -40,7 +45,62 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
 
   // Handle uploading new documents
   const handleUploadNew = () => {
-    // TODO: Show DocumentUpload component in a modal
+    setShowUploadModal(true);
+  };
+
+  // Handle files selected in upload component
+  const handleFilesSelected = (files) => {
+    setUploadedFiles(files);
+  };
+
+  // Handle document upload completion
+  const handleUploadComplete = async () => {
+    if (uploadedFiles.length === 0) {
+      alert('Please select files to upload');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // For now, just add the file metadata to the project
+      // In production, this would upload to Firebase Storage first
+      const newDocuments = uploadedFiles.map(fileData => ({
+        id: fileData.id,
+        name: fileData.name,
+        category: fileData.category,
+        size: fileData.size,
+        uploadedAt: fileData.uploadedAt,
+        uploadedBy: fileData.uploadedBy,
+        visibility: fileData.visibility,
+        file: fileData.file // Store file object for now (in production, this would be a storage URL)
+      }));
+
+      // Update project with new documents
+      const updatedDocuments = [...(project.documents || []), ...newDocuments];
+      await updateProject(project.id, { documents: updatedDocuments });
+
+      // Close modal and reset state
+      setShowUploadModal(false);
+      setUploadedFiles([]);
+
+      // Show success message
+      alert(`Successfully uploaded ${newDocuments.length} document(s)`);
+
+      // Refresh the page to show new documents
+      window.location.reload();
+    } catch (error) {
+      console.error('Error completing upload:', error);
+      alert('Failed to complete upload: ' + error.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle closing upload modal
+  const handleCloseUploadModal = () => {
+    setShowUploadModal(false);
+    setUploadedFiles([]);
   };
 
   return (
@@ -317,6 +377,46 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
           setShowInviteModal(false);
         }}
       />
+
+      {/* Document Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="upload-modal">
+          <div className="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Upload Documents</h3>
+              <button
+                onClick={handleCloseUploadModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <DocumentUpload
+              projectId={project.id}
+              onFilesSelected={handleFilesSelected}
+            />
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={handleCloseUploadModal}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isUploading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUploadComplete}
+                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled={isUploading || uploadedFiles.length === 0}
+              >
+                {isUploading ? 'Uploading...' : `Upload ${uploadedFiles.length} File${uploadedFiles.length !== 1 ? 's' : ''}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
