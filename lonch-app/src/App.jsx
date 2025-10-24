@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import {
   getUserProjects,
@@ -49,47 +49,48 @@ function AppContent() {
   }, []);
 
   // Task 5.13: Fetch all accessible projects from Firestore when user changes
-  useEffect(() => {
-    async function fetchProjects() {
-      if (currentUser) {
-        try {
-          // Fetch projects where user is owner
-          const ownedProjects = await getUserProjects(currentUser.uid);
+  // Extracted as a separate function so it can be called after invite acceptance (Bug #14 fix)
+  const fetchProjects = useCallback(async () => {
+    if (currentUser) {
+      try {
+        // Fetch projects where user is owner
+        const ownedProjects = await getUserProjects(currentUser.uid);
 
-          // Fetch projects where user is a member (not necessarily owner)
-          const memberProjects = await getUserProjectsAsMember(currentUser.uid);
+        // Fetch projects where user is a member (not necessarily owner)
+        const memberProjects = await getUserProjectsAsMember(currentUser.uid);
 
-          // Combine projects, removing duplicates (in case user is both owner and member)
-          const projectMap = new Map();
+        // Combine projects, removing duplicates (in case user is both owner and member)
+        const projectMap = new Map();
 
-          // Add owned projects first (user is owner)
-          for (const project of ownedProjects) {
-            projectMap.set(project.id, { ...project, userRole: 'owner' });
-          }
-
-          // Add member projects, enriching with user's role
-          for (const project of memberProjects) {
-            if (!projectMap.has(project.id)) {
-              // Get user's role in this project
-              const role = await getUserRoleInProject(currentUser.uid, project.id);
-              projectMap.set(project.id, { ...project, userRole: role });
-            }
-          }
-
-          // Convert map to array
-          const allProjects = Array.from(projectMap.values());
-          setProjects(allProjects);
-        } catch (error) {
-          console.error('Error fetching projects:', error);
+        // Add owned projects first (user is owner)
+        for (const project of ownedProjects) {
+          projectMap.set(project.id, { ...project, userRole: 'owner' });
         }
-      } else {
-        // Clear projects when user logs out
-        setProjects([]);
-      }
-    }
 
-    fetchProjects();
+        // Add member projects, enriching with user's role
+        for (const project of memberProjects) {
+          if (!projectMap.has(project.id)) {
+            // Get user's role in this project
+            const role = await getUserRoleInProject(currentUser.uid, project.id);
+            projectMap.set(project.id, { ...project, userRole: role });
+          }
+        }
+
+        // Convert map to array
+        const allProjects = Array.from(projectMap.values());
+        setProjects(allProjects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    } else {
+      // Clear projects when user logs out
+      setProjects([]);
+    }
   }, [currentUser]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const startNewProject = () => {
     setView('wizard');
@@ -292,13 +293,16 @@ function AppContent() {
       {view === 'acceptInvite' && inviteToken && (
         <AcceptInviteLinkPage
           token={inviteToken}
-          onAccepted={(projectId) => {
+          onAccepted={async (projectId) => {
+            // Bug #14 fix: Refetch projects to include the newly joined project
+            await fetchProjects();
+
             // Navigate to accepted project
             const project = projects.find(p => p.id === projectId);
             if (project) {
               selectProject(project);
             } else {
-              // If project not yet in list, go home and refetch
+              // If project still not found (rare), go home
               goHome();
             }
           }}
