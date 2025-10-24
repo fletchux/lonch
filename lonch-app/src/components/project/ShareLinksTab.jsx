@@ -19,9 +19,12 @@ export default function ShareLinksTab({ projectId }) {
   const [confirmRevoke, setConfirmRevoke] = useState(null);
 
   useEffect(() => {
-    fetchLinks();
+    // Only fetch links after permissions have loaded
+    if (!permissions.loading && permissions.role) {
+      fetchLinks();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, permissions.loading, permissions.role]);
 
   async function fetchLinks() {
     if (!currentUser || !permissions.role) return;

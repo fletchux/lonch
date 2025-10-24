@@ -99,6 +99,53 @@ describe('ShareLinksTab', () => {
 
       expect(screen.getByText('Loading invite links...')).toBeInTheDocument();
     });
+
+    it('should wait for permissions to load before fetching links', async () => {
+      // BUG REPRODUCTION TEST
+      // This test reproduces the bug where permissions.role is null initially
+      // causing fetchLinks() to return early and never fetch links
+
+      // Step 1: Mock permissions as loading (role is null)
+      useProjectPermissions.mockReturnValue({
+        role: null,
+        loading: true
+      });
+
+      const { rerender } = render(<ShareLinksTab projectId="project-123" />);
+
+      // Should show loading state while permissions are loading
+      expect(screen.getByText('Loading invite links...')).toBeInTheDocument();
+
+      // At this point, getProjectInviteLinks should NOT have been called yet
+      // because permissions are still loading
+      expect(inviteLinkService.getProjectInviteLinks).not.toHaveBeenCalled();
+
+      // Step 2: Simulate permissions finishing loading
+      useProjectPermissions.mockReturnValue({
+        role: 'owner',
+        loading: false
+      });
+
+      // Trigger re-render with loaded permissions
+      rerender(<ShareLinksTab projectId="project-123" />);
+
+      // Now links should be fetched and displayed
+      await waitFor(() => {
+        expect(inviteLinkService.getProjectInviteLinks).toHaveBeenCalledWith(
+          'project-123',
+          'user-123',
+          'owner'
+        );
+      });
+
+      // Should display the links table, not stuck in loading state
+      await waitFor(() => {
+        expect(screen.getByTestId('links-table')).toBeInTheDocument();
+      });
+
+      // Should NOT be showing loading state anymore
+      expect(screen.queryByText('Loading invite links...')).not.toBeInTheDocument();
+    });
   });
 
   describe('Error State', () => {
