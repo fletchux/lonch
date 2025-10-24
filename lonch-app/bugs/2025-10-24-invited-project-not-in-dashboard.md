@@ -4,7 +4,7 @@
 **GitHub Issue:** #16
 **Reporter:** User (cfletcher)
 **Severity:** High
-**Status:** Fixed
+**Status:** Fixed & Verified
 **Branch:** `bug/14-invited-project-not-in-dashboard`
 
 ---
@@ -350,8 +350,8 @@ onAccepted={async (projectId) => {
 ### Testing:
 - ✅ All 648 tests passing (no new tests needed - existing App tests cover this)
 - ✅ ESLint clean
-- ⏳ Manual testing: Accept invite link and verify project appears in dashboard (pending)
-- ⏳ No browser refresh needed (pending verification)
+- ✅ Manual testing: Accept invite link and verify project appears in dashboard (verified working)
+- ✅ No browser refresh needed (confirmed)
 
 ---
 
@@ -380,7 +380,7 @@ onAccepted={async (projectId) => {
 - **Reported:** 2025-10-24 (during manual testing after fixing #13)
 - **Started:** 2025-10-24
 - **Fixed:** 2025-10-24
-- **Verified:** 2025-10-24 (tests passing, manual verification pending)
+- **Verified:** 2025-10-24 (all tests passing, manual testing successful)
 - **Deployed:** [TBD]
 
 ---
