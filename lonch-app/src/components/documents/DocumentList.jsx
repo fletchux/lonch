@@ -14,7 +14,6 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [bulkCategory, setBulkCategory] = useState('');
   const [bulkVisibility, setBulkVisibility] = useState('');
@@ -111,16 +110,6 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
           icon: '🌐',
           text: 'All'
         };
-    }
-  };
-
-  // Handle delete confirmation
-  const handleDelete = (docId) => {
-    if (deleteConfirmId === docId) {
-      onDelete(docId);
-      setDeleteConfirmId(null);
-    } else {
-      setDeleteConfirmId(docId);
     }
   };
 
@@ -303,6 +292,30 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                 </button>
               </div>
             )}
+
+            {/* Delete Button */}
+            {onDelete && (
+              <button
+                onClick={() => {
+                  // Will implement confirmation modal in next change
+                  const selectedIds = Array.from(selectedDocuments);
+                  selectedIds.forEach(id => onDelete(id));
+                  setSelectedDocuments(new Set());
+                }}
+                className="px-4 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
+                title="Delete selected documents"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Delete ({selectedDocuments.size})
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -368,9 +381,6 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                 </th>
                 <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Owner
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
                 </th>
               </tr>
             </thead>
@@ -439,29 +449,6 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                   </td>
                   <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {doc.uploadedBy || 'You'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    {/* Delete button */}
-                    {onDelete && (
-                      <button
-                        onClick={() => handleDelete(doc.id)}
-                        className={`transition-colors ${
-                          deleteConfirmId === doc.id
-                            ? 'text-red-600 hover:text-red-800'
-                            : 'text-gray-400 hover:text-red-600'
-                        }`}
-                        title={deleteConfirmId === doc.id ? 'Click again to confirm' : 'Delete'}
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))}

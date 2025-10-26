@@ -81,7 +81,6 @@ describe('DocumentList', () => {
     expect(screen.getByText('Date')).toBeInTheDocument();
     expect(screen.getByText('Size')).toBeInTheDocument();
     expect(screen.getByText('Owner')).toBeInTheDocument();
-    expect(screen.getByText('Actions')).toBeInTheDocument();
   });
 
   it('should format file sizes correctly', () => {
