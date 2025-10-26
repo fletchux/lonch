@@ -175,7 +175,6 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Upload Documents</h3>
         <p className="text-gray-600 mb-6">
           Upload your project contracts, specifications, and related documents.
           We'll extract key information to help pre-fill your project details.

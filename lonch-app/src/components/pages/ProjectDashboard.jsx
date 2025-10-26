@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText, CheckSquare, Users } from '../icons';
 import DocumentList from '../documents/DocumentList';
 import DocumentUpload from '../documents/DocumentUpload';
@@ -19,7 +19,13 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [localDocuments, setLocalDocuments] = useState(project?.documents || []);
   const permissions = useProjectPermissions(project?.id);
+
+  // Sync local documents with project prop when it changes
+  useEffect(() => {
+    setLocalDocuments(project?.documents || []);
+  }, [project?.documents]);
 
   // Handle document download
   const handleDownload = async (doc) => {
@@ -132,7 +138,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
       const newDocuments = await Promise.all(uploadPromises);
 
       // Update project with new documents
-      const updatedDocuments = [...(project.documents || []), ...newDocuments];
+      const updatedDocuments = [...localDocuments, ...newDocuments];
       await updateProject(project.id, { documents: updatedDocuments });
 
       // Log activity for document uploads
@@ -154,15 +160,18 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
         }
       }
 
+      // Update local documents state immediately
+      setLocalDocuments(updatedDocuments);
+
       // Close modal and reset state
       setShowUploadModal(false);
       setUploadedFiles([]);
 
+      // Switch to Overview tab to show uploaded documents
+      setActiveTab('overview');
+
       // Show success message
       alert(`Successfully uploaded ${newDocuments.length} document(s)`);
-
-      // Refresh the page to show new documents
-      window.location.reload();
     } catch (error) {
       console.error('Error completing upload:', error);
       alert('Failed to complete upload: ' + error.message);
@@ -410,7 +419,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
         <div className="mt-8">
           <div className="bg-white rounded-xl shadow-lg p-6">
             <DocumentList
-              documents={project.documents || []}
+              documents={localDocuments}
               onDownload={handleDownload}
               onDelete={handleDelete}
               onUploadNew={handleUploadNew}
