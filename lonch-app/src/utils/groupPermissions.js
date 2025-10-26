@@ -49,16 +49,14 @@ export function canViewDocument(userGroup, documentVisibility, userRole = null) 
 
 /**
  * Check if a user can set document visibility settings
- * Only Owner/Admin in Consulting Group can change document visibility
+ * Owner and Admin from ANY group (consulting or client) can change document visibility
  * @param {string} userRole - User's role ('owner' | 'admin' | 'editor' | 'viewer')
  * @param {string} userGroup - User's group ('consulting' | 'client')
  * @returns {boolean} True if user can set document visibility
  */
 export function canSetDocumentVisibility(userRole, userGroup) {
-  const isOwnerOrAdmin = userRole === 'owner' || userRole === 'admin';
-  const isConsultingGroup = userGroup === GROUP.CONSULTING;
-
-  return isOwnerOrAdmin && isConsultingGroup;
+  // Owner and Admin from any group can set document visibility
+  return userRole === 'owner' || userRole === 'admin';
 }
 
 /**

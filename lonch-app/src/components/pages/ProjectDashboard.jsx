@@ -9,30 +9,58 @@ import InviteUserModal from '../project/InviteUserModal';
 import ActivityLogPanel from '../project/ActivityLogPanel';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { updateProject } from '../../services/projectService';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories, onNavigateSettings }) {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const permissions = useProjectPermissions(project?.id);
 
   // Handle document download
-  const handleDownload = (doc) => {
-    // Create a blob URL from the file object if it exists
-    if (doc.file) {
-      const url = URL.createObjectURL(doc.file);
+  const handleDownload = async (doc) => {
+    try {
+      let downloadUrl;
+
+      // If we have the file object (recently uploaded), use it
+      if (doc.file) {
+        downloadUrl = URL.createObjectURL(doc.file);
+      }
+      // If we have a downloadURL from Firebase Storage, use it
+      else if (doc.downloadURL) {
+        downloadUrl = doc.downloadURL;
+      }
+      // If we have a storage path, fetch the download URL
+      else if (doc.storagePath) {
+        const { getFileDownloadURL } = await import('../../services/fileStorage');
+        downloadUrl = await getFileDownloadURL(doc.storagePath);
+      }
+      else {
+        console.error('Cannot download - no file source available', doc);
+        alert('Unable to download file. File source not found.');
+        return;
+      }
+
+      // Trigger download
       const link = document.createElement('a');
-      link.href = url;
+      link.href = downloadUrl;
       link.download = doc.name;
+      link.target = '_blank'; // Open in new tab for Firebase URLs
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } else {
-      console.warn('Cannot download - file object not available');
-      // TODO: In production, fetch from Firebase Storage URL
+
+      // Clean up blob URL if we created one
+      if (doc.file) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Failed to download file: ' + error.message);
     }
   };
 
@@ -53,6 +81,11 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
     setUploadedFiles(files);
   };
 
+  // Handle extraction status change
+  const handleExtractionStatusChange = (isExtracting) => {
+    setIsExtracting(isExtracting);
+  };
+
   // Handle document upload completion
   const handleUploadComplete = async () => {
     if (uploadedFiles.length === 0) {
@@ -63,22 +96,63 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
     setIsUploading(true);
 
     try {
-      // For now, just add the file metadata to the project
-      // In production, this would upload to Firebase Storage first
-      const newDocuments = uploadedFiles.map(fileData => ({
-        id: fileData.id,
-        name: fileData.name,
-        category: fileData.category,
-        size: fileData.size,
-        uploadedAt: fileData.uploadedAt,
-        uploadedBy: fileData.uploadedBy,
-        visibility: fileData.visibility,
-        file: fileData.file // Store file object for now (in production, this would be a storage URL)
-      }));
+      // Import Firebase Storage service
+      const { uploadFile } = await import('../../services/fileStorage');
+
+      // Upload each file to Firebase Storage and get download URLs
+      const uploadPromises = uploadedFiles.map(async (fileData) => {
+        try {
+          // Upload file to Firebase Storage under projects/{projectId}/documents/
+          const uploadResult = await uploadFile(
+            fileData.file,
+            project.id,
+            fileData.category
+          );
+
+          // Return document metadata with Firebase Storage info
+          return {
+            id: fileData.id,
+            name: fileData.name,
+            category: fileData.category,
+            size: fileData.size,
+            uploadedAt: fileData.uploadedAt,
+            uploadedBy: fileData.uploadedBy,
+            visibility: fileData.visibility,
+            downloadURL: uploadResult.downloadURL,
+            storagePath: uploadResult.filePath,
+            fileName: uploadResult.fileName
+          };
+        } catch (uploadError) {
+          console.error(`Failed to upload ${fileData.name}:`, uploadError);
+          throw new Error(`Failed to upload ${fileData.name}: ${uploadError.message}`);
+        }
+      });
+
+      // Wait for all uploads to complete
+      const newDocuments = await Promise.all(uploadPromises);
 
       // Update project with new documents
       const updatedDocuments = [...(project.documents || []), ...newDocuments];
       await updateProject(project.id, { documents: updatedDocuments });
+
+      // Log activity for document uploads
+      if (currentUser) {
+        const { logActivity } = await import('../../services/activityLogService');
+        for (const doc of newDocuments) {
+          await logActivity(
+            project.id,
+            currentUser.uid,
+            'document_uploaded',
+            'document',
+            doc.id,
+            {
+              documentName: doc.name,
+              category: doc.category,
+              visibility: doc.visibility
+            }
+          );
+        }
+      }
 
       // Close modal and reset state
       setShowUploadModal(false);
@@ -396,6 +470,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
             <DocumentUpload
               projectId={project.id}
               onFilesSelected={handleFilesSelected}
+              onExtractionStatusChange={handleExtractionStatusChange}
             />
 
             <div className="mt-6 flex justify-end gap-3">
@@ -409,9 +484,9 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               <button
                 onClick={handleUploadComplete}
                 className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                disabled={isUploading || uploadedFiles.length === 0}
+                disabled={isUploading || isExtracting || uploadedFiles.length === 0}
               >
-                {isUploading ? 'Uploading...' : `Upload ${uploadedFiles.length} File${uploadedFiles.length !== 1 ? 's' : ''}`}
+                {isUploading ? 'Uploading...' : isExtracting ? 'Extracting...' : `Upload ${uploadedFiles.length} File${uploadedFiles.length !== 1 ? 's' : ''}`}
               </button>
             </div>
           </div>

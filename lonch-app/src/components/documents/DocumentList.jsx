@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
-import DocumentVisibilityToggle from '../project/DocumentVisibilityToggle';
 import { VISIBILITY } from '../../utils/groupPermissions';
 import { updateProject } from '../../services/projectService';
 import { logActivity } from '../../services/activityLogService';
@@ -18,6 +17,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [bulkCategory, setBulkCategory] = useState('');
+  const [bulkVisibility, setBulkVisibility] = useState('');
   const headerCheckboxRef = useRef(null);
 
   // Filter documents by category and visibility (Task 5.6)
@@ -84,6 +84,36 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
     }
   };
 
+  // Get group visibility badge style and text
+  const getVisibilityBadge = (visibility) => {
+    switch (visibility) {
+      case VISIBILITY.CONSULTING_ONLY:
+        return {
+          color: 'bg-teal-100 text-teal-800',
+          icon: '🔒',
+          text: 'Consulting'
+        };
+      case VISIBILITY.CLIENT_ONLY:
+        return {
+          color: 'bg-yellow-100 text-yellow-800',
+          icon: '🔒',
+          text: 'Client'
+        };
+      case VISIBILITY.BOTH:
+        return {
+          color: 'bg-gray-100 text-gray-800',
+          icon: '🌐',
+          text: 'Both'
+        };
+      default:
+        return {
+          color: 'bg-gray-100 text-gray-800',
+          icon: '🌐',
+          text: 'Both'
+        };
+    }
+  };
+
   // Handle delete confirmation
   const handleDelete = (docId) => {
     if (deleteConfirmId === docId) {
@@ -138,39 +168,53 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
     }
   };
 
-  // Handle visibility change (Tasks 5.4, 5.5, 5.8)
-  async function handleVisibilityChange(docId, newVisibility) {
-    try {
-      // Find the document and update its visibility
-      const updatedDocuments = documents.map(doc =>
-        doc.id === docId ? { ...doc, visibility: newVisibility } : doc
-      );
-
-      // Update project in Firestore
-      await updateProject(projectId, { documents: updatedDocuments });
-
-      // Log the activity (Task 5.8)
-      const doc = documents.find(d => d.id === docId);
-      if (doc && currentUser) {
-        await logActivity(
-          projectId,
-          currentUser.uid,
-          'document_visibility_changed',
-          'document',
-          docId,
-          {
-            documentName: doc.name,
-            oldVisibility: doc.visibility || VISIBILITY.BOTH,
-            newVisibility
-          },
-          permissions.group
+  // Handle bulk visibility update
+  const handleBulkVisibilityUpdate = async () => {
+    if (bulkVisibility && selectedDocuments.size > 0) {
+      try {
+        // Update all selected documents with new visibility
+        const updatedDocuments = documents.map(doc =>
+          selectedDocuments.has(doc.id)
+            ? { ...doc, visibility: bulkVisibility }
+            : doc
         );
+
+        // Update project in Firestore
+        await updateProject(projectId, { documents: updatedDocuments });
+
+        // Log activity for each document
+        if (currentUser) {
+          const selectedDocs = documents.filter(d => selectedDocuments.has(d.id));
+          for (const doc of selectedDocs) {
+            await logActivity(
+              projectId,
+              currentUser.uid,
+              'document_visibility_changed',
+              'document',
+              doc.id,
+              {
+                documentName: doc.name,
+                oldVisibility: doc.visibility || VISIBILITY.BOTH,
+                newVisibility: bulkVisibility
+              },
+              permissions.group
+            );
+          }
+        }
+
+        // Clear selection
+        setSelectedDocuments(new Set());
+        setBulkVisibility('');
+
+        // Show success message
+        alert(`Updated visibility for ${selectedDocuments.size} document(s)`);
+      } catch (error) {
+        console.error('Error updating document visibility:', error);
+        alert('Failed to update document visibility: ' + error.message);
       }
-    } catch (error) {
-      console.error('Error updating document visibility:', error);
-      alert('Failed to update document visibility: ' + error.message);
     }
-  }
+  };
+
 
   return (
     <div className="space-y-4">
@@ -209,15 +253,18 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
       {/* Bulk actions toolbar */}
       {selectedDocuments.size > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col space-y-3">
             <span className="text-sm font-medium text-blue-900">
               {selectedDocuments.size} document{selectedDocuments.size > 1 ? 's' : ''} selected
             </span>
+
+            {/* Category Update */}
             <div className="flex items-center space-x-3">
+              <label className="text-sm text-blue-800 font-medium min-w-[80px]">Category:</label>
               <select
                 value={bulkCategory}
                 onChange={(e) => setBulkCategory(e.target.value)}
-                className="px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-48 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               >
                 <option value="">Select category...</option>
                 <option value="contract">Contract</option>
@@ -232,6 +279,30 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                 Update Category
               </button>
             </div>
+
+            {/* Visibility Update */}
+            {permissions.canSetDocumentVisibility() && (
+              <div className="flex items-center space-x-3">
+                <label className="text-sm text-blue-800 font-medium min-w-[80px]">Visibility:</label>
+                <select
+                  value={bulkVisibility}
+                  onChange={(e) => setBulkVisibility(e.target.value)}
+                  className="w-48 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select visibility...</option>
+                  <option value={VISIBILITY.BOTH}>🌐 Both Groups</option>
+                  <option value={VISIBILITY.CONSULTING_ONLY}>🔒 Consulting Only</option>
+                  <option value={VISIBILITY.CLIENT_ONLY}>🔒 Client Only</option>
+                </select>
+                <button
+                  onClick={handleBulkVisibilityUpdate}
+                  disabled={!bulkVisibility}
+                  className="px-4 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Update Visibility
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -287,16 +358,16 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                   Category
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Group
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Size
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Uploaded By
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Visibility
+                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Owner
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -335,23 +406,24 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                       {getCategoryName(doc.category)}
                     </span>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {(() => {
+                      const badge = getVisibilityBadge(doc.visibility || VISIBILITY.BOTH);
+                      return (
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${badge.color}`}>
+                          {badge.icon} {badge.text}
+                        </span>
+                      );
+                    })()}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatDate(doc.uploadedAt || doc.createdAt)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatFileSize(doc.size)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {doc.uploadedBy || 'You'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {/* Task 5.4, 5.5: Show visibility toggle, restricted to Owner/Admin in Consulting */}
-                    <DocumentVisibilityToggle
-                      visibility={doc.visibility || VISIBILITY.BOTH}
-                      onChange={(newVisibility) => handleVisibilityChange(doc.id, newVisibility)}
-                      disabled={!permissions.canSetDocumentVisibility()}
-                      size="sm"
-                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     {/* Download button */}

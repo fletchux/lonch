@@ -4,7 +4,7 @@ import { extractDataFromDocument } from '../../services/documentExtraction';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { getDefaultDocumentVisibility } from '../../utils/groupPermissions';
 
-export default function DocumentUpload({ projectId, onFilesSelected, onExtractionComplete }) {
+export default function DocumentUpload({ projectId, onFilesSelected, onExtractionComplete, onExtractionStatusChange }) {
   const permissions = useProjectPermissions(projectId);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -74,6 +74,11 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
 
   // Extract specific files (used for auto-extraction)
   const extractFiles = useCallback(async (filesToProcess) => {
+    // Notify parent that extraction is starting
+    if (onExtractionStatusChange) {
+      onExtractionStatusChange(true);
+    }
+
     for (const fileData of filesToProcess) {
       const { id, file } = fileData;
 
@@ -116,7 +121,12 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
           }));
       }
     }
-  }, [onExtractionComplete]);
+
+    // Notify parent that extraction is complete
+    if (onExtractionStatusChange) {
+      onExtractionStatusChange(false);
+    }
+  }, [onExtractionComplete, onExtractionStatusChange]);
 
   // Trigger AI extraction for uploaded files
   const startExtraction = useCallback(async () => {

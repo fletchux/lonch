@@ -62,11 +62,13 @@ export const uploadFile = (file, projectId, category, onProgress = null) => {
               uploadedAt: new Date().toISOString()
             });
           } catch (error) {
+            console.error('Error getting download URL:', error);
             reject(error);
           }
         }
       );
     } catch (error) {
+      console.error('Error in uploadFile setup:', error);
       reject(error);
     }
   });

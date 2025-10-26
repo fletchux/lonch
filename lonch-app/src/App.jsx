@@ -116,15 +116,64 @@ function AppContent() {
     }
 
     try {
-      // Save to Firestore
+      // First, create the project to get a project ID
       const newProject = await createProject(currentUser.uid, {
         ...projectData,
+        documents: [], // Don't include documents yet
         status: 'active'
       });
 
-      // Update local state
-      setProjects([...projects, newProject]);
-      setCurrentProject(newProject);
+      // Upload documents to Firebase Storage if there are any
+      let uploadedDocuments = [];
+      if (projectData.documents && projectData.documents.length > 0) {
+        const { uploadFile } = await import('./services/fileStorage');
+
+        const uploadPromises = projectData.documents.map(async (fileData) => {
+          // Only upload if it has a file object (not already uploaded)
+          if (fileData.file) {
+            try {
+              const uploadResult = await uploadFile(
+                fileData.file,
+                newProject.id,
+                fileData.category || 'other'
+              );
+
+              return {
+                id: fileData.id,
+                name: fileData.name,
+                category: fileData.category || 'other',
+                size: fileData.size,
+                uploadedAt: fileData.uploadedAt,
+                uploadedBy: currentUser.displayName || currentUser.email,
+                visibility: fileData.visibility || 'both',
+                downloadURL: uploadResult.downloadURL,
+                storagePath: uploadResult.filePath,
+                fileName: uploadResult.fileName
+              };
+            } catch (error) {
+              console.error(`Failed to upload ${fileData.name}:`, error);
+              // Return the file data without storage info if upload fails
+              return fileData;
+            }
+          }
+          return fileData;
+        });
+
+        uploadedDocuments = await Promise.all(uploadPromises);
+
+        // Update the project with uploaded documents
+        const { updateProject } = await import('./services/projectService');
+        await updateProject(newProject.id, { documents: uploadedDocuments });
+      }
+
+      // Update local state with the complete project
+      const completeProject = {
+        ...newProject,
+        documents: uploadedDocuments
+      };
+
+      setProjects([...projects, completeProject]);
+      setCurrentProject(completeProject);
       setView('project');
     } catch (error) {
       console.error('Error saving project:', error);
