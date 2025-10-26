@@ -370,13 +370,13 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Group
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Size
                 </th>
-                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden xl:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Owner
                 </th>
               </tr>
@@ -392,7 +392,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {/* Download icon (functional) */}
                       {onDownload && (
@@ -420,7 +420,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                           </svg>
                         </button>
                       )}
-                      <span className="text-sm font-medium text-gray-900">{doc.name}</span>
+                      <span className="text-sm font-medium text-gray-900 break-words min-w-0">{doc.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -438,13 +438,13 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                       );
                     })()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatDate(doc.uploadedAt || doc.createdAt)}
                   </td>
-                  <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatFileSize(doc.size)}
                   </td>
-                  <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {doc.uploadedBy || 'You'}
                   </td>
                 </tr>
