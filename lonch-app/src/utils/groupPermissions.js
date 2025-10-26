@@ -51,9 +51,10 @@ export function canViewDocument(userGroup, documentVisibility, userRole = null) 
  * Check if a user can set document visibility settings
  * Owner and Admin from ANY group (consulting or client) can change document visibility
  * @param {string} userRole - User's role ('owner' | 'admin' | 'editor' | 'viewer')
- * @param {string} userGroup - User's group ('consulting' | 'client')
+ * @param {string} userGroup - User's group ('consulting' | 'client') - parameter kept for API consistency
  * @returns {boolean} True if user can set document visibility
  */
+// eslint-disable-next-line no-unused-vars
 export function canSetDocumentVisibility(userRole, userGroup) {
   // Owner and Admin from any group can set document visibility
   return userRole === 'owner' || userRole === 'admin';
