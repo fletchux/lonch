@@ -15,7 +15,7 @@ export const GROUP = {
 export const VISIBILITY = {
   CONSULTING_ONLY: 'consulting_only',
   CLIENT_ONLY: 'client_only',
-  BOTH: 'both'
+  BOTH: 'both'  // Note: Display label is "All" but value stays "both" for backwards compatibility
 };
 
 /**
