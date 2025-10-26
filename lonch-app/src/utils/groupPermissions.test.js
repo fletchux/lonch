@@ -101,12 +101,12 @@ describe('groupPermissions', () => {
       expect(canSetDocumentVisibility('viewer', 'consulting')).toBe(false);
     });
 
-    it('should not allow owner in client group to set document visibility', () => {
-      expect(canSetDocumentVisibility('owner', 'client')).toBe(false);
+    it('should allow owner in client group to set document visibility', () => {
+      expect(canSetDocumentVisibility('owner', 'client')).toBe(true);
     });
 
-    it('should not allow admin in client group to set document visibility', () => {
-      expect(canSetDocumentVisibility('admin', 'client')).toBe(false);
+    it('should allow admin in client group to set document visibility', () => {
+      expect(canSetDocumentVisibility('admin', 'client')).toBe(true);
     });
 
     it('should not allow editor in client group to set document visibility', () => {

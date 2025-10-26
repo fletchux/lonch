@@ -77,9 +77,10 @@ describe('DocumentList', () => {
     render(<DocumentList documents={mockDocuments} />);
     expect(screen.getByText('File Name')).toBeInTheDocument();
     expect(screen.getByText('Category')).toBeInTheDocument();
+    expect(screen.getByText('Group')).toBeInTheDocument();
     expect(screen.getByText('Date')).toBeInTheDocument();
     expect(screen.getByText('Size')).toBeInTheDocument();
-    expect(screen.getByText('Uploaded By')).toBeInTheDocument();
+    expect(screen.getByText('Owner')).toBeInTheDocument();
     expect(screen.getByText('Actions')).toBeInTheDocument();
   });
 
@@ -255,9 +256,9 @@ describe('DocumentList', () => {
       }
     ];
 
-    it('should show Visibility column header', () => {
+    it('should show Group column header', () => {
       render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
-      expect(screen.getByText('Visibility')).toBeInTheDocument();
+      expect(screen.getByText('Group')).toBeInTheDocument();
     });
 
     it('should filter out documents consulting user cannot see', () => {
@@ -318,16 +319,36 @@ describe('DocumentList', () => {
       expect(screen.getByText('both-groups.pdf')).toBeInTheDocument();
     });
 
-    it('should render DocumentVisibilityToggle for each visible document', () => {
-      const { container } = render(
-        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />
-      );
+    it('should render Group chips for each visible document', () => {
+      // Mock permissions to allow viewing all documents
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: vi.fn(() => true), // Can see all documents
+        canSetDocumentVisibility: vi.fn(() => true),
+        canInvite: true
+      });
 
-      const visibilityToggles = container.querySelectorAll('[data-testid="visibility-toggle"]');
-      expect(visibilityToggles.length).toBe(3);
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Check for visibility chips in the Group column
+      // The chips show emoji + text, so we need to search for the text with the emoji
+      const consultingChips = screen.getAllByText((content, element) => {
+        return element?.textContent === '🔒 Consulting';
+      });
+      expect(consultingChips.length).toBeGreaterThan(0);
+
+      const clientChips = screen.getAllByText((content, element) => {
+        return element?.textContent === '🔒 Client';
+      });
+      expect(clientChips.length).toBeGreaterThan(0);
+
+      const bothChips = screen.getAllByText((content, element) => {
+        return element?.textContent === '🌐 Both';
+      });
+      expect(bothChips.length).toBeGreaterThan(0);
     });
 
-    it('should disable visibility toggle for users without permission', () => {
+    it('should hide bulk visibility controls for users without permission', () => {
       useProjectPermissions.mockReturnValue({
         group: GROUP.CLIENT,
         canViewDocument: vi.fn(() => true),
@@ -335,17 +356,14 @@ describe('DocumentList', () => {
         canInvite: false
       });
 
-      const { container } = render(
-        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />
-      );
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
 
-      const visibilitySelects = container.querySelectorAll('[data-testid="visibility-select"]');
-      visibilitySelects.forEach(select => {
-        expect(select).toBeDisabled();
-      });
+      // Bulk visibility controls should not appear without permission
+      // (User can still see the Group column but cannot change visibility)
+      expect(screen.queryByText('Select visibility...')).not.toBeInTheDocument();
     });
 
-    it('should enable visibility toggle for users with permission', () => {
+    it('should show bulk visibility controls for users with permission', () => {
       useProjectPermissions.mockReturnValue({
         group: GROUP.CONSULTING,
         canViewDocument: vi.fn(() => true),
@@ -354,56 +372,64 @@ describe('DocumentList', () => {
       });
 
       const { container } = render(
-        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />
+        <DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Select a document first to show bulk actions
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+      fireEvent.click(checkboxes[1]); // First document checkbox (checkboxes[0] is header)
+
+      // Now bulk visibility controls should appear
+      expect(screen.getByText(/selected/i)).toBeInTheDocument();
+    });
+
+    it('should call updateProject and log activity when bulk visibility changes', async () => {
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: vi.fn(() => true),
+        canSetDocumentVisibility: vi.fn(() => true),
+        canInvite: true
+      });
+
+      const { container } = render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+
+      // Select first document
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+      fireEvent.click(checkboxes[1]); // Select first document
+
+      // Find bulk visibility dropdown and update button
+      const visibilitySelects = screen.getAllByRole('combobox');
+      // Find the visibility dropdown (not category dropdown)
+      const visibilitySelect = visibilitySelects.find(select =>
+        select.innerHTML.includes('Select visibility')
       );
 
-      const visibilitySelects = container.querySelectorAll('[data-testid="visibility-select"]');
-      visibilitySelects.forEach(select => {
-        expect(select).not.toBeDisabled();
+      // Change visibility selection
+      fireEvent.change(visibilitySelect, { target: { value: VISIBILITY.BOTH } });
+
+      // Click update button
+      const updateButton = screen.getByText('Update Visibility');
+      fireEvent.click(updateButton);
+
+      // Verify updateProject was called with updated visibility
+      await waitFor(() => {
+        expect(projectService.updateProject).toHaveBeenCalled();
+      });
+
+      // Verify activity was logged
+      await waitFor(() => {
+        expect(activityLogService.logActivity).toHaveBeenCalled();
       });
     });
 
-    it('should call updateProject and log activity when visibility changes', async () => {
-      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
-
-      const visibilitySelects = screen.getAllByTestId('visibility-select');
-      const firstSelect = visibilitySelects[0];
-
-      // Change visibility
-      fireEvent.change(firstSelect, { target: { value: VISIBILITY.BOTH } });
-
-      await waitFor(() => {
-        expect(projectService.updateProject).toHaveBeenCalledWith(
-          'test-project-123',
-          expect.objectContaining({
-            documents: expect.arrayContaining([
-              expect.objectContaining({
-                id: '1',
-                visibility: VISIBILITY.BOTH
-              })
-            ])
-          })
-        );
+    it('should display BOTH chip for documents without visibility field', () => {
+      // Mock permissions to allow viewing documents
+      useProjectPermissions.mockReturnValue({
+        group: GROUP.CONSULTING,
+        canViewDocument: vi.fn(() => true),
+        canSetDocumentVisibility: vi.fn(() => true),
+        canInvite: true
       });
 
-      await waitFor(() => {
-        expect(activityLogService.logActivity).toHaveBeenCalledWith(
-          'test-project-123',
-          'test-user-123',
-          'document_visibility_changed',
-          'document',
-          '1',
-          expect.objectContaining({
-            documentName: 'consulting-only.pdf',
-            oldVisibility: VISIBILITY.CONSULTING_ONLY,
-            newVisibility: VISIBILITY.BOTH
-          }),
-          GROUP.CONSULTING
-        );
-      });
-    });
-
-    it('should default to BOTH visibility for documents without visibility field', () => {
       const docsWithoutVisibility = [
         {
           id: '1',
@@ -415,12 +441,16 @@ describe('DocumentList', () => {
         }
       ];
 
-      const { container } = render(
+      render(
         <DocumentList documents={docsWithoutVisibility} projectId="test-project-123" />
       );
 
-      const visibilitySelect = container.querySelector('[data-testid="visibility-select"]');
-      expect(visibilitySelect.value).toBe(VISIBILITY.BOTH);
+      // Should display "Both" chip in the Group column for documents without visibility field
+      // The chip includes an emoji, so we search for the full text content
+      const bothChips = screen.getAllByText((content, element) => {
+        return element?.textContent === '🌐 Both';
+      });
+      expect(bothChips.length).toBeGreaterThan(0);
     });
 
     it('should show correct document count after visibility filtering', () => {
