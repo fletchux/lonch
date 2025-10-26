@@ -17,6 +17,8 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [bulkCategory, setBulkCategory] = useState('');
   const [bulkVisibility, setBulkVisibility] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const headerCheckboxRef = useRef(null);
 
   // Filter documents by category and visibility (Task 5.6)
@@ -296,12 +298,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
             {/* Delete Button */}
             {onDelete && (
               <button
-                onClick={() => {
-                  // Will implement confirmation modal in next change
-                  const selectedIds = Array.from(selectedDocuments);
-                  selectedIds.forEach(id => onDelete(id));
-                  setSelectedDocuments(new Set());
-                }}
+                onClick={() => setShowDeleteModal(true)}
                 className="px-4 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
                 title="Delete selected documents"
               >
@@ -463,6 +460,65 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
           Showing {filteredDocuments.length} {filteredDocuments.length === 1 ? 'document' : 'documents'}
           {selectedCategory !== 'all' && ` in ${getCategoryName(selectedCategory)}`}
         </p>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Confirm Deletion</h2>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-4 space-y-4">
+              <p className="text-gray-700">
+                Are you sure you want to delete {selectedDocuments.size} {selectedDocuments.size === 1 ? 'document' : 'documents'}?
+                This action cannot be undone.
+              </p>
+
+              {/* Confirmation Checkbox */}
+              <label className="flex items-start space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={deleteConfirmed}
+                  onChange={(e) => setDeleteConfirmed(e.target.checked)}
+                  className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-1"
+                />
+                <span className="text-sm text-gray-700">
+                  I confirm I want to delete {selectedDocuments.size} {selectedDocuments.size === 1 ? 'document' : 'documents'}
+                </span>
+              </label>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmed(false);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const selectedIds = Array.from(selectedDocuments);
+                  selectedIds.forEach(id => onDelete(id));
+                  setSelectedDocuments(new Set());
+                  setShowDeleteModal(false);
+                  setDeleteConfirmed(false);
+                }}
+                disabled={!deleteConfirmed}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
