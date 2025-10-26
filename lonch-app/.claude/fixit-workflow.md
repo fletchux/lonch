@@ -136,6 +136,13 @@ gh issue create \
 
 ### Step 4: Create Bug-Fix Branch
 
+**⚠️ CRITICAL: ALWAYS CREATE A BRANCH - NEVER WORK ON MAIN!**
+
+Before any bug fix work begins, you MUST:
+1. Check current branch with `git branch`
+2. If on `main`, switch to main and pull latest: `git checkout main && git pull`
+3. Create a new bug-fix branch
+
 Create branch following naming convention:
 
 ```bash

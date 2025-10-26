@@ -51,6 +51,11 @@ Determine:
 - Any uncommitted changes
 - Recent commits
 
+**⚠️ CRITICAL BRANCH CHECK:**
+- **If on `main` branch:** Immediately warn user that work should NEVER be done directly on main
+- **Always create a branch** before starting any work (bugs, features, improvements)
+- Use naming convention: `bug/XX-description`, `feature/name`, or `improve/description`
+
 ### Step 4: Check for Active Work
 
 Look for task files in `specs/` directory:
