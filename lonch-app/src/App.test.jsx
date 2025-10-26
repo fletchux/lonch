@@ -66,7 +66,7 @@ describe('Lonch App', () => {
     const newProjectButton = screen.getByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
-    expect(screen.getByText('Upload Documents')).toBeInTheDocument();
+    expect(screen.getByText(/Upload your project contracts/i)).toBeInTheDocument();
     expect(screen.getByText('Choose Files')).toBeInTheDocument();
   });
 

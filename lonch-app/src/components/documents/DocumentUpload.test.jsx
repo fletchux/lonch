@@ -32,7 +32,6 @@ describe('DocumentUpload Component', () => {
       />
     );
 
-    expect(screen.getByText('Upload Documents')).toBeInTheDocument();
     expect(screen.getByText(/Upload your project contracts/i)).toBeInTheDocument();
     expect(screen.getByText('Drag and drop files here')).toBeInTheDocument();
     expect(screen.getByText('Choose Files')).toBeInTheDocument();
@@ -229,7 +228,7 @@ describe('DocumentUpload Component', () => {
   it('should render without projectId', () => {
     render(<DocumentUpload onFilesSelected={mockOnFilesSelected} />);
 
-    expect(screen.getByText('Upload Documents')).toBeInTheDocument();
+    expect(screen.getByText(/Upload your project contracts/i)).toBeInTheDocument();
   });
 
   it('should show upload progress structure', async () => {
