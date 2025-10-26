@@ -342,10 +342,10 @@ describe('DocumentList', () => {
       });
       expect(clientChips.length).toBeGreaterThan(0);
 
-      const bothChips = screen.getAllByText((content, element) => {
-        return element?.textContent === '🌐 Both';
+      const allChips = screen.getAllByText((content, element) => {
+        return element?.textContent === '🌐 All';
       });
-      expect(bothChips.length).toBeGreaterThan(0);
+      expect(allChips.length).toBeGreaterThan(0);
     });
 
     it('should hide bulk visibility controls for users without permission', () => {
@@ -445,12 +445,12 @@ describe('DocumentList', () => {
         <DocumentList documents={docsWithoutVisibility} projectId="test-project-123" />
       );
 
-      // Should display "Both" chip in the Group column for documents without visibility field
+      // Should display "All" chip in the Group column for documents without visibility field
       // The chip includes an emoji, so we search for the full text content
-      const bothChips = screen.getAllByText((content, element) => {
-        return element?.textContent === '🌐 Both';
+      const allChips = screen.getAllByText((content, element) => {
+        return element?.textContent === '🌐 All';
       });
-      expect(bothChips.length).toBeGreaterThan(0);
+      expect(allChips.length).toBeGreaterThan(0);
     });
 
     it('should show correct document count after visibility filtering', () => {

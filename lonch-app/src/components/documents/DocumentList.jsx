@@ -103,13 +103,13 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
         return {
           color: 'bg-gray-100 text-gray-800',
           icon: '🌐',
-          text: 'Both'
+          text: 'All'
         };
       default:
         return {
           color: 'bg-gray-100 text-gray-800',
           icon: '🌐',
-          text: 'Both'
+          text: 'All'
         };
     }
   };
@@ -290,7 +290,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                   className="w-48 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 >
                   <option value="">Select visibility...</option>
-                  <option value={VISIBILITY.BOTH}>🌐 Both Groups</option>
+                  <option value={VISIBILITY.BOTH}>🌐 All Groups</option>
                   <option value={VISIBILITY.CONSULTING_ONLY}>🔒 Consulting Only</option>
                   <option value={VISIBILITY.CLIENT_ONLY}>🔒 Client Only</option>
                 </select>
