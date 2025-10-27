@@ -391,7 +391,7 @@ describe('DocumentList', () => {
       expect(screen.getByText(/selected/i)).toBeInTheDocument();
     });
 
-    it('should call updateProject and log activity when bulk visibility changes', async () => {
+    it('should call onUpdateVisibility callback when bulk visibility changes', async () => {
       useProjectPermissions.mockReturnValue({
         group: GROUP.CONSULTING,
         canViewDocument: vi.fn(() => true),
@@ -399,7 +399,14 @@ describe('DocumentList', () => {
         canInvite: true
       });
 
-      const { container } = render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+      const onUpdateVisibility = vi.fn();
+      const { container } = render(
+        <DocumentList
+          documents={documentsWithVisibility}
+          projectId="test-project-123"
+          onUpdateVisibility={onUpdateVisibility}
+        />
+      );
 
       // Select first document
       const checkboxes = container.querySelectorAll('input[type="checkbox"]');
@@ -419,15 +426,8 @@ describe('DocumentList', () => {
       const updateButton = screen.getByText('Update Visibility');
       fireEvent.click(updateButton);
 
-      // Verify updateProject was called with updated visibility
-      await waitFor(() => {
-        expect(projectService.updateProject).toHaveBeenCalled();
-      });
-
-      // Verify activity was logged
-      await waitFor(() => {
-        expect(activityLogService.logActivity).toHaveBeenCalled();
-      });
+      // Verify onUpdateVisibility callback was called with correct parameters
+      expect(onUpdateVisibility).toHaveBeenCalledWith(['1'], VISIBILITY.BOTH);
     });
 
     it('should display BOTH chip for documents without visibility field', () => {

@@ -271,6 +271,15 @@ function AppContent() {
     updateProjectDocuments(currentProject.id, updatedDocuments);
   };
 
+  const handleUpdateDocumentVisibility = (documentIds, newVisibility) => {
+    if (!currentProject) return;
+
+    const updatedDocuments = currentProject.documents.map(doc =>
+      documentIds.includes(doc.id) ? { ...doc, visibility: newVisibility } : doc
+    );
+    updateProjectDocuments(currentProject.id, updatedDocuments);
+  };
+
   return (
     <>
       {view === 'home' && (
@@ -325,6 +334,7 @@ function AppContent() {
             onDeleteDocument={handleDeleteDocument}
             onUploadDocument={handleUploadDocument}
             onUpdateDocumentCategories={handleUpdateDocumentCategories}
+            onUpdateDocumentVisibility={handleUpdateDocumentVisibility}
             onNavigateSettings={() => setView('settings')}
           />
         </ProtectedRoute>

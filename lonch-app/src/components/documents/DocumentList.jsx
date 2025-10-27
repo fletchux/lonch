@@ -10,7 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
  * Displays uploaded documents in a table/list view with management capabilities
  * Now includes group-based document visibility controls
  */
-export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories, projectId }) {
+export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories, onUpdateVisibility, projectId }) {
   const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -154,49 +154,11 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   };
 
   // Handle bulk visibility update
-  const handleBulkVisibilityUpdate = async () => {
-    if (bulkVisibility && selectedDocuments.size > 0) {
-      try {
-        // Update all selected documents with new visibility
-        const updatedDocuments = documents.map(doc =>
-          selectedDocuments.has(doc.id)
-            ? { ...doc, visibility: bulkVisibility }
-            : doc
-        );
-
-        // Update project in Firestore
-        await updateProject(projectId, { documents: updatedDocuments });
-
-        // Log activity for each document
-        if (currentUser) {
-          const selectedDocs = documents.filter(d => selectedDocuments.has(d.id));
-          for (const doc of selectedDocs) {
-            await logActivity(
-              projectId,
-              currentUser.uid,
-              'document_visibility_changed',
-              'document',
-              doc.id,
-              {
-                documentName: doc.name,
-                oldVisibility: doc.visibility || VISIBILITY.BOTH,
-                newVisibility: bulkVisibility
-              },
-              permissions.group
-            );
-          }
-        }
-
-        // Clear selection
-        setSelectedDocuments(new Set());
-        setBulkVisibility('');
-
-        // Show success message
-        alert(`Updated visibility for ${selectedDocuments.size} document(s)`);
-      } catch (error) {
-        console.error('Error updating document visibility:', error);
-        alert('Failed to update document visibility: ' + error.message);
-      }
+  const handleBulkVisibilityUpdate = () => {
+    if (bulkVisibility && selectedDocuments.size > 0 && onUpdateVisibility) {
+      onUpdateVisibility(Array.from(selectedDocuments), bulkVisibility);
+      setSelectedDocuments(new Set());
+      setBulkVisibility('');
     }
   };
 
