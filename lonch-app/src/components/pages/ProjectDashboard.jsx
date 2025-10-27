@@ -11,7 +11,7 @@ import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { updateProject } from '../../services/projectService';
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories, onNavigateSettings }) {
+export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories, onUpdateDocumentVisibility, onNavigateSettings }) {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -424,6 +424,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               onDelete={handleDelete}
               onUploadNew={handleUploadNew}
               onUpdateCategories={onUpdateDocumentCategories}
+              onUpdateVisibility={onUpdateDocumentVisibility}
               projectId={project.id}
             />
           </div>
