@@ -260,7 +260,7 @@ describe('DocumentList', () => {
       expect(screen.getByText('Group')).toBeInTheDocument();
     });
 
-    it('should filter out documents consulting user cannot see', () => {
+    it('should show all documents but hide download button for documents consulting user cannot access', () => {
       useProjectPermissions.mockReturnValue({
         group: GROUP.CONSULTING,
         canViewDocument: (visibility) => {
@@ -271,17 +271,22 @@ describe('DocumentList', () => {
         canInvite: true
       });
 
-      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+      const mockDownload = vi.fn();
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" onDownload={mockDownload} />);
 
-      // Should see consulting-only and both
+      // Should see ALL documents in the list
       expect(screen.getByText('consulting-only.pdf')).toBeInTheDocument();
       expect(screen.getByText('both-groups.pdf')).toBeInTheDocument();
+      expect(screen.getByText('client-only.pdf')).toBeInTheDocument();
 
-      // Should NOT see client-only
-      expect(screen.queryByText('client-only.pdf')).not.toBeInTheDocument();
+      // Download buttons should only appear for documents user can access
+      // consulting-only and both-groups should have download buttons
+      // client-only should NOT have a download button
+      const downloadButtons = screen.getAllByTitle('Download file');
+      expect(downloadButtons.length).toBe(2); // Only 2 download buttons for consulting-only and both-groups
     });
 
-    it('should filter out documents client user cannot see', () => {
+    it('should show all documents but hide download button for documents client user cannot access', () => {
       useProjectPermissions.mockReturnValue({
         group: GROUP.CLIENT,
         canViewDocument: (visibility) => {
@@ -292,14 +297,19 @@ describe('DocumentList', () => {
         canInvite: false
       });
 
-      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
+      const mockDownload = vi.fn();
+      render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" onDownload={mockDownload} />);
 
-      // Should see client-only and both
+      // Should see ALL documents in the list
       expect(screen.getByText('client-only.pdf')).toBeInTheDocument();
       expect(screen.getByText('both-groups.pdf')).toBeInTheDocument();
+      expect(screen.getByText('consulting-only.pdf')).toBeInTheDocument();
 
-      // Should NOT see consulting-only
-      expect(screen.queryByText('consulting-only.pdf')).not.toBeInTheDocument();
+      // Download buttons should only appear for documents user can access
+      // client-only and both-groups should have download buttons
+      // consulting-only should NOT have a download button
+      const downloadButtons = screen.getAllByTitle('Download file');
+      expect(downloadButtons.length).toBe(2); // Only 2 download buttons for client-only and both-groups
     });
 
     it('should show all documents to users with full access', () => {
@@ -452,7 +462,7 @@ describe('DocumentList', () => {
       expect(allChips.length).toBeGreaterThan(0);
     });
 
-    it('should show correct document count after visibility filtering', () => {
+    it('should show correct document count showing all documents', () => {
       useProjectPermissions.mockReturnValue({
         group: GROUP.CLIENT,
         canViewDocument: (visibility) => {
@@ -464,8 +474,8 @@ describe('DocumentList', () => {
 
       render(<DocumentList documents={documentsWithVisibility} projectId="test-project-123" />);
 
-      // Client can only see 2 documents (client-only and both)
-      expect(screen.getByText('Showing 2 documents')).toBeInTheDocument();
+      // All 3 documents should be shown (even if download is restricted)
+      expect(screen.getByText('Showing 3 documents')).toBeInTheDocument();
     });
 
     it('should combine category and visibility filters correctly', () => {

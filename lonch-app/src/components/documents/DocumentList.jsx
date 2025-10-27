@@ -21,16 +21,10 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const headerCheckboxRef = useRef(null);
 
-  // Filter documents by category and visibility (Task 5.6)
+  // Filter documents by category only - show all documents regardless of visibility
   const filteredDocuments = documents.filter(doc => {
     // Category filter
     if (selectedCategory !== 'all' && doc.category !== selectedCategory) {
-      return false;
-    }
-
-    // Visibility filter - hide documents user can't see
-    const docVisibility = doc.visibility || VISIBILITY.BOTH;
-    if (!permissions.canViewDocument(docVisibility)) {
       return false;
     }
 
@@ -394,8 +388,8 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      {/* Download icon (functional) */}
-                      {onDownload && (
+                      {/* Download icon (functional) - only show if user has permission to view this document */}
+                      {onDownload && permissions.canViewDocument(doc.visibility || VISIBILITY.BOTH) && (
                         <button
                           onClick={() => {
                             onDownload(doc);
