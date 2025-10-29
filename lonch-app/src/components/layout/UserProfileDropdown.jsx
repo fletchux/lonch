@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function UserProfileDropdown({ onNavigateSettings }) {
   const { currentUser, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -39,8 +40,13 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
   // Get first letter for avatar fallback
   const avatarLetter = displayName.charAt(0).toUpperCase();
 
-  // Check if user has a photo URL
-  const hasPhoto = currentUser.photoURL;
+  // Check if user has a photo URL and it hasn't failed to load
+  const hasPhoto = currentUser.photoURL && !imageError;
+
+  // Reset image error state when user changes
+  useEffect(() => {
+    setImageError(false);
+  }, [currentUser?.uid]);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -57,6 +63,7 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
               src={currentUser.photoURL}
               alt={displayName}
               className="w-10 h-10 rounded-full object-cover border-2 border-[#2D9B9B]"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-[#2D9B9B] flex items-center justify-center text-white font-semibold border-2 border-[#2D9B9B]">

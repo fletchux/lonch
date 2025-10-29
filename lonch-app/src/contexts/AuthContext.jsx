@@ -110,6 +110,10 @@ export function AuthProvider({ children }) {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
+      // Force account selection every time - don't auto-login with previous account
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
       const result = await signInWithPopup(auth, provider);
       return result.user;
     } catch (err) {
