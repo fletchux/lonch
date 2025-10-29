@@ -4,38 +4,23 @@
 
 ---
 
-## 1. CRITICAL: Deploy Firestore Indexes (Bug #12)
+## 1. ✅ COMPLETE: Deploy Firestore Indexes (Bug #12)
 
-**Status:** Configuration committed, needs manual deployment
+**Status:** ✅ All indexes deployed and enabled
 
 **What's Done:**
 - ✅ Index definitions added to `firestore.indexes.json`
 - ✅ Bug report created: `bugs/2025-10-24-missing-firestore-indexes-invite-links.md`
 - ✅ GitHub issue #12 created
+- ✅ `firebase.json` created for CLI deployment
+- ✅ All 3 indexes deployed and showing "Enabled" in Firebase Console
+  - inviteLinks (projectId + createdAt) - ID: CICAqJiUpoMK
+  - inviteLinks (projectId + createdBy + createdAt) - ID: CICAqJim14AK
+  - activityLogs (projectId + timestamp) - ID: CICAq0jXh4EK
 
-**What's Needed:**
-Since there's no `firebase.json` file in the project, indexes must be deployed manually via Firebase Console.
+**Verified:** October 29, 2025 - All indexes showing green "Enabled" status
 
-**Steps to Deploy:**
-
-1. **Option A: Via Firebase Console (Easiest)**
-   - Go to the Firebase Console error link that appeared when you tested Share Links
-   - OR go to: https://console.firebase.google.com/project/lonch-cb672/firestore/indexes
-   - Click the link from the error message to auto-create the index
-   - Wait for index to build (usually 2-5 minutes)
-   - Repeat for any other missing indexes
-
-2. **Option B: Via Firebase CLI (If you have firebase.json)**
-   ```bash
-   firebase deploy --only firestore:indexes
-   ```
-   - Wait for indexes to build
-   - Check status: Firebase Console → Firestore → Indexes
-
-**Verification:**
-- Navigate to Share Links tab in the app
-- Should load without "query requires an index" error
-- Links should be sorted by creation date (newest first)
+**Ready for:** Share Links feature should now work without "query requires an index" errors
 
 ---
 
