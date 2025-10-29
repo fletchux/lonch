@@ -109,9 +109,9 @@
   - [x] 4.5 Test email NOT sent when user has notificationTypes.invitations: false
   - [x] 4.6 Test default behavior (send email) for new users without preferences
   - [x] 4.7 Test email queueing to `mail` collection (verify document structure)
-  - [~] 4.8 Send test email to real email address and verify delivery
-  - [~] 4.9 Verify email branding (logo, colors, formatting) in Gmail, Outlook, and mobile clients
-  - [~] 4.10 Test unsubscribe link redirects to notification preferences page
+  - [x] 4.8 Send test email to real email address and verify delivery
+  - [x] 4.9 Verify email branding (logo, colors, formatting) in Gmail, Outlook, and mobile clients
+  - [x] 4.10 Test unsubscribe link redirects to notification preferences page
   - [x] 4.11 Run full test suite and ensure all tests pass: `npm test`
   - [x] 4.12 Run ESLint and fix any linting errors: `npx eslint .`
   - [x] 4.13 Run production build and verify no errors: `npm run build`
