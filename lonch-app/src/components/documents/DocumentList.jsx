@@ -1,9 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { VISIBILITY } from '../../utils/groupPermissions';
-import { updateProject } from '../../services/projectService';
-import { logActivity } from '../../services/activityLogService';
-import { useAuth } from '../../contexts/AuthContext';
 
 /**
  * DocumentList Component
@@ -11,7 +8,6 @@ import { useAuth } from '../../contexts/AuthContext';
  * Now includes group-based document visibility controls
  */
 export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories, onUpdateVisibility, projectId }) {
-  const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());

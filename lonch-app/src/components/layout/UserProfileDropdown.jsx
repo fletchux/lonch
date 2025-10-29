@@ -21,6 +21,11 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Reset image error state when user changes
+  useEffect(() => {
+    setImageError(false);
+  }, [currentUser?.uid]);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -42,11 +47,6 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
 
   // Check if user has a photo URL and it hasn't failed to load
   const hasPhoto = currentUser.photoURL && !imageError;
-
-  // Reset image error state when user changes
-  useEffect(() => {
-    setImageError(false);
-  }, [currentUser?.uid]);
 
   return (
     <div className="relative" ref={dropdownRef}>
