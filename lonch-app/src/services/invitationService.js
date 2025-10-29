@@ -257,14 +257,7 @@ export async function acceptInvitation(token, userId) {
     }
 
     // Add user to project members with group
-    console.log('Adding user to project:', {
-      projectId: invitation.projectId,
-      userId,
-      role: invitation.role,
-      group: invitation.group || 'client'
-    });
     await addProjectMember(invitation.projectId, userId, invitation.role, invitation.invitedBy, invitation.group || 'client');
-    console.log('User successfully added to project');
 
     // Update invitation status
     const invitationRef = doc(db, 'invitations', invitation.id);
@@ -272,7 +265,6 @@ export async function acceptInvitation(token, userId) {
       status: 'accepted',
       acceptedAt: serverTimestamp()
     });
-    console.log('Invitation status updated to accepted');
 
     // Send notification to the person who sent the invitation
     try {

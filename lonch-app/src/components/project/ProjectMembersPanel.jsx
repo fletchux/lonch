@@ -68,13 +68,6 @@ export default function ProjectMembersPanel({ projectId }) {
         getProjectPendingInvitations(projectId)
       ]);
 
-      console.log('Fetched members for project:', projectId, {
-        membersCount: projectMembers.length,
-        members: projectMembers,
-        pendingCount: pending.length,
-        pending
-      });
-
       setMembers(projectMembers);
       setPendingInvitations(pending);
 
