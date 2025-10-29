@@ -205,6 +205,33 @@ export async function getUserInvitations(email) {
 }
 
 /**
+ * Get all pending invitations for a project
+ * @param {string} projectId - Project ID
+ * @returns {Promise<Array>} Array of pending invitation documents
+ */
+export async function getProjectPendingInvitations(projectId) {
+  try {
+    const invitationsRef = collection(db, 'invitations');
+    const q = query(
+      invitationsRef,
+      where('projectId', '==', projectId),
+      where('status', '==', 'pending')
+    );
+    const querySnapshot = await getDocs(q);
+
+    const invitations = [];
+    querySnapshot.forEach((doc) => {
+      invitations.push(doc.data());
+    });
+
+    return invitations;
+  } catch (error) {
+    console.error('Error getting project pending invitations:', error);
+    throw new Error(`Failed to get project pending invitations: ${error.message}`);
+  }
+}
+
+/**
  * Accept an invitation and add user to project
  * @param {string} token - Invitation token
  * @param {string} userId - User ID accepting the invitation
@@ -230,7 +257,14 @@ export async function acceptInvitation(token, userId) {
     }
 
     // Add user to project members with group
+    console.log('Adding user to project:', {
+      projectId: invitation.projectId,
+      userId,
+      role: invitation.role,
+      group: invitation.group || 'client'
+    });
     await addProjectMember(invitation.projectId, userId, invitation.role, invitation.invitedBy, invitation.group || 'client');
+    console.log('User successfully added to project');
 
     // Update invitation status
     const invitationRef = doc(db, 'invitations', invitation.id);
@@ -238,6 +272,7 @@ export async function acceptInvitation(token, userId) {
       status: 'accepted',
       acceptedAt: serverTimestamp()
     });
+    console.log('Invitation status updated to accepted');
 
     // Send notification to the person who sent the invitation
     try {

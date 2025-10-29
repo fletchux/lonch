@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getProjectMembers, updateMemberRole, removeMember, updateMemberGroup } from '../../services/projectService';
 import { getUser } from '../../services/userService';
+import { getProjectPendingInvitations, cancelInvitation } from '../../services/invitationService';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { ROLES, getRoleDisplayName } from '../../utils/permissions';
 import { GROUP } from '../../utils/groupPermissions';
@@ -17,6 +18,7 @@ export default function ProjectMembersPanel({ projectId }) {
   const permissions = useProjectPermissions(projectId);
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
+  const [pendingInvitations, setPendingInvitations] = useState([]);
   const [memberDetails, setMemberDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,18 +27,56 @@ export default function ProjectMembersPanel({ projectId }) {
   const [confirmRemove, setConfirmRemove] = useState(null);
   const [confirmRoleChange, setConfirmRoleChange] = useState(null);
   const [confirmGroupChange, setConfirmGroupChange] = useState(null);
+  const [confirmCancelInvite, setConfirmCancelInvite] = useState(null);
 
   useEffect(() => {
     fetchMembers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
+  // Bug #16 fix: Refetch members when Members tab becomes active
+  // This ensures newly invited members appear without requiring page refresh
+  useEffect(() => {
+    if (activeTab === 'members') {
+      fetchMembers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // Refresh members list when window gains focus
+  // This handles the case where invitations are accepted in another tab/browser
+  useEffect(() => {
+    const handleFocus = () => {
+      if (activeTab === 'members') {
+        fetchMembers();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
   async function fetchMembers() {
     try {
       setLoading(true);
       setError(null);
-      const projectMembers = await getProjectMembers(projectId);
+
+      // Fetch both actual members and pending invitations
+      const [projectMembers, pending] = await Promise.all([
+        getProjectMembers(projectId),
+        getProjectPendingInvitations(projectId)
+      ]);
+
+      console.log('Fetched members for project:', projectId, {
+        membersCount: projectMembers.length,
+        members: projectMembers,
+        pendingCount: pending.length,
+        pending
+      });
+
       setMembers(projectMembers);
+      setPendingInvitations(pending);
 
       // Fetch user details for each member
       const details = {};
@@ -221,6 +261,41 @@ export default function ProjectMembersPanel({ projectId }) {
     }
   }
 
+  async function handleCancelInvite(invitation) {
+    setConfirmCancelInvite(invitation);
+  }
+
+  async function confirmCancelInviteAction() {
+    try {
+      await cancelInvitation(confirmCancelInvite.id);
+
+      // Log the activity
+      try {
+        await logActivity(
+          projectId,
+          currentUser.uid,
+          'invitation_cancelled',
+          'invitation',
+          confirmCancelInvite.id,
+          {
+            invitedEmail: confirmCancelInvite.email,
+            invitedRole: confirmCancelInvite.role,
+            invitedGroup: confirmCancelInvite.group
+          },
+          confirmCancelInvite.group
+        );
+      } catch (logError) {
+        console.error('Failed to log activity:', logError);
+      }
+
+      await fetchMembers();
+      setConfirmCancelInvite(null);
+    } catch (err) {
+      console.error('Error cancelling invitation:', err);
+      alert('Failed to cancel invitation: ' + err.message);
+    }
+  }
+
   // Filter members based on search term and group
   const filteredMembers = members.filter(member => {
     // Group filter
@@ -239,6 +314,26 @@ export default function ProjectMembersPanel({ projectId }) {
       member.role.toLowerCase().includes(searchLower)
     );
   });
+
+  // Filter pending invitations based on search term and group
+  const filteredPendingInvitations = pendingInvitations.filter(invitation => {
+    // Group filter
+    if (groupFilter !== 'all') {
+      const inviteGroup = invitation.group || 'consulting';
+      if (inviteGroup !== groupFilter) return false;
+    }
+
+    // Search filter
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      invitation.email.toLowerCase().includes(searchLower) ||
+      invitation.role.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Calculate total count (members + pending)
+  const totalCount = members.length + pendingInvitations.length;
 
   // Format last active time
   function formatLastActive(timestamp) {
@@ -282,7 +377,7 @@ export default function ProjectMembersPanel({ projectId }) {
             `}
             data-testid="members-tab"
           >
-            Members ({members.length})
+            Members ({totalCount})
           </button>
           <button
             onClick={() => setActiveTab('shareLinks')}
@@ -303,6 +398,18 @@ export default function ProjectMembersPanel({ projectId }) {
       {/* Tab Content */}
       {activeTab === 'members' && (
         <>
+          {/* Refresh Button */}
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={fetchMembers}
+              disabled={loading}
+              className="px-3 py-1 text-sm text-teal-600 hover:bg-teal-50 border border-teal-200 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              data-testid="refresh-members-button"
+            >
+              {loading ? 'Refreshing...' : '↻ Refresh'}
+            </button>
+          </div>
+
           {/* Search/Filter */}
           <div className="mb-4 space-y-2">
         {members.length > 5 && (
@@ -331,12 +438,14 @@ export default function ProjectMembersPanel({ projectId }) {
 
       {/* Members List */}
       <div className="space-y-2">
-        {filteredMembers.length === 0 ? (
+        {filteredMembers.length === 0 && filteredPendingInvitations.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             {searchTerm ? 'No members found matching your search' : 'No members yet'}
           </div>
         ) : (
-          filteredMembers.map(member => {
+          <>
+          {/* Active Members */}
+          {filteredMembers.map(member => {
             const userDetails = memberDetails[member.userId];
             const isCurrentUser = member.userId === currentUser?.uid;
             const canChangeThisRole = permissions.canChangeRole(member.role);
@@ -417,7 +526,62 @@ export default function ProjectMembersPanel({ projectId }) {
                 </div>
               </div>
             );
-          })
+          })}
+
+          {/* Pending Invitations */}
+          {filteredPendingInvitations.map(invitation => (
+            <div
+              key={invitation.id}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50"
+            >
+              <div className="flex items-center space-x-4 flex-1">
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold">
+                  {invitation.email[0].toUpperCase()}
+                </div>
+
+                {/* Invitation Info */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-medium text-gray-900">
+                      {invitation.email}
+                    </h4>
+                    <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
+                      Pending
+                    </span>
+                    <GroupBadge group={invitation.group || 'consulting'} />
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Invited {new Date(invitation.createdAt?.seconds * 1000 || invitation.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Expires: {invitation.expiresAt?.seconds
+                      ? new Date(invitation.expiresAt.seconds * 1000).toLocaleDateString()
+                      : invitation.expiresAt instanceof Date
+                        ? invitation.expiresAt.toLocaleDateString()
+                        : new Date(invitation.expiresAt).toLocaleDateString()}
+                  </p>
+                </div>
+
+                {/* Role Badge */}
+                <div className="flex items-center gap-2">
+                  <RoleBadge role={invitation.role} />
+                </div>
+
+                {/* Cancel Button */}
+                {permissions.canInvite && (
+                  <button
+                    onClick={() => handleCancelInvite(invitation)}
+                    className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 border border-gray-300 rounded-md"
+                    data-testid="cancel-invite-button"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          </>
         )}
       </div>
 
@@ -513,6 +677,34 @@ export default function ProjectMembersPanel({ projectId }) {
       {/* Share Links Tab */}
       {activeTab === 'shareLinks' && (
         <ShareLinksTab projectId={projectId} />
+      )}
+
+      {/* Cancel Invitation Confirmation Dialog */}
+      {confirmCancelInvite && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-2">Cancel Invitation</h3>
+            <p className="text-gray-600 mb-4">
+              Cancel invitation for <strong>{confirmCancelInvite.email}</strong>?
+              They will no longer be able to use this invitation link.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmCancelInvite(null)}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+              >
+                Keep Invitation
+              </button>
+              <button
+                onClick={confirmCancelInviteAction}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                data-testid="confirm-cancel-invite"
+              >
+                Cancel Invitation
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

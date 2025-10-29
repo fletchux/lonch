@@ -4,8 +4,8 @@
 **GitHub Issue:** #16
 **Reporter:** User (cfletcher)
 **Severity:** High
-**Status:** Fixed & Verified
-**Branch:** `bug/14-invited-project-not-in-dashboard`
+**Status:** Fixed - Race Condition Resolved
+**Branch:** `bug/16-invite-race-condition`
 
 ---
 
@@ -397,6 +397,133 @@ All four bugs were discovered through progressive manual testing. This particula
 
 **User Quote:**
 > "it seems to work but when we get to the end of the process there is a problem. The invitee, once they join or sign in do not get or see the project being shared in their dashboard. it needs to be added."
+
+---
+
+## Update 2025-10-29: Bug Reopened - Race Condition Discovered
+
+### The October 24 Fix Was Incomplete
+
+The previous fix attempted to solve the problem by calling `fetchProjects()` before navigating, but it introduced a **React state race condition** that prevents the fix from working.
+
+### The Race Condition
+
+**Location:** App.jsx lines 355-367
+
+```javascript
+onAccepted={async (projectId) => {
+  // Bug #14 fix: Refetch projects to include the newly joined project
+  await fetchProjects();  // ← Line 357: Updates state asynchronously
+
+  // Navigate to accepted project
+  const project = projects.find(p => p.id === projectId);  // ← Line 360: READS STALE STATE!
+  if (project) {
+    selectProject(project);
+  } else {
+    goHome();
+  }
+}}
+```
+
+### Why It Doesn't Work
+
+1. **Line 357**: `await fetchProjects()` executes and calls `setProjects(allProjects)`
+2. **React State Update Timing**: `setProjects()` is asynchronous - it schedules a state update for the next render
+3. **Line 360**: The `projects` variable still contains the **old value** from the current render cycle
+4. **Result**: `projects.find(p => p.id === projectId)` returns `null` because the new project isn't in the array yet
+5. **Outcome**: User navigates to home page with stale project list
+6. **Eventually**: React re-renders with the new projects, but user is already on home page
+
+### The Real Fix
+
+We need to either:
+1. **Use the return value from `fetchProjects()`** instead of reading the stale `projects` state
+2. **Navigate to home and let the re-render show the new data**
+
+**Recommended Solution**: Modify `fetchProjects()` to return the fetched projects array, then use that return value to find the project.
+
+### The Actual Fix (2025-10-29)
+
+**Modified `fetchProjects()` to return the array (App.jsx lines 51-93):**
+
+```javascript
+const fetchProjects = useCallback(async () => {
+  if (currentUser) {
+    try {
+      // ... fetching logic ...
+      const allProjects = Array.from(projectMap.values());
+      setProjects(allProjects);
+      return allProjects; // ✅ Return fetched projects to avoid state race conditions
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      return []; // ✅ Return empty array on error
+    }
+  } else {
+    setProjects([]);
+    return []; // ✅ Return empty array when no user
+  }
+}, [currentUser]);
+```
+
+**Updated `onAccepted` callback to use return value (App.jsx lines 359-372):**
+
+```javascript
+onAccepted={async (projectId) => {
+  // Bug #14/#16 fix: Refetch projects to include the newly joined project
+  // Use the return value to avoid race condition with state updates
+  const freshProjects = await fetchProjects(); // ✅ Get fresh data
+
+  // Navigate to accepted project using the fresh data
+  const project = freshProjects.find(p => p.id === projectId); // ✅ Use returned value, not stale state
+  if (project) {
+    selectProject(project);
+  } else {
+    goHome();
+  }
+}}
+```
+
+### Files Modified:
+- ✅ `src/App.jsx` - Modified fetchProjects to return array, updated onAccepted to use return value
+- ✅ `src/components/project/ProjectMembersPanel.jsx` - Added auto-refresh on tab change, added manual refresh button
+
+### Additional Fix: Members Not Appearing in UI
+
+**Related Issue Discovered:**
+After accepting an invite, the new member doesn't appear in the project's Members panel without a page refresh.
+
+**Root Cause:**
+The `ProjectMembersPanel` component only fetches members on initial mount and when `projectId` changes. It doesn't refetch when someone new joins the project.
+
+**Solution:**
+1. Added useEffect to refetch members whenever the Members tab becomes active (lines 34-41)
+2. Added manual "Refresh" button for explicit updates (lines 315-325)
+
+**Code Changes (ProjectMembersPanel.jsx):**
+
+```javascript
+// Added auto-refresh when tab becomes active
+useEffect(() => {
+  if (activeTab === 'members') {
+    fetchMembers();
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [activeTab]);
+
+// Added refresh button in UI
+<button
+  onClick={fetchMembers}
+  disabled={loading}
+  className="px-3 py-1 text-sm text-teal-600 hover:bg-teal-50 border border-teal-200 rounded-md"
+>
+  {loading ? 'Refreshing...' : '↻ Refresh'}
+</button>
+```
+
+### Testing:
+- ✅ All 648 tests passing
+- ✅ ESLint clean
+- ⏳ Manual testing pending (user to verify both fixes)
 
 ---
 

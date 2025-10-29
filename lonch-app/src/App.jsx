@@ -50,6 +50,7 @@ function AppContent() {
 
   // Task 5.13: Fetch all accessible projects from Firestore when user changes
   // Extracted as a separate function so it can be called after invite acceptance (Bug #14 fix)
+  // Returns the fetched projects array to avoid race conditions with state updates (Bug #16 fix)
   const fetchProjects = useCallback(async () => {
     if (currentUser) {
       try {
@@ -79,12 +80,15 @@ function AppContent() {
         // Convert map to array
         const allProjects = Array.from(projectMap.values());
         setProjects(allProjects);
+        return allProjects; // Return fetched projects to avoid state race conditions
       } catch (error) {
         console.error('Error fetching projects:', error);
+        return []; // Return empty array on error
       }
     } else {
       // Clear projects when user logs out
       setProjects([]);
+      return []; // Return empty array when no user
     }
   }, [currentUser]);
 
@@ -353,11 +357,12 @@ function AppContent() {
         <AcceptInviteLinkPage
           token={inviteToken}
           onAccepted={async (projectId) => {
-            // Bug #14 fix: Refetch projects to include the newly joined project
-            await fetchProjects();
+            // Bug #14/#16 fix: Refetch projects to include the newly joined project
+            // Use the return value to avoid race condition with state updates
+            const freshProjects = await fetchProjects();
 
-            // Navigate to accepted project
-            const project = projects.find(p => p.id === projectId);
+            // Navigate to accepted project using the fresh data
+            const project = freshProjects.find(p => p.id === projectId);
             if (project) {
               selectProject(project);
             } else {

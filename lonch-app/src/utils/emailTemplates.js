@@ -5,6 +5,7 @@
  * Templates are designed to work across all email clients.
  *
  * Supported variables:
+ * - {{email}} - Recipient's email address
  * - {{inviterName}} - Name of person sending invitation
  * - {{projectName}} - Project name
  * - {{role}} - Role being assigned (Owner, Admin, Editor, Viewer)
@@ -83,7 +84,7 @@ export const INVITATION_HTML_TEMPLATE = `
           <tr>
             <td style="padding: 40px 30px;">
               <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 22px; font-weight: 600;">
-                You've been invited!
+                {{email}}, you've been invited!
               </h2>
 
               <p style="margin: 0 0 16px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
@@ -151,7 +152,7 @@ export const INVITATION_HTML_TEMPLATE = `
 export const INVITATION_TEXT_TEMPLATE = `
 LONCH - Project Collaboration Platform
 
-You've been invited!
+{{email}}, you've been invited!
 
 {{inviterName}} has invited you to collaborate on {{projectName}}.
 
