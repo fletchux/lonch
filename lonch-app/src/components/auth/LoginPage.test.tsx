@@ -18,7 +18,14 @@ describe('LoginPage', () => {
       loginWithGoogle: mockLoginWithGoogle,
       currentUser: null,
       loading: false,
-      error: null
+      error: null,
+      logout: vi.fn(),
+      signup: vi.fn(),
+      resetPassword: vi.fn(),
+      updateUserProfile: vi.fn(),
+      updatePassword: vi.fn(),
+      updateEmail: vi.fn(),
+      deleteAccount: vi.fn(),
     });
   });
 
@@ -47,15 +54,37 @@ describe('LoginPage', () => {
     expect(forgotPasswordLink).toBeInTheDocument();
   });
 
-  it('should validate required fields', async () => {
+  it('should validate required fields with Zod schema', async () => {
     render(<LoginPage />);
 
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
     const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
-    const submitButton = loginButtons[0]; // First button is the form submit button
+    const submitButton = loginButtons[0];
+
+    // Trigger validation by clicking submit with empty form
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Please enter your email and password')).toBeInTheDocument();
+      expect(screen.getByText('Email is required')).toBeInTheDocument();
+      expect(screen.getByText('Password is required')).toBeInTheDocument();
+    });
+
+    expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  it('should validate email format with Zod schema', async () => {
+    render(<LoginPage />);
+
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
+
+    // Enter invalid email
+    fireEvent.change(emailInput, { target: { value: 'notanemail' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    fireEvent.blur(emailInput);
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid email address')).toBeInTheDocument();
     });
 
     expect(mockLogin).not.toHaveBeenCalled();
@@ -66,10 +95,10 @@ describe('LoginPage', () => {
 
     render(<LoginPage onSuccess={mockOnSuccess} />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
     const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
-    const submitButton = loginButtons[0]; // First button is the form submit button
+    const submitButton = loginButtons[0];
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
@@ -86,10 +115,10 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
     const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
-    const submitButton = loginButtons[0]; // First button is the form submit button
+    const submitButton = loginButtons[0];
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
@@ -101,23 +130,27 @@ describe('LoginPage', () => {
   });
 
   it('should show loading state during login', async () => {
-    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    // Delay the login to ensure we can see the loading state
+    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 200)));
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
     const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
-    const submitButton = loginButtons[0]; // First button is the form submit button
+    const submitButton = loginButtons[0];
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.click(submitButton);
 
-    // Both the submit button and Google button show "Logging in..." during loading
-    const loadingButtons = screen.getAllByRole('button', { name: /logging in\.\.\./i });
-    expect(loadingButtons.length).toBeGreaterThan(0);
+    // Wait for the form to submit and loading state to appear
+    await waitFor(() => {
+      const loadingButtons = screen.queryAllByRole('button', { name: /logging in\.\.\./i });
+      expect(loadingButtons.length).toBeGreaterThan(0);
+    }, { timeout: 1000 });
 
+    // Wait for loading to complete
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /^log in$/i })).toBeInTheDocument();
     });
@@ -160,24 +193,30 @@ describe('LoginPage', () => {
   });
 
   it('should disable inputs during loading', async () => {
-    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    // Delay the login to ensure we can see the disabled state
+    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 200)));
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
     const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
-    const submitButton = loginButtons[0]; // First button is the form submit button
+    const submitButton = loginButtons[0];
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.click(submitButton);
 
-    expect(emailInput).toBeDisabled();
-    expect(passwordInput).toBeDisabled();
+    // Wait for the form to submit and inputs to be disabled
+    await waitFor(() => {
+      expect(emailInput).toBeDisabled();
+      expect(passwordInput).toBeDisabled();
+    }, { timeout: 1000 });
 
+    // Wait for loading to complete and inputs to be re-enabled
     await waitFor(() => {
       expect(emailInput).not.toBeDisabled();
+      expect(passwordInput).not.toBeDisabled();
     });
   });
 
@@ -186,10 +225,10 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
     const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
-    const submitButton = loginButtons[0]; // First button is the form submit button
+    const submitButton = loginButtons[0];
 
     // First attempt with error
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -222,11 +261,55 @@ describe('LoginPage', () => {
   it('should have consistent modal size with signup page', () => {
     const { container } = render(<LoginPage />);
 
-    // Find the modal container (the white card with rounded corners)
-    const modalContainer = container.querySelector('.bg-white.rounded-lg.shadow-lg');
+    // Find the modal container (the card with rounded corners)
+    const modalContainer = container.querySelector('.bg-card.rounded-lg.shadow-lg');
 
     expect(modalContainer).toBeInTheDocument();
     // Verify it has a minimum height class to prevent size jumping
-    expect(modalContainer.classList.toString()).toMatch(/min-h-/);
+    expect(modalContainer?.classList.toString()).toMatch(/min-h-/);
+  });
+
+  it('should normalize email to lowercase', async () => {
+    mockLogin.mockResolvedValue({});
+
+    render(<LoginPage />);
+
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
+    const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
+    const submitButton = loginButtons[0];
+
+    // Enter email with uppercase letters
+    fireEvent.change(emailInput, { target: { value: 'TEST@EXAMPLE.COM' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      // Zod schema normalizes email to lowercase
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+    });
+  });
+
+  it('should have proper ARIA attributes for accessibility', () => {
+    render(<LoginPage />);
+
+    const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
+
+    // Inputs should have proper labels
+    expect(emailInput).toHaveAttribute('id', 'email');
+    expect(passwordInput).toHaveAttribute('id', 'password');
+
+    // Submit to trigger validation errors
+    const loginButtons = screen.getAllByRole('button', { name: /^log in$/i });
+    const submitButton = loginButtons[0];
+    fireEvent.click(submitButton);
+
+    // Wait for validation errors to appear
+    waitFor(() => {
+      // Error messages should have role="alert"
+      const errorMessages = screen.getAllByRole('alert');
+      expect(errorMessages.length).toBeGreaterThan(0);
+    });
   });
 });

@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 
-// Task 4.6-4.7: User profile dropdown with avatar, name, and menu
-export default function UserProfileDropdown({ onNavigateSettings }) {
+interface UserProfileDropdownProps {
+  onNavigateSettings?: () => void;
+}
+
+export default function UserProfileDropdown({ onNavigateSettings }: UserProfileDropdownProps) {
   const { currentUser, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -40,7 +42,7 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
   }
 
   // Get display name or fallback to email
-  const displayName = currentUser.displayName || currentUser.email;
+  const displayName = currentUser.displayName || currentUser.email || 'User';
 
   // Get first letter for avatar fallback
   const avatarLetter = displayName.charAt(0).toUpperCase();
@@ -50,10 +52,9 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Task 4.7: Avatar and name display with dropdown trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-[#2D9B9B] rounded-lg p-2 hover:bg-gray-100 transition-colors"
+        className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg p-2 hover:bg-accent transition-colors"
         aria-label="User menu"
       >
         {/* Avatar */}
@@ -62,11 +63,11 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
             <img
               src={currentUser.photoURL}
               alt={displayName}
-              className="w-10 h-10 rounded-full object-cover border-2 border-[#2D9B9B]"
+              className="w-10 h-10 rounded-full object-cover border-2 border-primary"
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[#2D9B9B] flex items-center justify-center text-white font-semibold border-2 border-[#2D9B9B]">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold border-2 border-primary">
               {avatarLetter}
             </div>
           )}
@@ -74,9 +75,9 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
 
         {/* Name and dropdown icon */}
         <div className="hidden md:flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700">{displayName}</span>
+          <span className="text-sm font-medium text-foreground">{displayName}</span>
           <svg
-            className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -86,23 +87,22 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
         </div>
       </button>
 
-      {/* Task 4.7: Dropdown menu with Profile and Logout */}
+      {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-popover rounded-lg shadow-lg border border-border py-1 z-50">
           {/* User info section */}
-          <div className="px-4 py-3 border-b border-gray-200">
-            <p className="text-sm font-medium text-gray-900">{displayName}</p>
-            <p className="text-xs text-gray-500 truncate">{currentUser.email}</p>
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-sm font-medium text-popover-foreground">{displayName}</p>
+            <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
           </div>
 
           {/* Menu items */}
           <button
             onClick={() => {
               setIsOpen(false);
-              // TODO: Navigate to profile page when implemented
               alert('Profile page coming soon!');
             }}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition-colors"
+            className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent focus:outline-none focus:bg-accent transition-colors"
           >
             <div className="flex items-center space-x-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
                 onNavigateSettings();
               }
             }}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition-colors"
+            className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent focus:outline-none focus:bg-accent transition-colors"
           >
             <div className="flex items-center space-x-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
 
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50 transition-colors"
+            className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 focus:outline-none focus:bg-destructive/10 transition-colors"
           >
             <div className="flex items-center space-x-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,7 +146,3 @@ export default function UserProfileDropdown({ onNavigateSettings }) {
     </div>
   );
 }
-
-UserProfileDropdown.propTypes = {
-  onNavigateSettings: PropTypes.func
-};

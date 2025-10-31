@@ -1,14 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import LoginPage from './LoginPage';
 
-// Task 4.1-4.3: Protected route wrapper that redirects to login when not authenticated
-export default function ProtectedRoute({ children, redirectPath = 'login', onSwitchToSignup, onLoginSuccess }) {
+interface ProtectedRouteProps {
+  children: ReactNode;
+  redirectPath?: string;
+  onSwitchToSignup?: () => void;
+  onLoginSuccess?: () => void;
+}
+
+export default function ProtectedRoute({
+  children,
+  redirectPath = 'login',
+  onSwitchToSignup,
+  onLoginSuccess
+}: ProtectedRouteProps) {
   const { currentUser, loading } = useAuth();
-  const [intendedDestination, setIntendedDestination] = useState(null);
+  const [intendedDestination, setIntendedDestination] = useState<string | null>(null);
 
   useEffect(() => {
-    // Task 4.3: Preserve intended destination for post-login redirect
+    // Preserve intended destination for post-login redirect
     if (!loading && !currentUser && redirectPath) {
       setIntendedDestination(window.location.pathname);
     }
@@ -17,16 +28,16 @@ export default function ProtectedRoute({ children, redirectPath = 'login', onSwi
   // Show loading state while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#2D9B9B]"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Task 4.2: Redirect to login if not authenticated
+  // Redirect to login if not authenticated
   if (!currentUser) {
     return (
       <LoginPage
@@ -51,5 +62,5 @@ export default function ProtectedRoute({ children, redirectPath = 'login', onSwi
   }
 
   // User is authenticated, render protected content
-  return children;
+  return <>{children}</>;
 }

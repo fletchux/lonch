@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod';
+import { emailSchema } from './auth';
 
 /**
  * Client type validation

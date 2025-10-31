@@ -6,7 +6,59 @@ import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import { mergeExtractedData, mapToProjectData } from '../../services/documentExtraction';
 
-export default function Wizard({ projectData, setProjectData, step, setStep, onCancel, onSave, onNavigateSettings }) {
+// Type definitions
+interface Template {
+  id: string;
+  name: string;
+  fields?: Array<{ id: string; label: string; type: string }>;
+  items?: Array<{ id: string; text: string; completed: boolean }>;
+  roles?: Array<{ id: string; name: string; description: string }>;
+}
+
+interface ExtractedData {
+  name?: string;
+  clientName?: string;
+  budget?: string | number;
+  source?: string;
+}
+
+interface ExtractionConflicts {
+  [key: string]: boolean;
+}
+
+interface ProjectData {
+  id?: string;
+  name?: string;
+  clientType?: string;
+  intakeTemplate?: Template;
+  checklistTemplate?: Template;
+  stakeholderTemplate?: Template;
+  teamTemplate?: Template;
+  documents?: File[];
+  extractedData?: ExtractedData;
+  extractionConflicts?: ExtractionConflicts | null;
+  manuallyEditedFields?: string[];
+}
+
+interface WizardProps {
+  projectData: ProjectData;
+  setProjectData: (data: ProjectData | ((prev: ProjectData) => ProjectData)) => void;
+  step: number;
+  setStep: (step: number) => void;
+  onCancel: () => void;
+  onSave: () => void;
+  onNavigateSettings?: () => void;
+}
+
+export default function Wizard({
+  projectData,
+  setProjectData,
+  step,
+  setStep,
+  onCancel,
+  onSave,
+  onNavigateSettings
+}: WizardProps) {
   const handleNext = () => {
     if (step < 6) {
       setStep(step + 1);
@@ -23,38 +75,38 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
     }
   };
 
-  const isStepValid = () => {
+  const isStepValid = (): boolean => {
     switch (step) {
       case 1:
         return true; // Document upload is optional
       case 2:
-        return projectData.name && projectData.clientType;
+        return !!(projectData.name && projectData.clientType);
       case 3:
-        return projectData.intakeTemplate;
+        return !!projectData.intakeTemplate;
       case 4:
-        return projectData.checklistTemplate;
+        return !!projectData.checklistTemplate;
       case 5:
-        return projectData.stakeholderTemplate;
+        return !!projectData.stakeholderTemplate;
       case 6:
-        return projectData.teamTemplate;
+        return !!projectData.teamTemplate;
       default:
         return false;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header onNavigateSettings={onNavigateSettings} />
 
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="bg-card border border-border rounded-xl shadow-lg p-8">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">New Project Setup</h2>
-              <span className="text-sm text-gray-600">Step {step} of 6</span>
+              <h2 className="text-2xl font-bold text-foreground">New Project Setup</h2>
+              <span className="text-sm text-muted-foreground">Step {step} of 6</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-muted rounded-full h-2">
               <div
                 className="bg-accent h-2 rounded-full transition-all"
                 style={{ width: `${(step / 6) * 100}%` }}
@@ -77,7 +129,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                   const mappedData = mapToProjectData(mergedData);
 
                   // Auto-populate project name if not manually edited
-                  const updatedData = {
+                  const updatedData: ProjectData = {
                     ...currentData,
                     extractedData: mappedData,
                     extractionConflicts: hasConflicts ? conflicts : null
@@ -115,10 +167,10 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
 
           {step === 2 && (
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Project Basics</h3>
+              <h3 className="text-xl font-bold text-foreground mb-4">Project Basics</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-foreground mb-2">
                     Project Name
                     {projectData.extractedData?.name && !projectData.manuallyEditedFields?.includes('name') && (
                       <ExtractionIndicator
@@ -144,12 +196,12 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                         )
                       });
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground focus:ring-2 focus:ring-accent focus:border-transparent"
                     placeholder="e.g., Acme Corp - Product Redesign"
                   />
                 </div>
                 <div>
-                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-foreground mb-2">
                     Client Type
                     {projectData.extractedData?.clientName && !projectData.manuallyEditedFields?.includes('clientType') && (
                       <ExtractionIndicator
@@ -159,7 +211,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                     )}
                   </label>
                   <select
-                    value={projectData.clientType}
+                    value={projectData.clientType || ''}
                     onChange={(e) => {
                       setProjectData({
                         ...projectData,
@@ -169,7 +221,7 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                         )
                       });
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground focus:ring-2 focus:ring-accent focus:border-transparent"
                   >
                     <option value="">Select client type</option>
                     <option value="startup">Startup (Seed-Series A)</option>
@@ -184,8 +236,8 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
 
           {step === 3 && (
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Client Intake Template</h3>
-              <p className="text-gray-600 mb-6">Choose a template to structure your client discovery</p>
+              <h3 className="text-xl font-bold text-foreground mb-4">Client Intake Template</h3>
+              <p className="text-muted-foreground mb-6">Choose a template to structure your client discovery</p>
               <div className="space-y-3">
                 {templates.intake.map((template) => (
                   <div
@@ -194,13 +246,13 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       projectData.intakeTemplate?.id === template.id
                         ? 'border-accent bg-accent/10'
-                        : 'border-gray-200 hover:border-accent/30'
+                        : 'border-border hover:border-accent/30'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-bold text-gray-900">{template.name}</h4>
-                        <p className="text-sm text-gray-600">{template.fields.length} fields</p>
+                        <h4 className="font-bold text-foreground">{template.name}</h4>
+                        <p className="text-sm text-muted-foreground">{template.fields?.length || 0} fields</p>
                       </div>
                       <FileText size={24} className="text-accent" />
                     </div>
@@ -212,8 +264,8 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
 
           {step === 4 && (
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Kickoff Checklist Template</h3>
-              <p className="text-gray-600 mb-6">Select a checklist to track your setup tasks</p>
+              <h3 className="text-xl font-bold text-foreground mb-4">Kickoff Checklist Template</h3>
+              <p className="text-muted-foreground mb-6">Select a checklist to track your setup tasks</p>
               <div className="space-y-3">
                 {templates.checklist.map((template) => (
                   <div
@@ -222,13 +274,13 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       projectData.checklistTemplate?.id === template.id
                         ? 'border-accent bg-accent/10'
-                        : 'border-gray-200 hover:border-accent/30'
+                        : 'border-border hover:border-accent/30'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-bold text-gray-900">{template.name}</h4>
-                        <p className="text-sm text-gray-600">{template.items.length} tasks</p>
+                        <h4 className="font-bold text-foreground">{template.name}</h4>
+                        <p className="text-sm text-muted-foreground">{template.items?.length || 0} tasks</p>
                       </div>
                       <CheckSquare size={24} className="text-accent" />
                     </div>
@@ -240,8 +292,8 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
 
           {step === 5 && (
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Stakeholder Map Template</h3>
-              <p className="text-gray-600 mb-6">Choose a template for mapping client stakeholders</p>
+              <h3 className="text-xl font-bold text-foreground mb-4">Stakeholder Map Template</h3>
+              <p className="text-muted-foreground mb-6">Choose a template for mapping client stakeholders</p>
               <div className="space-y-3">
                 {templates.stakeholder.map((template) => (
                   <div
@@ -250,13 +302,13 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       projectData.stakeholderTemplate?.id === template.id
                         ? 'border-accent bg-accent/10'
-                        : 'border-gray-200 hover:border-accent/30'
+                        : 'border-border hover:border-accent/30'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-bold text-gray-900">{template.name}</h4>
-                        <p className="text-sm text-gray-600">{template.roles.length} roles</p>
+                        <h4 className="font-bold text-foreground">{template.name}</h4>
+                        <p className="text-sm text-muted-foreground">{template.roles?.length || 0} roles</p>
                       </div>
                       <Users size={24} className="text-accent" />
                     </div>
@@ -268,8 +320,8 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
 
           {step === 6 && (
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Consulting Team Template</h3>
-              <p className="text-gray-600 mb-6">Select your team structure template</p>
+              <h3 className="text-xl font-bold text-foreground mb-4">Consulting Team Template</h3>
+              <p className="text-muted-foreground mb-6">Select your team structure template</p>
               <div className="space-y-3">
                 {templates.team.map((template) => (
                   <div
@@ -278,13 +330,13 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       projectData.teamTemplate?.id === template.id
                         ? 'border-accent bg-accent/10'
-                        : 'border-gray-200 hover:border-accent/30'
+                        : 'border-border hover:border-accent/30'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-bold text-gray-900">{template.name}</h4>
-                        <p className="text-sm text-gray-600">{template.roles.length} roles</p>
+                        <h4 className="font-bold text-foreground">{template.name}</h4>
+                        <p className="text-sm text-muted-foreground">{template.roles?.length || 0} roles</p>
                       </div>
                       <Users size={24} className="text-accent" />
                     </div>
@@ -297,14 +349,14 @@ export default function Wizard({ projectData, setProjectData, step, setStep, onC
           <div className="flex justify-between mt-8">
             <button
               onClick={handleBack}
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 border border-input rounded-lg text-foreground hover:bg-accent/10 transition-colors"
             >
               {step === 1 ? 'Cancel' : 'Back'}
             </button>
             <button
               onClick={handleNext}
               disabled={!isStepValid()}
-              className="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
             >
               {step === 6 ? 'Create Project' : 'Next'}
             </button>
