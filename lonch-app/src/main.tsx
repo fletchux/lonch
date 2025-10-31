@@ -4,7 +4,7 @@ import './index.css'
 import App from './App'
 import { ThemeProvider } from './components/theme-provider'
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="system" storageKey="lonch-ui-theme">
       <App />

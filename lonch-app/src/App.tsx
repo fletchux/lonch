@@ -17,25 +17,71 @@ import LoginPage from './components/auth/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AcceptInviteLinkPage from './components/project/AcceptInviteLinkPage';
 
+interface Document {
+  id: string;
+  name: string;
+  category: 'contract' | 'specifications' | 'other';
+  size: number;
+  uploadedAt: string;
+  uploadedBy?: string;
+  visibility?: string;
+  downloadURL?: string;
+  storagePath?: string;
+  fileName?: string;
+  file?: File;
+  [key: string]: any;
+}
+
+interface Template {
+  name: string;
+  fields?: string[];
+  items?: string[];
+  roles?: string[];
+}
+
+interface ProjectData {
+  name: string;
+  clientType: string;
+  intakeTemplate: Template | null;
+  checklistTemplate: Template | null;
+  stakeholderTemplate: Template | null;
+  teamTemplate: Template | null;
+  documents: Document[];
+  extractedData: any;
+  extractionConflicts: any;
+  manuallyEditedFields: string[];
+}
+
+interface Project {
+  id: string;
+  name: string;
+  clientType: string;
+  userRole?: string;
+  documents?: Document[];
+  [key: string]: any;
+}
+
+type View = 'home' | 'wizard' | 'project' | 'settings' | 'signup' | 'login' | 'acceptInvite';
+
 // Separate component for app content so we can use useAuth
 function AppContent() {
   const { currentUser } = useAuth();
-  const [view, setView] = useState('home');
-  const [currentProject, setCurrentProject] = useState(null);
-  const [projects, setProjects] = useState([]);
+  const [view, setView] = useState<View>('home');
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [step, setStep] = useState(1);
-  const [inviteToken, setInviteToken] = useState(null);
-  const [projectData, setProjectData] = useState({
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [projectData, setProjectData] = useState<ProjectData>({
     name: '',
     clientType: '',
     intakeTemplate: null,
     checklistTemplate: null,
     stakeholderTemplate: null,
     teamTemplate: null,
-    documents: [], // Uploaded documents with metadata
-    extractedData: null, // AI-extracted data from documents
-    extractionConflicts: null, // Conflicts from multiple documents
-    manuallyEditedFields: [] // Track which fields user has manually edited
+    documents: [],
+    extractedData: null,
+    extractionConflicts: null,
+    manuallyEditedFields: []
   });
 
   // Parse URL on mount to detect invite links
@@ -51,7 +97,7 @@ function AppContent() {
   // Task 5.13: Fetch all accessible projects from Firestore when user changes
   // Extracted as a separate function so it can be called after invite acceptance (Bug #14 fix)
   // Returns the fetched projects array to avoid race conditions with state updates (Bug #16 fix)
-  const fetchProjects = useCallback(async () => {
+  const fetchProjects = useCallback(async (): Promise<Project[]> => {
     if (currentUser) {
       try {
         // Fetch projects where user is owner
@@ -61,7 +107,7 @@ function AppContent() {
         const memberProjects = await getUserProjectsAsMember(currentUser.uid);
 
         // Combine projects, removing duplicates (in case user is both owner and member)
-        const projectMap = new Map();
+        const projectMap = new Map<string, Project>();
 
         // Add owned projects first (user is owner)
         for (const project of ownedProjects) {
@@ -80,15 +126,15 @@ function AppContent() {
         // Convert map to array
         const allProjects = Array.from(projectMap.values());
         setProjects(allProjects);
-        return allProjects; // Return fetched projects to avoid state race conditions
+        return allProjects;
       } catch (error) {
         console.error('Error fetching projects:', error);
-        return []; // Return empty array on error
+        return [];
       }
     } else {
       // Clear projects when user logs out
       setProjects([]);
-      return []; // Return empty array when no user
+      return [];
     }
   }, [currentUser]);
 
@@ -123,12 +169,12 @@ function AppContent() {
       // First, create the project to get a project ID
       const newProject = await createProject(currentUser.uid, {
         ...projectData,
-        documents: [], // Don't include documents yet
+        documents: [],
         status: 'active'
       });
 
       // Upload documents to Firebase Storage if there are any
-      let uploadedDocuments = [];
+      let uploadedDocuments: Document[] = [];
       if (projectData.documents && projectData.documents.length > 0) {
         const { uploadFile } = await import('./services/fileStorage');
 
@@ -148,7 +194,7 @@ function AppContent() {
                 category: fileData.category || 'other',
                 size: fileData.size,
                 uploadedAt: fileData.uploadedAt,
-                uploadedBy: currentUser.displayName || currentUser.email,
+                uploadedBy: currentUser.displayName || currentUser.email || 'Unknown',
                 visibility: fileData.visibility || 'both',
                 downloadURL: uploadResult.downloadURL,
                 storagePath: uploadResult.filePath,
@@ -166,12 +212,11 @@ function AppContent() {
         uploadedDocuments = await Promise.all(uploadPromises);
 
         // Update the project with uploaded documents
-        const { updateProject } = await import('./services/projectService');
         await updateProject(newProject.id, { documents: uploadedDocuments });
       }
 
       // Update local state with the complete project
-      const completeProject = {
+      const completeProject: Project = {
         ...newProject,
         documents: uploadedDocuments
       };
@@ -185,7 +230,7 @@ function AppContent() {
     }
   };
 
-  const selectProject = (project) => {
+  const selectProject = (project: Project) => {
     setCurrentProject(project);
     setView('project');
   };
@@ -195,7 +240,7 @@ function AppContent() {
     setCurrentProject(null);
   };
 
-  const updateProjectDocuments = async (projectId, updatedDocuments) => {
+  const updateProjectDocuments = async (projectId: string, updatedDocuments: Document[]) => {
     try {
       // Update in Firestore
       await updateProject(projectId, { documents: updatedDocuments });
@@ -218,11 +263,11 @@ function AppContent() {
     }
   };
 
-  const handleDeleteDocument = async (docId) => {
+  const handleDeleteDocument = async (docId: string) => {
     if (!currentProject || !currentUser) return;
 
-    const deletedDoc = currentProject.documents.find(doc => doc.id === docId);
-    const updatedDocuments = currentProject.documents.filter(doc => doc.id !== docId);
+    const deletedDoc = currentProject.documents?.find(doc => doc.id === docId);
+    const updatedDocuments = currentProject.documents?.filter(doc => doc.id !== docId) || [];
 
     await updateProjectDocuments(currentProject.id, updatedDocuments);
 
@@ -242,7 +287,7 @@ function AppContent() {
     }
   };
 
-  const handleUploadDocument = async (newDocuments) => {
+  const handleUploadDocument = async (newDocuments: Document[]) => {
     if (!currentProject || !currentUser) return;
 
     const updatedDocuments = [...(currentProject.documents || []), ...newDocuments];
@@ -257,7 +302,7 @@ function AppContent() {
           'document_uploaded',
           'document',
           doc.id,
-          { documentName: doc.name, documentType: doc.type },
+          { documentName: doc.name, documentType: doc.category },
           null // groupContext not available at this level
         );
       }
@@ -266,19 +311,19 @@ function AppContent() {
     }
   };
 
-  const handleUpdateDocumentCategories = (documentIds, newCategory) => {
+  const handleUpdateDocumentCategories = (documentIds: string[], newCategory: string) => {
     if (!currentProject) return;
 
-    const updatedDocuments = currentProject.documents.map(doc =>
+    const updatedDocuments = (currentProject.documents || []).map(doc =>
       documentIds.includes(doc.id) ? { ...doc, category: newCategory } : doc
     );
     updateProjectDocuments(currentProject.id, updatedDocuments);
   };
 
-  const handleUpdateDocumentVisibility = (documentIds, newVisibility) => {
+  const handleUpdateDocumentVisibility = (documentIds: string[], newVisibility: string) => {
     if (!currentProject) return;
 
-    const updatedDocuments = currentProject.documents.map(doc =>
+    const updatedDocuments = (currentProject.documents || []).map(doc =>
       documentIds.includes(doc.id) ? { ...doc, visibility: newVisibility } : doc
     );
     updateProjectDocuments(currentProject.id, updatedDocuments);
@@ -356,7 +401,7 @@ function AppContent() {
       {view === 'acceptInvite' && inviteToken && (
         <AcceptInviteLinkPage
           token={inviteToken}
-          onAccepted={async (projectId) => {
+          onAccepted={async (projectId: string) => {
             // Bug #14/#16 fix: Refetch projects to include the newly joined project
             // Use the return value to avoid race condition with state updates
             const freshProjects = await fetchProjects();

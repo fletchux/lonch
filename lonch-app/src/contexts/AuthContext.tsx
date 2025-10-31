@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -6,20 +6,37 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
-  updateProfile as firebaseUpdateProfile
+  updateProfile as firebaseUpdateProfile,
+  User
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { createUser, getUser } from '../services/userService';
 import { createProject } from '../services/projectService';
 import { getLocalStorageProjects, clearLocalStorageProjects } from '../utils/localStorage';
 
-const AuthContext = createContext();
+interface AuthContextType {
+  currentUser: User | null;
+  loading: boolean;
+  error: string | null;
+  migrationMessage: string | null;
+  signup: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<User>;
+  loginWithGoogle: () => Promise<User>;
+  logout: () => Promise<void>;
+  updateProfile: (displayName: string, avatarURL?: string) => Promise<void>;
+}
 
-export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [migrationMessage, setMigrationMessage] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [migrationMessage, setMigrationMessage] = useState<string | null>(null);
 
   // Task 2.4: Firebase onAuthStateChanged observer
   // Task 5.13-5.15: localStorage project migration
@@ -38,8 +55,8 @@ export function AuthProvider({ children }) {
             const authProvider = user.providerData[0]?.providerId === 'google.com' ? 'google' : 'email';
             await createUser(
               user.uid,
-              user.email,
-              user.displayName || user.email.split('@')[0],
+              user.email!,
+              user.displayName || user.email!.split('@')[0],
               authProvider,
               user.photoURL
             );
@@ -51,7 +68,7 @@ export function AuthProvider({ children }) {
             // Migrate each project to Firestore
             for (const project of localProjects) {
               // Remove the old local ID and status fields that shouldn't be migrated
-              // eslint-disable-next-line no-unused-vars
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { id, createdAt, ...projectData } = project;
               await createProject(user.uid, {
                 ...projectData,
@@ -82,31 +99,33 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Task 2.5: Signup with email and password
-  async function signup(email, password) {
+  async function signup(email: string, password: string): Promise<User> {
     try {
       setError(null);
       const result = await createUserWithEmailAndPassword(auth, email, password);
       return result.user;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
       throw err;
     }
   }
 
   // Task 2.6: Login with email and password
-  async function login(email, password) {
+  async function login(email: string, password: string): Promise<User> {
     try {
       setError(null);
       const result = await signInWithEmailAndPassword(auth, email, password);
       return result.user;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
       throw err;
     }
   }
 
   // Task 2.7: Login with Google OAuth
-  async function loginWithGoogle() {
+  async function loginWithGoogle(): Promise<User> {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
@@ -117,45 +136,48 @@ export function AuthProvider({ children }) {
       const result = await signInWithPopup(auth, provider);
       return result.user;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
       throw err;
     }
   }
 
   // Task 2.8: Logout
-  async function logout() {
+  async function logout(): Promise<void> {
     try {
       setError(null);
       await signOut(auth);
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
       throw err;
     }
   }
 
   // Task 2.9: Update user profile (displayName, avatarURL)
-  async function updateUserProfile(displayName, avatarURL) {
+  async function updateUserProfile(displayName: string, avatarURL?: string): Promise<void> {
     try {
       setError(null);
       if (!currentUser) {
         throw new Error('No user is currently logged in');
       }
 
-      const updates = {};
+      const updates: { displayName?: string; photoURL?: string } = {};
       if (displayName !== undefined) updates.displayName = displayName;
       if (avatarURL !== undefined) updates.photoURL = avatarURL;
 
       await firebaseUpdateProfile(currentUser, updates);
 
       // Update local state to reflect changes
-      setCurrentUser({ ...currentUser, ...updates });
+      setCurrentUser({ ...currentUser, ...updates } as User);
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
       throw err;
     }
   }
 
-  const value = {
+  const value: AuthContextType = {
     currentUser,
     loading,
     error,
@@ -176,7 +198,7 @@ export function AuthProvider({ children }) {
 
 // Task 2.2: useAuth hook to access auth context
 // eslint-disable-next-line react-refresh/only-export-components
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -186,7 +208,7 @@ export function useAuth() {
 
 // Task 2.3: useRequireAuth hook that redirects to login if not authenticated
 // eslint-disable-next-line react-refresh/only-export-components
-export function useRequireAuth(redirectTo = 'login') {
+export function useRequireAuth(redirectTo = 'login'): { currentUser: User | null; loading: boolean; isAuthenticated: boolean } {
   const { currentUser, loading } = useAuth();
 
   useEffect(() => {
