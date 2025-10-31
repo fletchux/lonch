@@ -1,15 +1,24 @@
 /**
  * Document Parser Utility
  * Converts PDF and DOCX files to plain text for AI processing
+ *
+ * TODO: See specs/document-parsing-implementation.md for implementation tasks
  */
+
+export interface ExtractionResult {
+  fileName: string;
+  fileType: string;
+  text: string;
+  success: boolean;
+  error?: string;
+}
 
 /**
  * Extract text from a PDF file (MOCKED for development)
- * @param {File} _file - PDF file to parse (currently unused in mock)
- * @returns {Promise<string>} - Extracted text content
+ * @param _file - PDF file to parse (currently unused in mock)
+ * @returns Extracted text content
  */
-// eslint-disable-next-line no-unused-vars
-export const extractTextFromPDF = async (_file) => {
+export const extractTextFromPDF = async (_file: File): Promise<string> => {
   try {
     // TODO: Replace with actual PDF parsing library (pdf.js works in browser)
     // For now, return mock data for UI testing
@@ -164,17 +173,18 @@ Name: Robert Chen
 Title: Chief Information Officer
 Date: ___________________`;
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('PDF parsing error:', error);
-    throw new Error(`Failed to parse PDF: ${error.message}`);
+    throw new Error(`Failed to parse PDF: ${message}`);
   }
 };
 
 /**
- * Extract text from a DOCX file
- * @param {File} file - DOCX file to parse
- * @returns {Promise<string>} - Extracted text content
+ * Extract text from a DOCX file (MOCKED for development)
+ * @param file - DOCX file to parse
+ * @returns Extracted text content
  */
-export const extractTextFromDOCX = async (file) => {
+export const extractTextFromDOCX = async (file: File): Promise<string> => {
   try {
     // TODO: Replace with actual DOCX parsing library (mammoth.js works in browser)
     // For now, return mock data for UI testing
@@ -208,32 +218,34 @@ Security Requirements:
 - User authentication
 - Data backup daily`;
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('DOCX parsing error:', error);
-    throw new Error(`Failed to parse DOCX: ${error.message}`);
+    throw new Error(`Failed to parse DOCX: ${message}`);
   }
 };
 
 /**
  * Extract text from a TXT file
- * @param {File} file - TXT file to parse
- * @returns {Promise<string>} - File content as text
+ * @param file - TXT file to parse
+ * @returns File content as text
  */
-export const extractTextFromTXT = async (file) => {
+export const extractTextFromTXT = async (file: File): Promise<string> => {
   try {
     const text = await file.text();
     return text;
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('TXT reading error:', error);
-    throw new Error(`Failed to read TXT file: ${error.message}`);
+    throw new Error(`Failed to read TXT file: ${message}`);
   }
 };
 
 /**
  * Auto-detect file type and extract text accordingly
- * @param {File} file - Document file (PDF, DOCX, or TXT)
- * @returns {Promise<string>} - Extracted text content
+ * @param file - Document file (PDF, DOCX, or TXT)
+ * @returns Extracted text content
  */
-export const extractTextFromDocument = async (file) => {
+export const extractTextFromDocument = async (file: File): Promise<string> => {
   const fileType = file.type;
   const fileName = file.name.toLowerCase();
 
@@ -261,11 +273,11 @@ export const extractTextFromDocument = async (file) => {
 
 /**
  * Extract text from multiple documents
- * @param {File[]} files - Array of document files
- * @returns {Promise<Object[]>} - Array of objects with filename and extracted text
+ * @param files - Array of document files
+ * @returns Array of objects with filename and extracted text
  */
-export const extractTextFromMultipleDocuments = async (files) => {
-  const results = [];
+export const extractTextFromMultipleDocuments = async (files: File[]): Promise<ExtractionResult[]> => {
+  const results: ExtractionResult[] = [];
 
   for (const file of files) {
     try {
@@ -277,12 +289,13 @@ export const extractTextFromMultipleDocuments = async (files) => {
         success: true
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       results.push({
         fileName: file.name,
         fileType: file.type,
         text: '',
         success: false,
-        error: error.message
+        error: message
       });
     }
   }
@@ -292,10 +305,10 @@ export const extractTextFromMultipleDocuments = async (files) => {
 
 /**
  * Clean and normalize extracted text
- * @param {string} text - Raw extracted text
- * @returns {string} - Cleaned text
+ * @param text - Raw extracted text
+ * @returns Cleaned text
  */
-export const cleanExtractedText = (text) => {
+export const cleanExtractedText = (text: string): string => {
   if (!text) return '';
 
   return text
