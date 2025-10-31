@@ -1,6 +1,9 @@
-import PropTypes from 'prop-types';
 import Header from '../layout/Header';
 import NotificationPreferences from '../settings/NotificationPreferences';
+
+interface SettingsProps {
+  onNavigateHome: () => void;
+}
 
 /**
  * Settings Page
@@ -8,7 +11,7 @@ import NotificationPreferences from '../settings/NotificationPreferences';
  * User settings page with tabs for different settings categories.
  * Currently includes notification preferences.
  */
-export default function Settings({ onNavigateHome }) {
+export default function Settings({ onNavigateHome }: SettingsProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -42,7 +45,3 @@ export default function Settings({ onNavigateHome }) {
     </div>
   );
 }
-
-Settings.propTypes = {
-  onNavigateHome: PropTypes.func.isRequired
-};
