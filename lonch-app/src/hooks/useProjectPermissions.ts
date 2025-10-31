@@ -9,26 +9,55 @@ import {
   canViewActivityLog,
   canChangeRole,
   canRemoveMember,
-  getAssignableRoles
+  getAssignableRoles,
+  Role
 } from '../utils/permissions';
 import {
   canViewDocument,
   canSetDocumentVisibility,
   canMoveUserBetweenGroups,
-  getDefaultDocumentVisibility
+  getDefaultDocumentVisibility,
+  Visibility
 } from '../utils/groupPermissions';
+
+export interface ProjectPermissions {
+  role: string | null;
+  group: string | null;
+  loading: boolean;
+  error: string | null;
+
+  // Basic permission checks
+  canEdit: boolean;
+  canManageMembers: boolean;
+  canDelete: boolean;
+  canInvite: boolean;
+  canViewActivity: boolean;
+
+  // Advanced permission checks
+  canChangeRole: (targetRole: string) => boolean;
+  canRemoveMember: (targetRole: string, targetUserId: string) => boolean;
+
+  // Get assignable roles
+  assignableRoles: Role[];
+
+  // Group-based permission checks
+  canViewDocument: (documentVisibility: string) => boolean;
+  canSetDocumentVisibility: () => boolean;
+  canMoveUserBetweenGroups: () => boolean;
+
+  // Get default visibility for new documents
+  defaultDocumentVisibility: Visibility;
+}
 
 /**
  * Custom hook to get user's permissions for a project
- * @param {string} projectId - Project ID
- * @returns {Object} Permission state and helper functions
  */
-export function useProjectPermissions(projectId) {
+export function useProjectPermissions(projectId: string | undefined): ProjectPermissions {
   const { currentUser } = useAuth();
-  const [role, setRole] = useState(null);
-  const [group, setGroup] = useState(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [group, setGroup] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchRoleAndGroup() {
@@ -48,7 +77,8 @@ export function useProjectPermissions(projectId) {
         setGroup(userGroup);
       } catch (err) {
         console.error('Error fetching user role and group:', err);
-        setError(err.message);
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -58,7 +88,7 @@ export function useProjectPermissions(projectId) {
   }, [currentUser, projectId]);
 
   // Permission check functions
-  const permissions = {
+  const permissions: ProjectPermissions = {
     role,
     group,
     loading,
@@ -72,15 +102,15 @@ export function useProjectPermissions(projectId) {
     canViewActivity: role ? canViewActivityLog(role) : false,
 
     // Advanced permission checks
-    canChangeRole: (targetRole) => role ? canChangeRole(role, targetRole) : false,
-    canRemoveMember: (targetRole, targetUserId) =>
+    canChangeRole: (targetRole: string) => role ? canChangeRole(role, targetRole) : false,
+    canRemoveMember: (targetRole: string, targetUserId: string) =>
       role && currentUser ? canRemoveMember(role, targetRole, currentUser.uid, targetUserId) : false,
 
     // Get assignable roles
     assignableRoles: role ? getAssignableRoles(role) : [],
 
     // Group-based permission checks
-    canViewDocument: (documentVisibility) =>
+    canViewDocument: (documentVisibility: string) =>
       group && role ? canViewDocument(group, documentVisibility, role) : false,
     canSetDocumentVisibility: () =>
       role && group ? canSetDocumentVisibility(role, group) : false,
