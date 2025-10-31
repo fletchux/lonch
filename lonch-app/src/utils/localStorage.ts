@@ -9,9 +9,9 @@ const PROJECTS_KEY = 'lonch_projects';
 
 /**
  * Get projects from localStorage
- * @returns {Array} Array of project objects from localStorage, or empty array if none exist
+ * @returns Array of project objects from localStorage, or empty array if none exist
  */
-export function getLocalStorageProjects() {
+export function getLocalStorageProjects(): any[] {
   try {
     const projectsJSON = localStorage.getItem(PROJECTS_KEY);
 
@@ -36,9 +36,9 @@ export function getLocalStorageProjects() {
 
 /**
  * Clear projects from localStorage
- * @returns {boolean} True if successful, false otherwise
+ * @returns True if successful, false otherwise
  */
-export function clearLocalStorageProjects() {
+export function clearLocalStorageProjects(): boolean {
   try {
     localStorage.removeItem(PROJECTS_KEY);
     return true;
@@ -50,10 +50,10 @@ export function clearLocalStorageProjects() {
 
 /**
  * Save projects to localStorage
- * @param {Array} projects - Array of project objects to save
- * @returns {boolean} True if successful, false otherwise
+ * @param projects - Array of project objects to save
+ * @returns True if successful, false otherwise
  */
-export function saveLocalStorageProjects(projects) {
+export function saveLocalStorageProjects(projects: any[]): boolean {
   try {
     if (!Array.isArray(projects)) {
       throw new Error('Projects must be an array');
