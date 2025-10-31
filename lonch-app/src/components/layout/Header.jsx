@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import lonchLogo from '../../assets/lonch_logo.svg';
 import UserProfileDropdown from './UserProfileDropdown';
 import NotificationBell from '../notifications/NotificationBell';
+import { ThemeToggle } from '../ui/theme-toggle';
 
 const TAGLINE = 'Consultant project kickoff made simple';
 
@@ -17,13 +18,16 @@ export default function Header({ onNavigateSettings }) {
             <img src={lonchLogo} alt="Lonch" className="h-14" />
             <p className="text-gray-600 text-sm font-medium">{TAGLINE}</p>
           </div>
-          {/* Notification Bell and User Profile */}
-          {currentUser && (
-            <div className="flex items-center gap-4">
-              <NotificationBell />
-              <UserProfileDropdown onNavigateSettings={onNavigateSettings} />
-            </div>
-          )}
+          {/* Theme Toggle, Notification Bell and User Profile */}
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            {currentUser && (
+              <>
+                <NotificationBell />
+                <UserProfileDropdown onNavigateSettings={onNavigateSettings} />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>

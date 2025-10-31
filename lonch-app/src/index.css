@@ -2,8 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base {
+  :root {
+    /* Lonch Brand Colors - Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Primary: Lonch Teal #2D9B9B */
+    --primary: 180 55% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Lighter Teal for secondary actions */
+    --secondary: 180 30% 90%;
+    --secondary-foreground: 180 55% 20%;
+
+    /* Accent: Lonch Gold #DBA507 */
+    --accent: 43 93% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 180 55% 40%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Lonch Brand Colors - Dark Mode */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary: Lighter Teal for dark mode #3DB3B3 */
+    --primary: 180 55% 48%;
+    --primary-foreground: 222.2 84% 4.9%;
+
+    /* Secondary: Darker teal for secondary actions in dark mode */
+    --secondary: 180 20% 20%;
+    --secondary-foreground: 180 55% 70%;
+
+    /* Accent: Lighter Gold for dark mode #E5B31A */
+    --accent: 43 85% 52%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 180 55% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 }
