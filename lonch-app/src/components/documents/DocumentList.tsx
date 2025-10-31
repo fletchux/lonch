@@ -2,20 +2,49 @@ import { useState, useRef, useEffect } from 'react';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { VISIBILITY } from '../../utils/groupPermissions';
 
+interface Document {
+  id: string;
+  name: string;
+  category: 'contract' | 'specifications' | 'other';
+  visibility?: string;
+  uploadedAt?: string;
+  createdAt?: string;
+  size?: number;
+  uploadedBy?: string;
+}
+
+interface DocumentListProps {
+  documents?: Document[];
+  onDelete?: (id: string) => void;
+  onDownload?: (doc: Document) => void;
+  onUploadNew?: () => void;
+  onUpdateCategories?: (ids: string[], category: string) => void;
+  onUpdateVisibility?: (ids: string[], visibility: string) => void;
+  projectId: string;
+}
+
 /**
  * DocumentList Component
  * Displays uploaded documents in a table/list view with management capabilities
  * Now includes group-based document visibility controls
  */
-export default function DocumentList({ documents = [], onDelete, onDownload, onUploadNew, onUpdateCategories, onUpdateVisibility, projectId }) {
+export default function DocumentList({
+  documents = [],
+  onDelete,
+  onDownload,
+  onUploadNew,
+  onUpdateCategories,
+  onUpdateVisibility,
+  projectId
+}: DocumentListProps) {
   const permissions = useProjectPermissions(projectId);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedDocuments, setSelectedDocuments] = useState(new Set());
+  const [selectedDocuments, setSelectedDocuments] = useState(new Set<string>());
   const [bulkCategory, setBulkCategory] = useState('');
   const [bulkVisibility, setBulkVisibility] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
-  const headerCheckboxRef = useRef(null);
+  const headerCheckboxRef = useRef<HTMLInputElement>(null);
 
   // Filter documents by category only - show all documents regardless of visibility
   const filteredDocuments = documents.filter(doc => {
@@ -28,7 +57,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   });
 
   // Format file size
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes?: number): string => {
     if (!bytes) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -37,7 +66,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   };
 
   // Format date
-  const formatDate = (dateString) => {
+  const formatDate = (dateString?: string): string => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -48,7 +77,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   };
 
   // Get category badge color
-  const getCategoryColor = (category) => {
+  const getCategoryColor = (category: string): string => {
     switch (category) {
       case 'contract':
         return 'bg-blue-100 text-blue-800';
@@ -62,7 +91,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   };
 
   // Get category display name
-  const getCategoryName = (category) => {
+  const getCategoryName = (category: string): string => {
     switch (category) {
       case 'contract':
         return 'Contract';
@@ -76,7 +105,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   };
 
   // Get group visibility badge style and text
-  const getVisibilityBadge = (visibility) => {
+  const getVisibilityBadge = (visibility?: string) => {
     switch (visibility) {
       case VISIBILITY.CONSULTING_ONLY:
         return {
@@ -117,7 +146,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
   }, [selectedDocuments, filteredDocuments]);
 
   // Toggle individual document selection
-  const toggleDocumentSelection = (docId) => {
+  const toggleDocumentSelection = (docId: string) => {
     setSelectedDocuments(prev => {
       const newSet = new Set(prev);
       if (newSet.has(docId)) {
@@ -158,19 +187,18 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
     }
   };
 
-
   return (
     <div className="space-y-4">
       {/* Header with filter and upload button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h3 className="text-lg font-bold text-gray-900">Project Documents</h3>
+          <h3 className="text-lg font-bold text-foreground">Project Documents</h3>
 
           {/* Category filter */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="px-3 py-1.5 text-sm border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background"
           >
             <option value="all">All Categories</option>
             <option value="contract">Contracts</option>
@@ -183,7 +211,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
         {onUploadNew && (
           <button
             onClick={onUploadNew}
-            className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors text-sm font-medium flex items-center space-x-2"
+            className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-sm font-medium flex items-center space-x-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -195,19 +223,19 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
 
       {/* Bulk actions toolbar */}
       {selectedDocuments.size > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-950/20 dark:border-blue-900">
           <div className="flex flex-col space-y-3">
-            <span className="text-sm font-medium text-blue-900">
+            <span className="text-sm font-medium text-blue-900 dark:text-blue-300">
               {selectedDocuments.size} document{selectedDocuments.size > 1 ? 's' : ''} selected
             </span>
 
             {/* Category Update */}
             <div className="flex items-center space-x-3">
-              <label className="text-sm text-blue-800 font-medium min-w-[80px]">Category:</label>
+              <label className="text-sm text-blue-800 dark:text-blue-300 font-medium min-w-[80px]">Category:</label>
               <select
                 value={bulkCategory}
                 onChange={(e) => setBulkCategory(e.target.value)}
-                className="w-48 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-48 px-3 py-1.5 text-sm border border-blue-300 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
               >
                 <option value="">Select category...</option>
                 <option value="contract">Contract</option>
@@ -217,7 +245,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
               <button
                 onClick={handleBulkCategoryUpdate}
                 disabled={!bulkCategory}
-                className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-muted disabled:cursor-not-allowed"
               >
                 Update Category
               </button>
@@ -226,11 +254,11 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
             {/* Visibility Update */}
             {permissions.canSetDocumentVisibility() && (
               <div className="flex items-center space-x-3">
-                <label className="text-sm text-blue-800 font-medium min-w-[80px]">Visibility:</label>
+                <label className="text-sm text-blue-800 dark:text-blue-300 font-medium min-w-[80px]">Visibility:</label>
                 <select
                   value={bulkVisibility}
                   onChange={(e) => setBulkVisibility(e.target.value)}
-                  className="w-48 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  className="w-48 px-3 py-1.5 text-sm border border-blue-300 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
                 >
                   <option value="">Select visibility...</option>
                   <option value={VISIBILITY.BOTH}>🌐 All Groups</option>
@@ -240,7 +268,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                 <button
                   onClick={handleBulkVisibilityUpdate}
                   disabled={!bulkVisibility}
-                  className="px-4 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium disabled:bg-muted disabled:cursor-not-allowed"
                 >
                   Update Visibility
                 </button>
@@ -251,7 +279,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
             {onDelete && (
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="px-4 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
+                className="px-4 py-1.5 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm font-medium flex items-center gap-2"
                 title="Delete selected documents"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,9 +299,9 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
 
       {/* Document table */}
       {filteredDocuments.length === 0 ? (
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+        <div className="bg-muted/50 border-2 border-dashed border-border rounded-lg p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -285,8 +313,8 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h4 className="mt-4 text-lg font-medium text-gray-900">No documents found</h4>
-          <p className="mt-2 text-sm text-gray-500">
+          <h4 className="mt-4 text-lg font-medium text-foreground">No documents found</h4>
+          <p className="mt-2 text-sm text-muted-foreground">
             {selectedCategory === 'all'
               ? 'Upload documents to get started'
               : `No documents in the "${getCategoryName(selectedCategory)}" category`}
@@ -294,54 +322,54 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
           {onUploadNew && (
             <button
               onClick={onUploadNew}
-              className="mt-4 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors text-sm font-medium"
+              className="mt-4 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-sm font-medium"
             >
               Upload Your First Document
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
                 <th className="px-6 py-3 text-left">
                   <input
                     ref={headerCheckboxRef}
                     type="checkbox"
                     onChange={toggleAllDocuments}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-primary border-input rounded focus:ring-ring"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   File Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Group
                 </th>
-                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Date
                 </th>
-                <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Size
                 </th>
-                <th className="hidden xl:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden xl:table-cell px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Owner
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-card divide-y divide-border">
               {filteredDocuments.map((doc) => (
-                <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={doc.id} className="hover:bg-muted/50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
                       type="checkbox"
                       checked={selectedDocuments.has(doc.id)}
                       onChange={() => toggleDocumentSelection(doc.id)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-primary border-input rounded focus:ring-ring"
                     />
                   </td>
                   <td className="px-6 py-4">
@@ -349,7 +377,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                       {/* Download icon (functional) - only show if user has permission to view this document */}
                       {onDownload && permissions.canViewDocument(doc.visibility || VISIBILITY.BOTH) && (
                         <button
-                          onClick={() => {
+                          onClick={(event) => {
                             onDownload(doc);
                             // Show brief feedback to user
                             const btn = event.currentTarget;
@@ -359,7 +387,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                               btn.title = originalTitle;
                             }, 2000);
                           }}
-                          className="text-primary hover:text-primary-dark transition-colors flex-shrink-0"
+                          className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
                           title="Download file"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,7 +400,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                           </svg>
                         </button>
                       )}
-                      <span className="text-sm font-medium text-gray-900 break-words min-w-0">{doc.name}</span>
+                      <span className="text-sm font-medium text-foreground break-words min-w-0">{doc.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -390,13 +418,13 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                       );
                     })()}
                   </td>
-                  <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                     {formatDate(doc.uploadedAt || doc.createdAt)}
                   </td>
-                  <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                     {formatFileSize(doc.size)}
                   </td>
-                  <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                     {doc.uploadedBy || 'You'}
                   </td>
                 </tr>
@@ -408,7 +436,7 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
 
       {/* Document count */}
       {filteredDocuments.length > 0 && (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           Showing {filteredDocuments.length} {filteredDocuments.length === 1 ? 'document' : 'documents'}
           {selectedCategory !== 'all' && ` in ${getCategoryName(selectedCategory)}`}
         </p>
@@ -416,16 +444,16 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg shadow-xl max-w-md w-full">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Confirm Deletion</h2>
+            <div className="px-6 py-4 border-b border-border">
+              <h2 className="text-xl font-semibold text-foreground">Confirm Deletion</h2>
             </div>
 
             {/* Body */}
             <div className="px-6 py-4 space-y-4">
-              <p className="text-gray-700">
+              <p className="text-muted-foreground">
                 Are you sure you want to delete {selectedDocuments.size} {selectedDocuments.size === 1 ? 'document' : 'documents'}?
                 This action cannot be undone.
               </p>
@@ -436,35 +464,37 @@ export default function DocumentList({ documents = [], onDelete, onDownload, onU
                   type="checkbox"
                   checked={deleteConfirmed}
                   onChange={(e) => setDeleteConfirmed(e.target.checked)}
-                  className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-1"
+                  className="w-4 h-4 text-destructive border-input rounded focus:ring-ring mt-1"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-foreground">
                   I confirm I want to delete {selectedDocuments.size} {selectedDocuments.size === 1 ? 'document' : 'documents'}
                 </span>
               </label>
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg">
+            <div className="px-6 py-4 bg-muted/50 flex justify-end gap-3 rounded-b-lg">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDeleteConfirmed(false);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+                className="px-4 py-2 border border-input rounded-lg hover:bg-accent transition-colors text-foreground font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  const selectedIds = Array.from(selectedDocuments);
-                  selectedIds.forEach(id => onDelete(id));
-                  setSelectedDocuments(new Set());
-                  setShowDeleteModal(false);
-                  setDeleteConfirmed(false);
+                  if (onDelete) {
+                    const selectedIds = Array.from(selectedDocuments);
+                    selectedIds.forEach(id => onDelete(id));
+                    setSelectedDocuments(new Set());
+                    setShowDeleteModal(false);
+                    setDeleteConfirmed(false);
+                  }
                 }}
                 disabled={!deleteConfirmed}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors font-medium disabled:bg-muted disabled:cursor-not-allowed"
               >
                 Delete
               </button>

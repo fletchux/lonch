@@ -1,5 +1,9 @@
-import PropTypes from 'prop-types';
 import { GROUP } from '../../utils/groupPermissions';
+
+interface GroupBadgeProps {
+  group: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  className?: string;
+}
 
 /**
  * GroupBadge Component
@@ -7,11 +11,15 @@ import { GROUP } from '../../utils/groupPermissions';
  * Consulting Group: Teal color
  * Client Group: Gold color
  */
-export default function GroupBadge({ group, className = '' }) {
+export default function GroupBadge({ group, className = '' }: GroupBadgeProps) {
   const isConsulting = group === GROUP.CONSULTING;
 
-  const bgColor = isConsulting ? 'bg-teal-100' : 'bg-yellow-100';
-  const textColor = isConsulting ? 'text-teal-800' : 'text-yellow-800';
+  const bgColor = isConsulting
+    ? 'bg-teal-100 dark:bg-teal-900/20'
+    : 'bg-yellow-100 dark:bg-yellow-900/20';
+  const textColor = isConsulting
+    ? 'text-teal-800 dark:text-teal-300'
+    : 'text-yellow-800 dark:text-yellow-300';
   const label = isConsulting ? 'Consulting' : 'Client';
 
   return (
@@ -23,8 +31,3 @@ export default function GroupBadge({ group, className = '' }) {
     </span>
   );
 }
-
-GroupBadge.propTypes = {
-  group: PropTypes.oneOf([GROUP.CONSULTING, GROUP.CLIENT]).isRequired,
-  className: PropTypes.string
-};
