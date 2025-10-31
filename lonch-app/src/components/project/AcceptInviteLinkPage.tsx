@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getInviteLink, acceptInviteLink } from '../../services/inviteLinkService';
 import { getInvitation, acceptInvitation } from '../../services/invitationService';
@@ -8,15 +7,51 @@ import { getUser } from '../../services/userService';
 import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from './GroupBadge';
 import lonchLogo from '../../assets/lonch_logo.svg';
+import { ROLES } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 
-export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLogin, onNavigateToHome }) {
+interface InviteLinkData {
+  projectId: string;
+  role: typeof ROLES[keyof typeof ROLES];
+  group: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  expiresAt: any; // Firestore Timestamp or Date
+  status: 'active' | 'used' | 'revoked' | 'pending' | 'accepted' | 'cancelled' | 'declined';
+  createdBy?: string;
+  invitedBy?: string;
+  [key: string]: any;
+}
+
+interface ProjectData {
+  name: string;
+  [key: string]: any;
+}
+
+interface UserData {
+  displayName?: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface AcceptInviteLinkPageProps {
+  token: string;
+  onAccepted?: (projectId: string) => void;
+  onNavigateToLogin?: () => void;
+  onNavigateToHome?: () => void;
+}
+
+export default function AcceptInviteLinkPage({
+  token,
+  onAccepted,
+  onNavigateToLogin,
+  onNavigateToHome
+}: AcceptInviteLinkPageProps) {
   const { currentUser } = useAuth();
-  const [link, setLink] = useState(null);
-  const [project, setProject] = useState(null);
-  const [creator, setCreator] = useState(null);
+  const [link, setLink] = useState<InviteLinkData | null>(null);
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [creator, setCreator] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLinkDetails();
@@ -72,13 +107,13 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
       setLoading(false);
     } catch (err) {
       console.error('Error fetching link details:', err);
-      setError(err.message || 'Failed to load invite link details');
+      setError((err as Error).message || 'Failed to load invite link details');
       setLoading(false);
     }
   }
 
   async function handleAccept() {
-    if (!currentUser) {
+    if (!currentUser || !link) {
       // Redirect to login
       if (onNavigateToLogin) {
         onNavigateToLogin();
@@ -105,7 +140,7 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
       }
     } catch (err) {
       console.error('Error accepting invite:', err);
-      setError(err.message || 'Failed to accept invitation');
+      setError((err as Error).message || 'Failed to accept invitation');
       setAccepting(false);
     }
   }
@@ -116,7 +151,7 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
     }
   }
 
-  function formatExpirationDate(date) {
+  function formatExpirationDate(date: any): string {
     const expirationDate = date instanceof Date ? date : date.toDate ? date.toDate() : new Date(date);
     return expirationDate.toLocaleDateString('en-US', {
       month: 'long',
@@ -127,7 +162,7 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
     });
   }
 
-  function isLinkExpired() {
+  function isLinkExpired(): boolean {
     if (!link) return false;
     const now = new Date();
     const expiresAt = link.expiresAt instanceof Date ? link.expiresAt :
@@ -198,6 +233,10 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
         </div>
       </div>
     );
+  }
+
+  if (!link) {
+    return null;
   }
 
   // Show link status errors
@@ -312,10 +351,3 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
     </div>
   );
 }
-
-AcceptInviteLinkPage.propTypes = {
-  token: PropTypes.string.isRequired,
-  onAccepted: PropTypes.func,
-  onNavigateToLogin: PropTypes.func,
-  onNavigateToHome: PropTypes.func
-};

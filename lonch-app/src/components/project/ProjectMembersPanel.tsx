@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getProjectMembers, updateMemberRole, removeMember, updateMemberGroup } from '../../services/projectService';
 import { getUser } from '../../services/userService';
@@ -13,21 +12,60 @@ import { logActivity } from '../../services/activityLogService';
 import { createNotification, shouldNotifyUser } from '../../services/notificationService';
 import ShareLinksTab from './ShareLinksTab';
 
-export default function ProjectMembersPanel({ projectId }) {
+interface Member {
+  id: string;
+  userId: string;
+  role: typeof ROLES[keyof typeof ROLES];
+  group?: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  lastActiveAt?: any; // Firestore Timestamp
+  [key: string]: any;
+}
+
+interface PendingInvitation {
+  id: string;
+  email: string;
+  role: typeof ROLES[keyof typeof ROLES];
+  group?: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  createdAt: any; // Firestore Timestamp
+  expiresAt: any; // Firestore Timestamp
+  [key: string]: any;
+}
+
+interface UserDetail {
+  displayName?: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface RoleChangeConfirmation {
+  member: Member;
+  newRole: typeof ROLES[keyof typeof ROLES];
+}
+
+interface GroupChangeConfirmation {
+  member: Member;
+  newGroup: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+}
+
+interface ProjectMembersPanelProps {
+  projectId: string;
+}
+
+export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelProps) {
   const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
-  const [activeTab, setActiveTab] = useState('members');
-  const [members, setMembers] = useState([]);
-  const [pendingInvitations, setPendingInvitations] = useState([]);
-  const [memberDetails, setMemberDetails] = useState({});
+  const [activeTab, setActiveTab] = useState<'members' | 'shareLinks'>('members');
+  const [members, setMembers] = useState<Member[]>([]);
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
+  const [memberDetails, setMemberDetails] = useState<Record<string, UserDetail>>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [groupFilter, setGroupFilter] = useState('all');
-  const [confirmRemove, setConfirmRemove] = useState(null);
-  const [confirmRoleChange, setConfirmRoleChange] = useState(null);
-  const [confirmGroupChange, setConfirmGroupChange] = useState(null);
-  const [confirmCancelInvite, setConfirmCancelInvite] = useState(null);
+  const [groupFilter, setGroupFilter] = useState<'all' | typeof GROUP.CONSULTING | typeof GROUP.CLIENT>('all');
+  const [confirmRemove, setConfirmRemove] = useState<Member | null>(null);
+  const [confirmRoleChange, setConfirmRoleChange] = useState<RoleChangeConfirmation | null>(null);
+  const [confirmGroupChange, setConfirmGroupChange] = useState<GroupChangeConfirmation | null>(null);
+  const [confirmCancelInvite, setConfirmCancelInvite] = useState<PendingInvitation | null>(null);
 
   useEffect(() => {
     fetchMembers();
@@ -72,7 +110,7 @@ export default function ProjectMembersPanel({ projectId }) {
       setPendingInvitations(pending);
 
       // Fetch user details for each member
-      const details = {};
+      const details: Record<string, UserDetail> = {};
       for (const member of projectMembers) {
         try {
           const userInfo = await getUser(member.userId);
@@ -86,22 +124,24 @@ export default function ProjectMembersPanel({ projectId }) {
       setMemberDetails(details);
     } catch (err) {
       console.error('Error fetching members:', err);
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleRoleChange(member, newRole) {
+  async function handleRoleChange(member: Member, newRole: string) {
     if (!permissions.canChangeRole(member.role)) {
       alert('You do not have permission to change this user\'s role');
       return;
     }
 
-    setConfirmRoleChange({ member, newRole });
+    setConfirmRoleChange({ member, newRole: newRole as typeof ROLES[keyof typeof ROLES] });
   }
 
   async function confirmRoleChangeAction() {
+    if (!confirmRoleChange || !currentUser) return;
+
     const { member, newRole } = confirmRoleChange;
     const oldRole = member.role;
     try {
@@ -148,11 +188,11 @@ export default function ProjectMembersPanel({ projectId }) {
       setConfirmRoleChange(null);
     } catch (err) {
       console.error('Error updating role:', err);
-      alert('Failed to update role: ' + err.message);
+      alert('Failed to update role: ' + (err as Error).message);
     }
   }
 
-  async function handleRemoveMember(member) {
+  async function handleRemoveMember(member: Member) {
     if (!permissions.canRemoveMember(member.role, member.userId)) {
       alert('You do not have permission to remove this user');
       return;
@@ -162,6 +202,8 @@ export default function ProjectMembersPanel({ projectId }) {
   }
 
   async function confirmRemoveAction() {
+    if (!confirmRemove || !currentUser) return;
+
     try {
       await removeMember(projectId, confirmRemove.userId);
 
@@ -188,20 +230,22 @@ export default function ProjectMembersPanel({ projectId }) {
       setConfirmRemove(null);
     } catch (err) {
       console.error('Error removing member:', err);
-      alert('Failed to remove member: ' + err.message);
+      alert('Failed to remove member: ' + (err as Error).message);
     }
   }
 
-  async function handleGroupChange(member, newGroup) {
+  async function handleGroupChange(member: Member, newGroup: string) {
     if (!permissions.canMoveUserBetweenGroups()) {
       alert('You do not have permission to change user groups');
       return;
     }
 
-    setConfirmGroupChange({ member, newGroup });
+    setConfirmGroupChange({ member, newGroup: newGroup as typeof GROUP.CONSULTING | typeof GROUP.CLIENT });
   }
 
   async function confirmGroupChangeAction() {
+    if (!confirmGroupChange || !currentUser) return;
+
     const { member, newGroup } = confirmGroupChange;
     const oldGroup = member.group || 'consulting';
     try {
@@ -250,15 +294,17 @@ export default function ProjectMembersPanel({ projectId }) {
       setConfirmGroupChange(null);
     } catch (err) {
       console.error('Error updating group:', err);
-      alert('Failed to update group: ' + err.message);
+      alert('Failed to update group: ' + (err as Error).message);
     }
   }
 
-  async function handleCancelInvite(invitation) {
+  async function handleCancelInvite(invitation: PendingInvitation) {
     setConfirmCancelInvite(invitation);
   }
 
   async function confirmCancelInviteAction() {
+    if (!confirmCancelInvite || !currentUser) return;
+
     try {
       await cancelInvitation(confirmCancelInvite.id);
 
@@ -285,7 +331,7 @@ export default function ProjectMembersPanel({ projectId }) {
       setConfirmCancelInvite(null);
     } catch (err) {
       console.error('Error cancelling invitation:', err);
-      alert('Failed to cancel invitation: ' + err.message);
+      alert('Failed to cancel invitation: ' + (err as Error).message);
     }
   }
 
@@ -329,11 +375,11 @@ export default function ProjectMembersPanel({ projectId }) {
   const totalCount = members.length + pendingInvitations.length;
 
   // Format last active time
-  function formatLastActive(timestamp) {
+  function formatLastActive(timestamp: any): string {
     if (!timestamp) return 'Never';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -418,7 +464,7 @@ export default function ProjectMembersPanel({ projectId }) {
           <label className="text-sm font-medium text-gray-700">Group:</label>
           <select
             value={groupFilter}
-            onChange={(e) => setGroupFilter(e.target.value)}
+            onChange={(e) => setGroupFilter(e.target.value as typeof groupFilter)}
             className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
             data-testid="group-filter"
           >
@@ -482,7 +528,7 @@ export default function ProjectMembersPanel({ projectId }) {
                         className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
                         data-testid="role-select"
                       >
-                        {permissions.assignableRoles.map(role => (
+                        {permissions.assignableRoles.map((role: string) => (
                           <option key={role} value={role}>
                             {getRoleDisplayName(role)}
                           </option>
@@ -702,7 +748,3 @@ export default function ProjectMembersPanel({ projectId }) {
     </div>
   );
 }
-
-ProjectMembersPanel.propTypes = {
-  projectId: PropTypes.string.isRequired
-};

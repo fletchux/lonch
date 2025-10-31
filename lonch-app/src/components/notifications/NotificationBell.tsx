@@ -6,6 +6,15 @@ import {
   getUnreadNotificationCount
 } from '../../services/notificationService';
 
+interface Notification {
+  id: string;
+  message: string;
+  read: boolean;
+  link?: string;
+  createdAt: any; // Firestore Timestamp
+  [key: string]: any;
+}
+
 /**
  * NotificationBell Component
  *
@@ -15,10 +24,10 @@ import {
 export default function NotificationBell() {
   const { currentUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -32,8 +41,8 @@ export default function NotificationBell() {
 
   useEffect(() => {
     // Close dropdown when clicking outside
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -76,7 +85,7 @@ export default function NotificationBell() {
     }
   }
 
-  async function handleNotificationClick(notification) {
+  async function handleNotificationClick(notification: Notification) {
     try {
       // Mark as read
       if (!notification.read) {
@@ -97,11 +106,11 @@ export default function NotificationBell() {
     }
   }
 
-  function formatTimestamp(timestamp) {
+  function formatTimestamp(timestamp: any): string {
     if (!timestamp) return '';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
