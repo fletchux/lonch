@@ -3,6 +3,9 @@
 **Date**: 2025-10-30
 **Reporter**: User
 **Severity**: Medium (UX issue)
+**Status**: ✅ RESOLVED
+**Resolution**: Fixed in PR #26 (commit bda0f68)
+**Branch**: bug/25-auth-modal-size-jump
 
 ## Description
 
@@ -66,13 +69,34 @@ This ensures both modals maintain consistent height regardless of content.
 
 ## Acceptance Criteria
 
-- [ ] LoginPage modal has minimum height set
-- [ ] SignupPage modal has minimum height set
-- [ ] Both modals maintain the same size when switching views
-- [ ] No visual "jump" when clicking "Sign up" or "Log in" links
-- [ ] Modal content remains properly centered/aligned
-- [ ] Tests verify consistent modal sizing
-- [ ] All existing tests still pass
+- [x] LoginPage modal has minimum height set
+- [x] SignupPage modal has minimum height set
+- [x] Both modals maintain the same size when switching views
+- [x] No visual "jump" when clicking "Sign up" or "Log in" links
+- [x] Modal content remains properly centered/aligned
+- [x] Tests verify consistent modal sizing
+- [x] All existing tests still pass
+
+## Resolution Summary
+
+**Fix Applied:** Added `min-h-[600px]` class to both modal containers
+
+**Files Modified:**
+- `src/components/auth/LoginPage.jsx` - Added minimum height to modal container
+- `src/components/auth/SignupPage.jsx` - Added minimum height to modal container
+
+**Tests Added:**
+- `LoginPage.test.jsx` - Test verifying modal has minimum height class
+- `SignupPage.test.jsx` - Test verifying modal has minimum height class
+
+**Results:**
+- ✅ 650/650 tests passing
+- ✅ ESLint clean
+- ✅ Production build successful
+- ✅ No visual jump when switching between views
+
+**Pull Request:** #26
+**Commit:** bda0f68
 
 ## Labels
 
