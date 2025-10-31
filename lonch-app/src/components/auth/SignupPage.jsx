@@ -83,7 +83,7 @@ export default function SignupPage({ onSuccess, onSwitchToLogin }) {
   return (
     // Task 3.5: Styling with lonch branding
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 min-h-[600px]">
         {/* Logo */}
         <div className="flex flex-col items-center mb-6">
           <img src={lonchLogo} alt="lonch" className="h-16 mb-3" />

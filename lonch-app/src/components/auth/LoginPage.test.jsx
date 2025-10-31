@@ -218,4 +218,15 @@ describe('LoginPage', () => {
 
     expect(svg).toBeInTheDocument();
   });
+
+  it('should have consistent modal size with signup page', () => {
+    const { container } = render(<LoginPage />);
+
+    // Find the modal container (the white card with rounded corners)
+    const modalContainer = container.querySelector('.bg-white.rounded-lg.shadow-lg');
+
+    expect(modalContainer).toBeInTheDocument();
+    // Verify it has a minimum height class to prevent size jumping
+    expect(modalContainer.classList.toString()).toMatch(/min-h-/);
+  });
 });

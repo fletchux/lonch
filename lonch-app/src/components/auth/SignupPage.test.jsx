@@ -255,4 +255,15 @@ describe('SignupPage', () => {
       expect(emailInput).not.toBeDisabled();
     });
   });
+
+  it('should have consistent modal size with login page', () => {
+    const { container } = render(<SignupPage />);
+
+    // Find the modal container (the white card with rounded corners)
+    const modalContainer = container.querySelector('.bg-white.rounded-lg.shadow-lg');
+
+    expect(modalContainer).toBeInTheDocument();
+    // Verify it has a minimum height class to prevent size jumping
+    expect(modalContainer.classList.toString()).toMatch(/min-h-/);
+  });
 });
