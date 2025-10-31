@@ -1,0 +1,57 @@
+{
+  "project": "lonch",
+  "description": "Client project management platform for consultants",
+  "tech_stack": ["React 19", "Vite 7.1", "Tailwind CSS v3.4", "Vitest", "Firebase"],
+  "project_root": "/Users/cfletcher/Documents/lonch-project/lonch/lonch-app",
+
+  "paths": {
+    "specs": "specs/",
+    "bugs": "bugs/",
+    "src": "src/",
+    "commands": ".claude/commands/",
+    "workflows": ".claude/workflows/"
+  },
+
+  "commands": {
+    "/shazam": "Complete feature setup (PRD → Tasks → Issue → Branch)",
+    "/resume": "Load context and continue existing work",
+    "/lonchit": "Wrap up and ship (tests, commit, push, docs, update session state)",
+    "/create-prd": "Create PRD only",
+    "/generate-tasks": "Generate tasks from existing PRD",
+    "/process-task-list": "Implement tasks with TDD workflow",
+    "fixit": "Bug fixing workflow with TDD (Questions → Bug Report → Fix)"
+  },
+
+  "quality_gates": {
+    "before_commit": [
+      "npm test",
+      "npx eslint .",
+      "npm run build"
+    ],
+    "required": true,
+    "coverage_target": "80%",
+    "approach": "TDD (write tests first)"
+  },
+
+  "git_rules": {
+    "never_on_main": true,
+    "branch_formats": {
+      "bug": "bug/<issue-number>-<description>",
+      "feature": "feature/<issue-number>-<name>",
+      "improve": "improve/<description>"
+    },
+    "commit_format": "Include issue number (#XX) and Claude co-author tag"
+  },
+
+  "dev_server": {
+    "command": "npm run dev",
+    "url": "http://localhost:5173/",
+    "note": "Keep only ONE dev server running at a time"
+  },
+
+  "session_files": {
+    "state": ".claude/SESSION_STATE.md",
+    "preferences": ".claude/lonch-preferences.md",
+    "full_startup_docs": ".claude/start-session.md"
+  }
+}
