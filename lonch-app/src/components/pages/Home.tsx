@@ -1,0 +1,120 @@
+import { useAuth } from '../../contexts/AuthContext';
+import { Plus, LonchO, ChevronRight } from '../icons';
+import Header from '../layout/Header';
+import Footer from '../layout/Footer';
+import RoleBadge from '../shared/RoleBadge';
+import GroupBadge from '../project/GroupBadge';
+import { ROLES } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
+
+interface Project {
+  id: string;
+  name: string;
+  clientType: string;
+  userRole?: typeof ROLES[keyof typeof ROLES];
+  userGroup?: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  [key: string]: any;
+}
+
+interface HomeProps {
+  projects: Project[];
+  onNewProject: () => void;
+  onSelectProject: (project: Project) => void;
+  onLogin: () => void;
+  onSignup: () => void;
+  onNavigateSettings?: () => void;
+}
+
+export default function Home({
+  projects,
+  onNewProject,
+  onSelectProject,
+  onLogin,
+  onSignup,
+  onNavigateSettings
+}: HomeProps) {
+  const { currentUser } = useAuth();
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header onNavigateSettings={onNavigateSettings} />
+
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
+          {projects.length > 0 && (
+            <div className="flex justify-end mb-8">
+              <button
+                onClick={onNewProject}
+                className="bg-primary text-primary-foreground px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
+              >
+                <Plus size={20} />
+                New Project
+              </button>
+            </div>
+          )}
+
+        {projects.length === 0 ? (
+          <div className="bg-card rounded-xl shadow-lg p-12 text-center border border-border">
+            <LonchO size={64} className="mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">Ready to lonch?</h2>
+            <p className="text-muted-foreground mb-6">Start your first client project with our template-driven approach</p>
+
+            {/* Task 4.9: Show login/signup buttons when not authenticated */}
+            {!currentUser ? (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={onLogin}
+                  className="bg-background text-primary border-2 border-primary px-8 py-3 rounded-lg text-lg font-medium hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={onSignup}
+                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg text-lg font-medium hover:opacity-90 transition-opacity shadow-lg"
+                >
+                  Sign Up
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onNewProject}
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Create Your First Project
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                onClick={() => onSelectProject(project)}
+                className="bg-card rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer border border-border"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-xl font-bold text-foreground flex-1">{project.name}</h3>
+                  <div className="flex gap-2">
+                    {project.userGroup && (
+                      <GroupBadge group={project.userGroup} />
+                    )}
+                    {project.userRole && project.userRole !== 'owner' && (
+                      <RoleBadge role={project.userRole} />
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">{project.clientType}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-primary font-medium">Active</span>
+                  <ChevronRight size={20} className="text-muted-foreground" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+
+    <Footer />
+    </div>
+  );
+}
