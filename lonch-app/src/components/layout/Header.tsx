@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import lonchLogo from '../../assets/lonch_logo.svg';
 import UserProfileDropdown from './UserProfileDropdown';
@@ -6,7 +5,11 @@ import NotificationBell from '../notifications/NotificationBell';
 
 const TAGLINE = 'Consultant project kickoff made simple';
 
-export default function Header({ onNavigateSettings }) {
+interface HeaderProps {
+  onNavigateSettings?: () => void;
+}
+
+export default function Header({ onNavigateSettings }: HeaderProps) {
   const { currentUser } = useAuth();
 
   return (
@@ -29,7 +32,3 @@ export default function Header({ onNavigateSettings }) {
     </header>
   );
 }
-
-Header.propTypes = {
-  onNavigateSettings: PropTypes.func
-};
