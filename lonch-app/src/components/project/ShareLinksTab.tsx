@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getProjectInviteLinks, revokeInviteLink } from '../../services/inviteLinkService';
 import { getUser } from '../../services/userService';
@@ -7,16 +6,39 @@ import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from './GroupBadge';
 import GenerateLinkModal from './GenerateLinkModal';
+import { ROLES } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 
-export default function ShareLinksTab({ projectId }) {
+interface InviteLink {
+  id: string;
+  role: typeof ROLES[keyof typeof ROLES];
+  group: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  createdBy: string;
+  createdAt: any; // Firestore Timestamp
+  expiresAt: any; // Firestore Timestamp
+  status: 'active' | 'used' | 'revoked';
+  [key: string]: any;
+}
+
+interface UserInfo {
+  displayName?: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface ShareLinksTabProps {
+  projectId: string;
+}
+
+export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
   const { currentUser } = useAuth();
   const permissions = useProjectPermissions(projectId);
-  const [links, setLinks] = useState([]);
-  const [linkCreators, setLinkCreators] = useState({});
+  const [links, setLinks] = useState<InviteLink[]>([]);
+  const [linkCreators, setLinkCreators] = useState<Record<string, UserInfo>>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
-  const [confirmRevoke, setConfirmRevoke] = useState(null);
+  const [confirmRevoke, setConfirmRevoke] = useState<InviteLink | null>(null);
 
   useEffect(() => {
     // Only fetch links after permissions have loaded
@@ -36,7 +58,7 @@ export default function ShareLinksTab({ projectId }) {
       setLinks(inviteLinks);
 
       // Fetch creator details for each link
-      const creators = {};
+      const creators: Record<string, UserInfo> = {};
       for (const link of inviteLinks) {
         if (!creators[link.createdBy]) {
           try {
@@ -52,13 +74,13 @@ export default function ShareLinksTab({ projectId }) {
       setLinkCreators(creators);
     } catch (err) {
       console.error('Error fetching invite links:', err);
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
-  function handleRevoke(link) {
+  function handleRevoke(link: InviteLink) {
     if (link.status !== 'active') {
       return;
     }
@@ -66,13 +88,15 @@ export default function ShareLinksTab({ projectId }) {
   }
 
   async function confirmRevokeAction() {
+    if (!confirmRevoke || !currentUser) return;
+
     try {
       await revokeInviteLink(confirmRevoke.id, currentUser.uid);
       await fetchLinks();
       setConfirmRevoke(null);
     } catch (err) {
       console.error('Error revoking link:', err);
-      alert('Failed to revoke link: ' + err.message);
+      alert('Failed to revoke link: ' + (err as Error).message);
     }
   }
 
@@ -82,11 +106,11 @@ export default function ShareLinksTab({ projectId }) {
   }
 
   // Format timestamp to relative time
-  function formatRelativeTime(timestamp) {
+  function formatRelativeTime(timestamp: any): string {
     if (!timestamp) return 'Never';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -99,10 +123,10 @@ export default function ShareLinksTab({ projectId }) {
   }
 
   // Format expiration date
-  function formatExpirationDate(timestamp) {
+  function formatExpirationDate(timestamp: any): string {
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
-    const diffMs = date - now;
+    const diffMs = date.getTime() - now.getTime();
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
@@ -113,7 +137,7 @@ export default function ShareLinksTab({ projectId }) {
   }
 
   // Get status badge
-  function getStatusBadge(link) {
+  function getStatusBadge(link: InviteLink): JSX.Element {
     const expiresAt = link.expiresAt.toDate ? link.expiresAt.toDate() : new Date(link.expiresAt);
     const isExpired = new Date() > expiresAt;
 
@@ -130,7 +154,7 @@ export default function ShareLinksTab({ projectId }) {
   }
 
   // Check if link can be revoked
-  function canRevokeLink(link) {
+  function canRevokeLink(link: InviteLink): boolean {
     if (link.status !== 'active') return false;
     // Owner/Admin can revoke any link, others can only revoke their own
     if (permissions.role === 'owner' || permissions.role === 'admin') return true;
@@ -289,7 +313,3 @@ export default function ShareLinksTab({ projectId }) {
     </div>
   );
 }
-
-ShareLinksTab.propTypes = {
-  projectId: PropTypes.string.isRequired
-};
