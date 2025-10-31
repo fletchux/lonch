@@ -4,8 +4,35 @@ import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from '../project/GroupBadge';
+import { ROLES } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 
-export default function Home({ projects, onNewProject, onSelectProject, onLogin, onSignup, onNavigateSettings }) {
+interface Project {
+  id: string;
+  name: string;
+  clientType: string;
+  userRole?: typeof ROLES[keyof typeof ROLES];
+  userGroup?: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  [key: string]: any;
+}
+
+interface HomeProps {
+  projects: Project[];
+  onNewProject: () => void;
+  onSelectProject: (project: Project) => void;
+  onLogin: () => void;
+  onSignup: () => void;
+  onNavigateSettings?: () => void;
+}
+
+export default function Home({
+  projects,
+  onNewProject,
+  onSelectProject,
+  onLogin,
+  onSignup,
+  onNavigateSettings
+}: HomeProps) {
   const { currentUser } = useAuth();
   return (
     <div className="min-h-screen bg-background flex flex-col">

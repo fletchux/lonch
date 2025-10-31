@@ -11,15 +11,95 @@ import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { updateProject } from '../../services/projectService';
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function ProjectDashboard({ project, onBack, onDeleteDocument, onUpdateDocumentCategories, onUpdateDocumentVisibility, onNavigateSettings }) {
+interface Document {
+  id: string;
+  name: string;
+  category: string;
+  size: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  visibility: string;
+  downloadURL?: string;
+  storagePath?: string;
+  fileName?: string;
+  file?: File;
+  [key: string]: any;
+}
+
+interface FileData {
+  id: string;
+  name: string;
+  category: string;
+  size: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  visibility: string;
+  file: File;
+}
+
+interface Template {
+  name: string;
+  fields?: string[];
+  items?: string[];
+  roles?: string[];
+}
+
+interface Stakeholder {
+  name?: string;
+  role?: string;
+  email?: string;
+}
+
+interface ExtractedData {
+  clientName?: string;
+  budget?: string;
+  timeline?: string;
+  scope?: string;
+  deliverables?: string[];
+  stakeholders?: (Stakeholder | string)[];
+  [key: string]: any;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  clientType: string;
+  documents?: Document[];
+  intakeTemplate?: Template;
+  checklistTemplate?: Template;
+  stakeholderTemplate?: Template;
+  teamTemplate?: Template;
+  extractedData?: ExtractedData;
+  [key: string]: any;
+}
+
+interface ProjectDashboardProps {
+  project: Project;
+  onBack: () => void;
+  onDeleteDocument?: (docId: string) => void;
+  onUpdateDocumentCategories?: (docIds: string[], category: string) => void;
+  onUpdateDocumentVisibility?: (docId: string, visibility: string) => void;
+  onNavigateSettings?: () => void;
+}
+
+type TabType = 'overview' | 'members' | 'activity';
+
+export default function ProjectDashboard({
+  project,
+  onBack,
+  onDeleteDocument,
+  onUpdateDocumentCategories,
+  onUpdateDocumentVisibility,
+  onNavigateSettings
+}: ProjectDashboardProps) {
   const { currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState<FileData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
-  const [localDocuments, setLocalDocuments] = useState(project?.documents || []);
+  const [localDocuments, setLocalDocuments] = useState<Document[]>(project?.documents || []);
   const permissions = useProjectPermissions(project?.id);
 
   // Sync local documents with project prop when it changes
@@ -28,9 +108,9 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
   }, [project?.documents]);
 
   // Handle document download
-  const handleDownload = async (doc) => {
+  const handleDownload = async (doc: Document) => {
     try {
-      let downloadUrl;
+      let downloadUrl: string;
 
       // If we have the file object (recently uploaded), use it
       if (doc.file) {
@@ -66,12 +146,12 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
       }
     } catch (error) {
       console.error('Error downloading file:', error);
-      alert('Failed to download file: ' + error.message);
+      alert('Failed to download file: ' + (error as Error).message);
     }
   };
 
   // Handle document deletion
-  const handleDelete = (docId) => {
+  const handleDelete = (docId: string) => {
     if (onDeleteDocument) {
       onDeleteDocument(docId);
     }
@@ -83,12 +163,12 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
   };
 
   // Handle files selected in upload component
-  const handleFilesSelected = (files) => {
+  const handleFilesSelected = (files: FileData[]) => {
     setUploadedFiles(files);
   };
 
   // Handle extraction status change
-  const handleExtractionStatusChange = (isExtracting) => {
+  const handleExtractionStatusChange = (isExtracting: boolean) => {
     setIsExtracting(isExtracting);
   };
 
@@ -130,7 +210,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
           };
         } catch (uploadError) {
           console.error(`Failed to upload ${fileData.name}:`, uploadError);
-          throw new Error(`Failed to upload ${fileData.name}: ${uploadError.message}`);
+          throw new Error(`Failed to upload ${fileData.name}: ${(uploadError as Error).message}`);
         }
       });
 
@@ -174,7 +254,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
       alert(`Successfully uploaded ${newDocuments.length} document(s)`);
     } catch (error) {
       console.error('Error completing upload:', error);
-      alert('Failed to complete upload: ' + error.message);
+      alert('Failed to complete upload: ' + (error as Error).message);
     } finally {
       setIsUploading(false);
     }
@@ -292,13 +372,13 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               )}
 
               {/* Fallback to template fields if no extracted data */}
-              {!project.extractedData?.clientName && project.intakeTemplate?.fields.slice(0, 5).map((field, idx) => (
+              {!project.extractedData?.clientName && project.intakeTemplate?.fields?.slice(0, 5).map((field, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
                   <div className="w-2 h-2 bg-accent rounded-full"></div>
                   {field}
                 </div>
               ))}
-              {!project.extractedData?.clientName && project.intakeTemplate?.fields.length > 5 && (
+              {!project.extractedData?.clientName && project.intakeTemplate?.fields && project.intakeTemplate.fields.length > 5 && (
                 <p className="text-sm text-gray-500 italic">
                   +{project.intakeTemplate.fields.length - 5} more fields
                 </p>
@@ -312,13 +392,13 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               <h3 className="text-xl font-bold text-gray-900">Deliverables</h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              {project.extractedData?.deliverables?.length > 0
+              {project.extractedData?.deliverables && project.extractedData.deliverables.length > 0
                 ? 'Extracted from documents'
                 : `Template: ${project.checklistTemplate?.name}`}
             </p>
             <div className="space-y-2">
               {/* Show extracted deliverables if available */}
-              {project.extractedData?.deliverables?.length > 0 ? (
+              {project.extractedData?.deliverables && project.extractedData.deliverables.length > 0 ? (
                 <>
                   {project.extractedData.deliverables.slice(0, 5).map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
@@ -334,13 +414,13 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
                 </>
               ) : (
                 <>
-                  {project.checklistTemplate?.items.slice(0, 5).map((item, idx) => (
+                  {project.checklistTemplate?.items?.slice(0, 5).map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
                       <input type="checkbox" className="w-4 h-4 text-accent" />
                       {item}
                     </div>
                   ))}
-                  {project.checklistTemplate?.items.length > 5 && (
+                  {project.checklistTemplate?.items && project.checklistTemplate.items.length > 5 && (
                     <p className="text-sm text-gray-500 italic">
                       +{project.checklistTemplate.items.length - 5} more tasks
                     </p>
@@ -356,13 +436,13 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               <h3 className="text-xl font-bold text-gray-900">Client Stakeholders</h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              {project.extractedData?.stakeholders?.length > 0
+              {project.extractedData?.stakeholders && project.extractedData.stakeholders.length > 0
                 ? 'Extracted from documents'
                 : `Template: ${project.stakeholderTemplate?.name}`}
             </p>
             <div className="space-y-2">
               {/* Show extracted stakeholders if available */}
-              {project.extractedData?.stakeholders?.length > 0 ? (
+              {project.extractedData?.stakeholders && project.extractedData.stakeholders.length > 0 ? (
                 project.extractedData.stakeholders.map((stakeholder, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -370,19 +450,19 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
                     </div>
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-gray-900">
-                        {stakeholder.name || stakeholder}
+                        {typeof stakeholder === 'object' && stakeholder.name ? stakeholder.name : String(stakeholder)}
                       </div>
-                      {stakeholder.role && (
+                      {typeof stakeholder === 'object' && stakeholder.role && (
                         <div className="text-xs text-gray-500">{stakeholder.role}</div>
                       )}
-                      {stakeholder.email && (
+                      {typeof stakeholder === 'object' && stakeholder.email && (
                         <div className="text-xs text-gray-500">{stakeholder.email}</div>
                       )}
                     </div>
                   </div>
                 ))
               ) : (
-                project.stakeholderTemplate?.roles.map((role, idx) => (
+                project.stakeholderTemplate?.roles?.map((role, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
                     <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
                       <Users size={16} className="text-accent" />
@@ -403,7 +483,7 @@ export default function ProjectDashboard({ project, onBack, onDeleteDocument, on
               Template: {project.teamTemplate?.name}
             </p>
             <div className="space-y-2">
-              {project.teamTemplate?.roles.map((role, idx) => (
+              {project.teamTemplate?.roles?.map((role, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                     <Users size={16} className="text-green-600" />
