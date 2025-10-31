@@ -34,8 +34,8 @@ describe('ExtractionIndicator', () => {
     // Hover over the indicator
     await user.hover(indicator);
 
-    // Wait for tooltip to appear
-    const tooltip = container.querySelector('[class*="bg-gray-900"]');
+    // Wait for tooltip to appear (using design system token bg-popover)
+    const tooltip = container.querySelector('[class*="bg-popover"]');
     expect(tooltip).toBeTruthy();
     expect(tooltip.textContent).toContain('Auto-populated from documents');
     expect(tooltip.textContent).toContain('contract.pdf');
@@ -48,7 +48,7 @@ describe('ExtractionIndicator', () => {
     const indicator = container.querySelector('[class*="inline-flex"]');
     await user.hover(indicator);
 
-    const tooltip = container.querySelector('[class*="bg-gray-900"]');
+    const tooltip = container.querySelector('[class*="bg-popover"]');
     expect(tooltip).toBeTruthy();
     expect(tooltip.textContent).toContain('Multiple values found');
     expect(tooltip.textContent).toContain('conflicting data');
@@ -62,20 +62,20 @@ describe('ExtractionIndicator', () => {
 
     // Hover to show tooltip
     await user.hover(indicator);
-    let tooltip = container.querySelector('[class*="bg-gray-900"]');
+    let tooltip = container.querySelector('[class*="bg-popover"]');
     expect(tooltip).toBeTruthy();
 
     // Unhover to hide tooltip
     await user.unhover(indicator);
-    tooltip = container.querySelector('[class*="bg-gray-900"]');
+    tooltip = container.querySelector('[class*="bg-popover"]');
     expect(tooltip).toBeFalsy();
   });
 
   it('should apply correct styling for normal extraction', () => {
     const { container } = render(<ExtractionIndicator source="contract.pdf" />);
 
-    // Check for teal color background (custom color via arbitrary value)
-    const iconContainer = container.querySelector('[class*="bg-[#2D9B9B]"]');
+    // Check for primary color background (design system token)
+    const iconContainer = container.querySelector('[class*="bg-primary"]');
     expect(iconContainer).toBeTruthy();
   });
 
@@ -93,7 +93,7 @@ describe('ExtractionIndicator', () => {
     const indicator = container.querySelector('[class*="inline-flex"]');
     await user.hover(indicator);
 
-    const tooltip = container.querySelector('[class*="bg-gray-900"]');
+    const tooltip = container.querySelector('[class*="bg-popover"]');
     expect(tooltip).toBeTruthy();
     expect(tooltip.textContent).toContain('Auto-populated from documents');
   });
