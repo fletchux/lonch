@@ -1,4 +1,4 @@
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll, StorageReference } from 'firebase/storage';
 import { storage } from '../config/firebase';
 
 /**
@@ -6,15 +6,29 @@ import { storage } from '../config/firebase';
  * Handles all Firebase Storage operations for document uploads
  */
 
+export interface UploadResult {
+  downloadURL: string;
+  filePath: string;
+  fileName: string;
+  fileSize: number;
+  category: string;
+  uploadedAt: string;
+}
+
+export interface FileMetadata {
+  name: string;
+  fullPath: string;
+  downloadURL: string;
+}
+
+export type ProgressCallback = (progress: number) => void;
+export type ProgressPerFileCallback = (index: number, progress: number) => void;
+
 /**
  * Generate a unique file path with naming convention
  * Format: {projectId}/{category}/{timestamp}-{filename}
- * @param {string} projectId - The project ID
- * @param {string} category - Document category (contract, specifications, other)
- * @param {string} filename - Original filename
- * @returns {string} - Formatted file path
  */
-export const generateFilePath = (projectId, category, filename) => {
+export const generateFilePath = (projectId: string, category: string, filename: string): string => {
   const timestamp = Date.now();
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
   return `${projectId}/${category}/${timestamp}-${sanitizedFilename}`;
@@ -22,13 +36,13 @@ export const generateFilePath = (projectId, category, filename) => {
 
 /**
  * Upload a file to Firebase Storage
- * @param {File} file - The file to upload
- * @param {string} projectId - The project ID
- * @param {string} category - Document category
- * @param {Function} onProgress - Callback for upload progress (0-100)
- * @returns {Promise<Object>} - Upload result with download URL and metadata
  */
-export const uploadFile = (file, projectId, category, onProgress = null) => {
+export const uploadFile = (
+  file: File,
+  projectId: string,
+  category: string,
+  onProgress: ProgressCallback | null = null
+): Promise<UploadResult> => {
   return new Promise((resolve, reject) => {
     try {
       const filePath = generateFilePath(projectId, category, file.name);
@@ -76,16 +90,16 @@ export const uploadFile = (file, projectId, category, onProgress = null) => {
 
 /**
  * Upload multiple files in batch
- * @param {File[]} files - Array of files to upload
- * @param {string} projectId - The project ID
- * @param {string} category - Document category
- * @param {Function} onProgressPerFile - Callback for individual file progress
- * @returns {Promise<Object[]>} - Array of upload results
  */
-export const uploadMultipleFiles = async (files, projectId, category, onProgressPerFile = null) => {
+export const uploadMultipleFiles = async (
+  files: File[],
+  projectId: string,
+  category: string,
+  onProgressPerFile: ProgressPerFileCallback | null = null
+): Promise<UploadResult[]> => {
   const uploadPromises = files.map((file, index) => {
     const progressCallback = onProgressPerFile
-      ? (progress) => onProgressPerFile(index, progress)
+      ? (progress: number) => onProgressPerFile(index, progress)
       : null;
 
     return uploadFile(file, projectId, category, progressCallback);
@@ -102,10 +116,8 @@ export const uploadMultipleFiles = async (files, projectId, category, onProgress
 
 /**
  * Download a file (returns download URL)
- * @param {string} filePath - The file path in storage
- * @returns {Promise<string>} - Download URL
  */
-export const getFileDownloadURL = async (filePath) => {
+export const getFileDownloadURL = async (filePath: string): Promise<string> => {
   try {
     const storageRef = ref(storage, filePath);
     const downloadURL = await getDownloadURL(storageRef);
@@ -118,10 +130,8 @@ export const getFileDownloadURL = async (filePath) => {
 
 /**
  * Delete a file from storage
- * @param {string} filePath - The file path in storage
- * @returns {Promise<void>}
  */
-export const deleteFile = async (filePath) => {
+export const deleteFile = async (filePath: string): Promise<void> => {
   try {
     const storageRef = ref(storage, filePath);
     await deleteObject(storageRef);
@@ -133,15 +143,13 @@ export const deleteFile = async (filePath) => {
 
 /**
  * List all files for a project
- * @param {string} projectId - The project ID
- * @returns {Promise<Object[]>} - Array of file metadata
  */
-export const listProjectFiles = async (projectId) => {
+export const listProjectFiles = async (projectId: string): Promise<FileMetadata[]> => {
   try {
     const projectRef = ref(storage, projectId);
     const result = await listAll(projectRef);
 
-    const filePromises = result.items.map(async (itemRef) => {
+    const filePromises = result.items.map(async (itemRef: StorageReference) => {
       const downloadURL = await getDownloadURL(itemRef);
       return {
         name: itemRef.name,
@@ -160,21 +168,15 @@ export const listProjectFiles = async (projectId) => {
 
 /**
  * Retry upload with exponential backoff
- * @param {File} file - The file to upload
- * @param {string} projectId - The project ID
- * @param {string} category - Document category
- * @param {number} maxRetries - Maximum retry attempts
- * @param {Function} onProgress - Callback for upload progress
- * @returns {Promise<Object>} - Upload result
  */
 export const uploadFileWithRetry = async (
-  file,
-  projectId,
-  category,
-  maxRetries = 3,
-  onProgress = null
-) => {
-  let lastError;
+  file: File,
+  projectId: string,
+  category: string,
+  maxRetries: number = 3,
+  onProgress: ProgressCallback | null = null
+): Promise<UploadResult> => {
+  let lastError: any;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
