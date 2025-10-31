@@ -12,13 +12,69 @@ const anthropic = new Anthropic({
   dangerouslyAllowBrowser: true // Note: In production, this should be done server-side
 });
 
+export interface ExtractedData {
+  projectName?: string | null;
+  clientName?: string | null;
+  clientCompany?: string | null;
+  budget?: string | number | null;
+  timeline?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  deliverables?: string[];
+  scopeOfWork?: string | null;
+  objectives?: string[];
+  keyStakeholders?: Stakeholder[];
+  paymentTerms?: string | null;
+  milestones?: Milestone[];
+}
+
+export interface Stakeholder {
+  name?: string;
+  role?: string;
+  email?: string;
+}
+
+export interface Milestone {
+  name?: string;
+  date?: string;
+}
+
+export interface ExtractionProgress {
+  status: 'parsing' | 'extracting' | 'processing' | 'complete';
+  progress: number;
+}
+
+export interface ExtractionResult {
+  success: boolean;
+  fileName: string;
+  extractedData: ExtractedData | null;
+  error?: string;
+  metadata: {
+    documentLength?: number;
+    extractedAt: string;
+    model?: string;
+  };
+}
+
+export interface MergedData extends ExtractedData {
+  sources: Array<{ field: string; source: string }>;
+}
+
+export interface ConflictValue {
+  value: any;
+  source?: string;
+}
+
+export interface MergeResult {
+  mergedData: MergedData;
+  conflicts: Record<string, ConflictValue[]>;
+  hasConflicts: boolean;
+}
+
 /**
  * Generate extraction prompt for Claude
- * @param {string} documentText - The text extracted from the document
- * @param {string} documentName - Name of the document
- * @returns {string} - Structured prompt for Claude
  */
-const generateExtractionPrompt = (documentText, documentName) => {
+const generateExtractionPrompt = (documentText: string, documentName: string): string => {
   return `You are a precise data extraction assistant. Extract the following information from this project document if present. Return ONLY valid JSON with no additional text.
 
 Document: ${documentName}
@@ -48,11 +104,11 @@ Return JSON only:`;
 
 /**
  * Extract data from a single document using Claude AI
- * @param {File} file - Document file to extract from
- * @param {Function} onProgress - Optional callback for progress updates
- * @returns {Promise<Object>} - Extracted data object
  */
-export const extractDataFromDocument = async (file, onProgress = null) => {
+export const extractDataFromDocument = async (
+  file: File,
+  onProgress: ((progress: ExtractionProgress) => void) | null = null
+): Promise<ExtractionResult> => {
   try {
     // Step 1: Extract text from document
     if (onProgress) onProgress({ status: 'parsing', progress: 25 });
@@ -89,7 +145,7 @@ export const extractDataFromDocument = async (file, onProgress = null) => {
       throw new Error('Failed to extract JSON from AI response');
     }
 
-    const extractedData = JSON.parse(jsonMatch[0]);
+    const extractedData = JSON.parse(jsonMatch[0]) as ExtractedData;
 
     // Step 4: Return structured result
     if (onProgress) onProgress({ status: 'complete', progress: 100 });
@@ -106,13 +162,14 @@ export const extractDataFromDocument = async (file, onProgress = null) => {
     };
 
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Document extraction error:', error);
 
     return {
       success: false,
       fileName: file.name,
       extractedData: null,
-      error: error.message,
+      error: message,
       metadata: {
         extractedAt: new Date().toISOString()
       }
@@ -122,18 +179,18 @@ export const extractDataFromDocument = async (file, onProgress = null) => {
 
 /**
  * Extract data from multiple documents
- * @param {File[]} files - Array of document files
- * @param {Function} onProgressPerFile - Optional callback for per-file progress
- * @returns {Promise<Object[]>} - Array of extraction results
  */
-export const extractDataFromMultipleDocuments = async (files, onProgressPerFile = null) => {
-  const results = [];
+export const extractDataFromMultipleDocuments = async (
+  files: File[],
+  onProgressPerFile: ((fileIndex: number, progress: ExtractionProgress) => void) | null = null
+): Promise<ExtractionResult[]> => {
+  const results: ExtractionResult[] = [];
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
 
     const progressCallback = onProgressPerFile
-      ? (progress) => onProgressPerFile(i, progress)
+      ? (progress: ExtractionProgress) => onProgressPerFile(i, progress)
       : null;
 
     const result = await extractDataFromDocument(file, progressCallback);
@@ -146,11 +203,9 @@ export const extractDataFromMultipleDocuments = async (files, onProgressPerFile 
 /**
  * Merge extracted data from multiple documents
  * Handles conflicts by preferring non-null values and combining arrays
- * @param {Object[]} extractionResults - Array of extraction results
- * @returns {Object} - Merged extracted data
  */
-export const mergeExtractedData = (extractionResults) => {
-  const merged = {
+export const mergeExtractedData = (extractionResults: ExtractionResult[]): MergeResult => {
+  const merged: MergedData = {
     projectName: null,
     clientName: null,
     clientCompany: null,
@@ -167,7 +222,7 @@ export const mergeExtractedData = (extractionResults) => {
     sources: [] // Track which document each field came from
   };
 
-  const conflicts = {}; // Track conflicting values
+  const conflicts: Record<string, ConflictValue[]> = {}; // Track conflicting values
 
   extractionResults.forEach(result => {
     if (!result.success || !result.extractedData) return;
@@ -179,30 +234,30 @@ export const mergeExtractedData = (extractionResults) => {
     Object.keys(merged).forEach(key => {
       if (key === 'sources') return;
 
-      const value = data[key];
+      const value = (data as any)[key];
 
       // Skip if value is null/undefined
       if (value === null || value === undefined) return;
 
       // Handle arrays (combine and deduplicate)
-      if (Array.isArray(merged[key])) {
+      if (Array.isArray((merged as any)[key])) {
         if (Array.isArray(value)) {
-          merged[key] = [...merged[key], ...value];
+          (merged as any)[key] = [...(merged as any)[key], ...value];
           // Deduplicate objects by stringifying
-          merged[key] = merged[key].filter((item, index, self) =>
+          (merged as any)[key] = (merged as any)[key].filter((item: any, index: number, self: any[]) =>
             index === self.findIndex(t => JSON.stringify(t) === JSON.stringify(item))
           );
         }
       }
       // Handle simple values
       else {
-        if (merged[key] === null) {
-          merged[key] = value;
+        if ((merged as any)[key] === null) {
+          (merged as any)[key] = value;
           merged.sources.push({ field: key, source });
-        } else if (merged[key] !== value) {
+        } else if ((merged as any)[key] !== value) {
           // Track conflict
           if (!conflicts[key]) {
-            conflicts[key] = [{ value: merged[key], source: merged.sources.find(s => s.field === key)?.source }];
+            conflicts[key] = [{ value: (merged as any)[key], source: merged.sources.find(s => s.field === key)?.source }];
           }
           conflicts[key].push({ value, source });
         }
@@ -219,10 +274,8 @@ export const mergeExtractedData = (extractionResults) => {
 
 /**
  * Map extracted data to projectData structure
- * @param {Object} extractedData - Raw extracted data from AI
- * @returns {Object} - Formatted project data
  */
-export const mapToProjectData = (extractedData) => {
+export const mapToProjectData = (extractedData: ExtractedData): any => {
   return {
     name: extractedData.projectName || '',
     clientName: extractedData.clientName || extractedData.clientCompany || '',
