@@ -1,32 +1,61 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
 import { generateInviteLink } from '../../services/inviteLinkService';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleBadge from '../shared/RoleBadge';
 import GroupBadge from './GroupBadge';
+import { ROLES } from '../../utils/permissions';
+import { GROUP } from '../../utils/groupPermissions';
 
-export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated }) {
+interface GeneratedLink {
+  url: string;
+  role: typeof ROLES[keyof typeof ROLES];
+  group: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  expiresAt: Date | string;
+  [key: string]: any;
+}
+
+interface GenerateLinkModalProps {
+  projectId: string;
+  onClose: () => void;
+  onLinkGenerated?: (link: GeneratedLink) => void;
+}
+
+interface RoleOption {
+  value: typeof ROLES[keyof typeof ROLES];
+  label: string;
+  description: string;
+}
+
+interface GroupOption {
+  value: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+  label: string;
+  description: string;
+}
+
+export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated }: GenerateLinkModalProps) {
   const { currentUser } = useAuth();
-  const [selectedRole, setSelectedRole] = useState('viewer');
-  const [selectedGroup, setSelectedGroup] = useState('client');
-  const [generatedLink, setGeneratedLink] = useState(null);
+  const [selectedRole, setSelectedRole] = useState<typeof ROLES[keyof typeof ROLES]>(ROLES.VIEWER);
+  const [selectedGroup, setSelectedGroup] = useState<typeof GROUP.CONSULTING | typeof GROUP.CLIENT>(GROUP.CLIENT);
+  const [generatedLink, setGeneratedLink] = useState<GeneratedLink | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const roles = [
-    { value: 'owner', label: 'Owner', description: 'Full project access and control' },
-    { value: 'admin', label: 'Admin', description: 'Manage members and settings' },
-    { value: 'editor', label: 'Editor', description: 'Edit project content' },
-    { value: 'viewer', label: 'Viewer', description: 'View-only access' }
+  const roles: RoleOption[] = [
+    { value: ROLES.OWNER, label: 'Owner', description: 'Full project access and control' },
+    { value: ROLES.ADMIN, label: 'Admin', description: 'Manage members and settings' },
+    { value: ROLES.EDITOR, label: 'Editor', description: 'Edit project content' },
+    { value: ROLES.VIEWER, label: 'Viewer', description: 'View-only access' }
   ];
 
-  const groups = [
-    { value: 'consulting', label: 'Consulting Group', description: 'Internal team members' },
-    { value: 'client', label: 'Client Group', description: 'Client representatives' }
+  const groups: GroupOption[] = [
+    { value: GROUP.CONSULTING, label: 'Consulting Group', description: 'Internal team members' },
+    { value: GROUP.CLIENT, label: 'Client Group', description: 'Client representatives' }
   ];
 
   async function handleGenerateLink() {
+    if (!currentUser) return;
+
     setError(null);
     setLoading(true);
 
@@ -42,7 +71,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
       // Don't call onLinkGenerated here - let user see and copy the link first
     } catch (err) {
       console.error('Error generating invite link:', err);
-      setError(err.message || 'Failed to generate invite link');
+      setError((err as Error).message || 'Failed to generate invite link');
     } finally {
       setLoading(false);
     }
@@ -69,7 +98,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
     }
   }
 
-  function formatExpirationDate(date) {
+  function formatExpirationDate(date: Date | string): string {
     const expirationDate = date instanceof Date ? date : new Date(date);
     return expirationDate.toLocaleDateString('en-US', {
       month: 'long',
@@ -111,7 +140,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                 <select
                   id="role-select"
                   value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
+                  onChange={(e) => setSelectedRole(e.target.value as typeof ROLES[keyof typeof ROLES])}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   data-testid="role-select"
                 >
@@ -139,14 +168,14 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                         name="group"
                         value={group.value}
                         checked={selectedGroup === group.value}
-                        onChange={(e) => setSelectedGroup(e.target.value)}
+                        onChange={(e) => setSelectedGroup(e.target.value as typeof GROUP.CONSULTING | typeof GROUP.CLIENT)}
                         className="w-4 h-4 text-teal-600 focus:ring-teal-500"
                         data-testid={`group-radio-${group.value}`}
                       />
                       <div className="ml-3 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-gray-900">{group.label}</span>
-                          <GroupBadge group={group.value} size="sm" />
+                          <GroupBadge group={group.value} />
                         </div>
                         <span className="text-xs text-gray-500">{group.description}</span>
                       </div>
@@ -165,7 +194,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                   </span>
                   {' '}in{' '}
                   <span className="inline-flex items-center gap-1">
-                    <GroupBadge group={selectedGroup} size="sm" />
+                    <GroupBadge group={selectedGroup} />
                   </span>
                 </p>
               </div>
@@ -217,7 +246,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                     </p>
                     <p>
                       <span className="font-medium">Group:</span>{' '}
-                      <GroupBadge group={generatedLink.group} size="sm" />
+                      <GroupBadge group={generatedLink.group} />
                     </p>
                     <p>
                       <span className="font-medium">Expires:</span>{' '}
@@ -272,9 +301,3 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
     </div>
   );
 }
-
-GenerateLinkModal.propTypes = {
-  projectId: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onLinkGenerated: PropTypes.func
-};

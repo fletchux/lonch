@@ -1,17 +1,61 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { getProjectActivityLog, filterByUser, filterByAction, filterByDateRange } from '../../services/activityLogService';
 import { getProjectMembers } from '../../services/projectService';
 import { getUser } from '../../services/userService';
 import GroupBadge from './GroupBadge';
+import { GROUP } from '../../utils/groupPermissions';
 
-export default function ActivityLogPanel({ projectId }) {
-  const [activities, setActivities] = useState([]);
-  const [members, setMembers] = useState([]);
-  const [userDetails, setUserDetails] = useState({});
+interface ActivityMetadata {
+  documentName?: string;
+  invitedEmail?: string;
+  invitedRole?: string;
+  invitedGroup?: string;
+  removedUserEmail?: string;
+  targetUserEmail?: string;
+  oldRole?: string;
+  newRole?: string;
+  oldGroup?: string;
+  newGroup?: string;
+  role?: string;
+  group?: string;
+}
+
+interface Activity {
+  id: string;
+  userId: string;
+  action: string;
+  timestamp: any; // Firestore Timestamp or Date
+  metadata?: ActivityMetadata;
+  groupContext?: typeof GROUP.CONSULTING | typeof GROUP.CLIENT;
+}
+
+interface Member {
+  userId: string;
+  [key: string]: any;
+}
+
+interface UserDetail {
+  displayName?: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface ActivityLogPanelProps {
+  projectId: string;
+}
+
+interface ActionType {
+  value: string;
+  label: string;
+}
+
+export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [userDetails, setUserDetails] = useState<Record<string, UserDetail>>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastDoc, setLastDoc] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMore, setHasMore] = useState(false);
 
   // Filter states (Task 6.3: Add group filter)
@@ -22,7 +66,7 @@ export default function ActivityLogPanel({ projectId }) {
   const [filterEndDate, setFilterEndDate] = useState('');
 
   // Available action types for filtering (Task 6.2)
-  const actionTypes = [
+  const actionTypes: ActionType[] = [
     { value: 'document_uploaded', label: 'Document Uploaded' },
     { value: 'document_deleted', label: 'Document Deleted' },
     { value: 'document_visibility_changed', label: 'Document Visibility Changed' },
@@ -83,7 +127,7 @@ export default function ActivityLogPanel({ projectId }) {
       }
 
       // Fetch user details for activities
-      const uniqueUserIds = [...new Set(result.activities.map(a => a.userId))];
+      const uniqueUserIds = [...new Set(result.activities.map((a: Activity) => a.userId))];
       const details = { ...userDetails };
 
       for (const userId of uniqueUserIds) {
@@ -104,7 +148,7 @@ export default function ActivityLogPanel({ projectId }) {
       // Task 6.4: Filter by group on client-side (since Firestore doesn't have a filterByGroup query)
       let filteredActivities = result.activities;
       if (filterGroup) {
-        filteredActivities = result.activities.filter(activity => activity.groupContext === filterGroup);
+        filteredActivities = result.activities.filter((activity: Activity) => activity.groupContext === filterGroup);
       }
 
       if (loadMore) {
@@ -117,7 +161,7 @@ export default function ActivityLogPanel({ projectId }) {
       setHasMore(result.hasMore || false);
     } catch (err) {
       console.error('Error fetching activities:', err);
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -135,12 +179,12 @@ export default function ActivityLogPanel({ projectId }) {
     setFilterEndDate('');
   }
 
-  function formatTimestamp(timestamp) {
+  function formatTimestamp(timestamp: any): string {
     if (!timestamp) return 'Unknown time';
 
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -153,7 +197,7 @@ export default function ActivityLogPanel({ projectId }) {
   }
 
   // Task 6.2, 6.6: Update descriptions to include group context
-  function getActionDescription(activity) {
+  function getActionDescription(activity: Activity): string {
     const user = userDetails[activity.userId];
     const userName = user?.displayName || user?.email || 'Unknown user';
     const groupName = activity.metadata?.invitedGroup === 'consulting' ? 'Consulting Group' :
@@ -203,7 +247,7 @@ export default function ActivityLogPanel({ projectId }) {
     }
   }
 
-  function getActionIcon(action) {
+  function getActionIcon(action: string): string {
     switch (action) {
       case 'document_uploaded':
         return '📄';
@@ -388,7 +432,7 @@ export default function ActivityLogPanel({ projectId }) {
                     </p>
                     {/* Task 6.5: Show group badge where relevant */}
                     {activity.groupContext && (
-                      <GroupBadge group={activity.groupContext} size="sm" />
+                      <GroupBadge group={activity.groupContext} />
                     )}
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -417,7 +461,3 @@ export default function ActivityLogPanel({ projectId }) {
     </div>
   );
 }
-
-ActivityLogPanel.propTypes = {
-  projectId: PropTypes.string.isRequired
-};
