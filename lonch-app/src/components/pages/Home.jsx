@@ -8,7 +8,7 @@ import GroupBadge from '../project/GroupBadge';
 export default function Home({ projects, onNewProject, onSelectProject, onLogin, onSignup, onNavigateSettings }) {
   const { currentUser } = useAuth();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header onNavigateSettings={onNavigateSettings} />
 
       <div className="flex-1 p-8">
@@ -17,7 +17,7 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
             <div className="flex justify-end mb-8">
               <button
                 onClick={onNewProject}
-                className="bg-accent text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-accent-dark transition-colors shadow-lg"
+                className="bg-primary text-primary-foreground px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
               >
                 <Plus size={20} />
                 New Project
@@ -26,23 +26,23 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
           )}
 
         {projects.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+          <div className="bg-card rounded-xl shadow-lg p-12 text-center border border-border">
             <LonchO size={64} className="mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to lonch?</h2>
-            <p className="text-gray-600 mb-6">Start your first client project with our template-driven approach</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Ready to lonch?</h2>
+            <p className="text-muted-foreground mb-6">Start your first client project with our template-driven approach</p>
 
             {/* Task 4.9: Show login/signup buttons when not authenticated */}
             {!currentUser ? (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={onLogin}
-                  className="bg-white text-[#2D9B9B] border-2 border-[#2D9B9B] px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#2D9B9B] hover:text-white transition-colors shadow-lg"
+                  className="bg-background text-primary border-2 border-primary px-8 py-3 rounded-lg text-lg font-medium hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg"
                 >
                   Log In
                 </button>
                 <button
                   onClick={onSignup}
-                  className="bg-[#2D9B9B] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#247a7a] transition-colors shadow-lg"
+                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg text-lg font-medium hover:opacity-90 transition-opacity shadow-lg"
                 >
                   Sign Up
                 </button>
@@ -50,7 +50,7 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
             ) : (
               <button
                 onClick={onNewProject}
-                className="bg-accent text-white px-8 py-3 rounded-lg hover:bg-accent-dark transition-colors"
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:opacity-90 transition-opacity"
               >
                 Create Your First Project
               </button>
@@ -62,10 +62,10 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
               <div
                 key={project.id}
                 onClick={() => onSelectProject(project)}
-                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
+                className="bg-card rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer border border-border"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-bold text-gray-900 flex-1">{project.name}</h3>
+                  <h3 className="text-xl font-bold text-foreground flex-1">{project.name}</h3>
                   <div className="flex gap-2">
                     {project.userGroup && (
                       <GroupBadge group={project.userGroup} />
@@ -75,10 +75,10 @@ export default function Home({ projects, onNewProject, onSelectProject, onLogin,
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">{project.clientType}</p>
+                <p className="text-sm text-muted-foreground mb-4">{project.clientType}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-accent font-medium">Active</span>
-                  <ChevronRight size={20} className="text-gray-400" />
+                  <span className="text-xs text-primary font-medium">Active</span>
+                  <ChevronRight size={20} className="text-muted-foreground" />
                 </div>
               </div>
             ))}

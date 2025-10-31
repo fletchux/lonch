@@ -10,12 +10,12 @@ export default function Header({ onNavigateSettings }) {
   const { currentUser } = useAuth();
 
   return (
-    <header className="w-full bg-white shadow-sm">
+    <header className="w-full bg-background border-b border-border shadow-sm">
       <div className="max-w-6xl mx-auto px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-2 items-start">
             <img src={lonchLogo} alt="Lonch" className="h-14" />
-            <p className="text-gray-600 text-sm font-medium">{TAGLINE}</p>
+            <p className="text-muted-foreground text-sm font-medium">{TAGLINE}</p>
           </div>
           {/* Notification Bell and User Profile */}
           {currentUser && (
