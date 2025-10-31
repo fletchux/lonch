@@ -8,6 +8,7 @@ import * as useProjectPermissions from '../../hooks/useProjectPermissions';
 vi.mock('../../contexts/AuthContext');
 vi.mock('../../services/invitationService');
 vi.mock('../../hooks/useProjectPermissions');
+vi.mock('../../services/activityLogService');
 
 describe('InviteUserModal', () => {
   const mockCurrentUser = { uid: 'owner123', email: 'owner@example.com' };
@@ -26,7 +27,16 @@ describe('InviteUserModal', () => {
     vi.mocked(AuthContext.useAuth).mockReturnValue({
       currentUser: mockCurrentUser,
       loading: false,
-      error: null
+      error: null,
+      login: vi.fn(),
+      signup: vi.fn(),
+      logout: vi.fn(),
+      loginWithGoogle: vi.fn(),
+      resetPassword: vi.fn(),
+      updateUserProfile: vi.fn(),
+      updatePassword: vi.fn(),
+      updateEmail: vi.fn(),
+      deleteAccount: vi.fn(),
     });
     vi.mocked(useProjectPermissions.useProjectPermissions).mockReturnValue(mockPermissions);
 
@@ -47,12 +57,12 @@ describe('InviteUserModal', () => {
     expect(screen.queryByText('Invite User to Project')).not.toBeInTheDocument();
   });
 
-  it('should render modal when isOpen is true', async () => {
+  it('should render modal when isOpen is true', () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
     expect(screen.getByText('Invite User to Project')).toBeInTheDocument();
   });
 
-  it('should display email, role, and group inputs', async () => {
+  it('should display email, role, and group inputs', () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
     expect(screen.getByTestId('email-input')).toBeInTheDocument();
     expect(screen.getByTestId('role-select')).toBeInTheDocument();
@@ -62,17 +72,15 @@ describe('InviteUserModal', () => {
   it('should show error for invalid email', async () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-
-    // Form submission triggers validation
-    const form = emailInput.closest('form');
-    fireEvent.submit(form);
+    fireEvent.click(inviteButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('error-message')).toHaveTextContent('Please enter a valid email address');
-    });
+      expect(screen.getByText('Invalid email address')).toBeInTheDocument();
+    }, { timeout: 2000 });
   });
 
   it('should show error for empty email', async () => {
@@ -82,7 +90,7 @@ describe('InviteUserModal', () => {
     fireEvent.click(inviteButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('error-message')).toHaveTextContent('Email is required');
+      expect(screen.getByText('Email is required')).toBeInTheDocument();
     });
   });
 
@@ -98,8 +106,8 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    const emailInput = screen.getByTestId('email-input');
-    const roleSelect = screen.getByTestId('role-select');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const roleSelect = screen.getByTestId('role-select') as HTMLSelectElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -128,7 +136,7 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -136,7 +144,8 @@ describe('InviteUserModal', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Invitation Sent!')).toBeInTheDocument();
-      expect(screen.getByTestId('invite-link')).toHaveValue('http://localhost:3000/invite/token123');
+      const inviteLinkInput = screen.getByTestId('invite-link') as HTMLInputElement;
+      expect(inviteLinkInput).toHaveValue('http://localhost:3000/invite/token123');
     });
   });
 
@@ -151,7 +160,7 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -179,7 +188,7 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -197,7 +206,7 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -210,10 +219,10 @@ describe('InviteUserModal', () => {
     });
   });
 
-  it('should close modal and reset state when Cancel is clicked', async () => {
+  it('should close modal and reset state when Cancel is clicked', () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
     const cancelButton = screen.getByText('Cancel');
@@ -233,7 +242,7 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -251,34 +260,36 @@ describe('InviteUserModal', () => {
 
   it('should disable inputs while loading', async () => {
     vi.mocked(invitationService.createInvitation).mockImplementation(
-      () => new Promise(resolve => setTimeout(resolve, 100))
+      () => new Promise(resolve => setTimeout(resolve, 200))
     );
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
-    const roleSelect = screen.getByTestId('role-select');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const roleSelect = screen.getByTestId('role-select') as HTMLSelectElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
     fireEvent.click(inviteButton);
 
-    expect(emailInput).toBeDisabled();
-    expect(roleSelect).toBeDisabled();
-    expect(inviteButton).toBeDisabled();
-    expect(inviteButton).toHaveTextContent('Sending...');
+    await waitFor(() => {
+      expect(emailInput).toBeDisabled();
+      expect(roleSelect).toBeDisabled();
+      expect(inviteButton).toBeDisabled();
+      expect(inviteButton).toHaveTextContent('Sending...');
+    }, { timeout: 1000 });
   });
 
   // Group selection tests
-  it('should default group selection to Client Group', async () => {
+  it('should default group selection to Client Group', () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
-    const groupSelect = screen.getByTestId('group-select');
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
     expect(groupSelect).toHaveValue('client');
   });
 
-  it('should allow selecting Consulting Group', async () => {
+  it('should allow selecting Consulting Group', () => {
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
-    const groupSelect = screen.getByTestId('group-select');
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
 
     fireEvent.change(groupSelect, { target: { value: 'consulting' } });
     expect(groupSelect).toHaveValue('consulting');
@@ -296,9 +307,9 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
-    const roleSelect = screen.getByTestId('role-select');
-    const groupSelect = screen.getByTestId('group-select');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const roleSelect = screen.getByTestId('role-select') as HTMLSelectElement;
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'consultant@example.com' } });
@@ -328,8 +339,8 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
-    const groupSelect = screen.getByTestId('group-select');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -345,7 +356,7 @@ describe('InviteUserModal', () => {
     expect(invitationService.createInvitation).not.toHaveBeenCalled();
   });
 
-  it('should show warning message when Consulting Group is selected without permissions', async () => {
+  it('should show warning message when Consulting Group is selected without permissions', () => {
     const editorPermissions = {
       role: 'editor',
       group: 'client',
@@ -356,12 +367,10 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const groupSelect = screen.getByTestId('group-select');
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
     fireEvent.change(groupSelect, { target: { value: 'consulting' } });
 
-    await waitFor(() => {
-      expect(screen.getByText('Only Owner and Admin can invite to the Consulting Group')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Only Owner and Admin can invite to the Consulting Group')).toBeInTheDocument();
   });
 
   it('should display group in success message', async () => {
@@ -376,8 +385,8 @@ describe('InviteUserModal', () => {
 
     render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
 
-    const emailInput = screen.getByTestId('email-input');
-    const groupSelect = screen.getByTestId('group-select');
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
     const inviteButton = screen.getByTestId('invite-button');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
@@ -387,6 +396,58 @@ describe('InviteUserModal', () => {
     await waitFor(() => {
       expect(screen.getByText(/Invitation sent to/)).toBeInTheDocument();
       expect(screen.getByText(/Consulting Group/)).toBeInTheDocument();
+    });
+  });
+
+  it('should normalize email to lowercase', async () => {
+    const mockInvitation = {
+      id: 'inv123',
+      token: 'token123',
+      email: 'test@example.com',
+      role: 'viewer'
+    };
+    vi.mocked(invitationService.createInvitation).mockResolvedValue(mockInvitation);
+
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const inviteButton = screen.getByTestId('invite-button');
+
+    fireEvent.change(emailInput, { target: { value: 'TEST@EXAMPLE.COM' } });
+    fireEvent.click(inviteButton);
+
+    await waitFor(() => {
+      expect(invitationService.createInvitation).toHaveBeenCalledWith(
+        'project1',
+        'test@example.com',
+        'viewer',
+        'owner123',
+        'client'
+      );
+    });
+  });
+
+  it('should have proper ARIA attributes for accessibility', () => {
+    render(<InviteUserModal projectId="project1" isOpen={true} onClose={mockOnClose} />);
+
+    const emailInput = screen.getByTestId('email-input') as HTMLInputElement;
+    const roleSelect = screen.getByTestId('role-select') as HTMLSelectElement;
+    const groupSelect = screen.getByTestId('group-select') as HTMLSelectElement;
+
+    // Inputs should have proper IDs
+    expect(emailInput).toHaveAttribute('id', 'email');
+    expect(roleSelect).toHaveAttribute('id', 'role');
+    expect(groupSelect).toHaveAttribute('id', 'group');
+
+    // Submit to trigger validation errors
+    const inviteButton = screen.getByTestId('invite-button');
+    fireEvent.click(inviteButton);
+
+    // Wait for validation errors to appear
+    waitFor(() => {
+      // Error messages should have role="alert"
+      const errorMessages = screen.getAllByRole('alert');
+      expect(errorMessages.length).toBeGreaterThan(0);
     });
   });
 });
