@@ -1,18 +1,62 @@
 import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { extractDataFromDocument } from '../../services/documentExtraction';
+import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
+import { extractDataFromDocument, ExtractionResult } from '../../services/documentExtraction';
 import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { getDefaultDocumentVisibility } from '../../utils/groupPermissions';
 
-export default function DocumentUpload({ projectId, onFilesSelected, onExtractionComplete, onExtractionStatusChange }) {
-  const permissions = useProjectPermissions(projectId);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState({});
-  const [extractionStatus, setExtractionStatus] = useState({});
-  const [errors, setErrors] = useState([]);
+// Type definitions
+interface FileMetadata {
+  file: File;
+  id: string;
+  category: string;
+  name: string;
+  size: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  visibility: string;
+}
+
+interface UploadProgress {
+  [fileId: string]: number;
+}
+
+interface ExtractionStatusDetail {
+  status: 'processing' | 'parsing' | 'completed' | 'failed';
+  progress: number;
+  data?: any;
+  error?: string;
+}
+
+interface ExtractionStatus {
+  [fileId: string]: ExtractionStatusDetail;
+}
+
+interface ProgressUpdate {
+  status: 'processing' | 'parsing';
+  progress: number;
+}
+
+interface DocumentUploadProps {
+  projectId?: string;
+  onFilesSelected?: (files: FileMetadata[]) => void;
+  onExtractionComplete?: (result: ExtractionResult) => void;
+  onExtractionStatusChange?: (isExtracting: boolean) => void;
+}
+
+export default function DocumentUpload({
+  projectId,
+  onFilesSelected,
+  onExtractionComplete,
+  onExtractionStatusChange
+}: DocumentUploadProps) {
+  const permissions = useProjectPermissions(projectId || '');
+  const [selectedFiles, setSelectedFiles] = useState<FileMetadata[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
+  const [extractionStatus, setExtractionStatus] = useState<ExtractionStatus>({});
+  const [errors, setErrors] = useState<string[]>([]);
 
   // Handle file drop or selection
-  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
     // Clear previous errors
     setErrors([]);
 
@@ -33,7 +77,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
       // Task 5.7: Set default visibility based on uploader's group
       const defaultVisibility = getDefaultDocumentVisibility(permissions.group);
 
-      const filesWithMetadata = acceptedFiles.map(file => ({
+      const filesWithMetadata: FileMetadata[] = acceptedFiles.map(file => ({
         file,
         id: `${file.name}-${Date.now()}`,
         category: 'other', // Default category
@@ -73,7 +117,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
   });
 
   // Extract specific files (used for auto-extraction)
-  const extractFiles = useCallback(async (filesToProcess) => {
+  const extractFiles = useCallback(async (filesToProcess: FileMetadata[]) => {
     // Notify parent that extraction is starting
     if (onExtractionStatusChange) {
       onExtractionStatusChange(true);
@@ -90,7 +134,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
 
       try {
         // Extract data using Claude AI
-        const result = await extractDataFromDocument(file, (progress) => {
+        const result = await extractDataFromDocument(file, (progress: ProgressUpdate) => {
           setExtractionStatus(prev => ({
             ...prev,
             [id]: { status: progress.status, progress: progress.progress }
@@ -117,7 +161,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
       } catch (error) {
         setExtractionStatus(prev => ({
             ...prev,
-            [id]: { status: 'failed', progress: 0, error: error.message }
+            [id]: { status: 'failed', progress: 0, error: (error as Error).message }
           }));
       }
     }
@@ -135,7 +179,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
   }, [selectedFiles, extractFiles]);
 
   // Remove file from selection
-  const removeFile = (fileId) => {
+  const removeFile = (fileId: string): void => {
     setSelectedFiles(prev => prev.filter(f => f.id !== fileId));
     setUploadProgress(prev => {
       const newProgress = { ...prev };
@@ -150,7 +194,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
   };
 
   // Update category for a file
-  const updateFileCategory = (fileId, category) => {
+  const updateFileCategory = (fileId: string, category: string): void => {
     setSelectedFiles(prev => {
       const updated = prev.map(f => f.id === fileId ? { ...f, category } : f);
 
@@ -164,7 +208,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
   };
 
   // Format file size
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -175,7 +219,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           Upload your project contracts, specifications, and related documents.
           We'll extract key information to help pre-fill your project details.
         </p>
@@ -187,7 +231,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragActive
             ? 'border-primary bg-primary/10'
-            : 'border-gray-300 hover:border-primary/50 hover:bg-gray-50'
+            : 'border-input hover:border-primary/50 hover:bg-accent'
         }`}
       >
         <input {...getInputProps()} />
@@ -195,7 +239,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
         <div className="flex flex-col items-center space-y-3">
           {/* Upload Icon */}
           <svg
-            className="w-12 h-12 text-gray-400"
+            className="w-12 h-12 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -212,20 +256,20 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
             <p className="text-lg font-medium text-primary">Drop files here...</p>
           ) : (
             <>
-              <p className="text-lg font-medium text-gray-900">
+              <p className="text-lg font-medium text-foreground">
                 Drag and drop files here
               </p>
-              <p className="text-sm text-gray-500">or</p>
+              <p className="text-sm text-muted-foreground">or</p>
               <button
                 type="button"
-                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors"
+                className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors"
               >
                 Choose Files
               </button>
             </>
           )}
 
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Supported formats: PDF, DOCX, TXT
           </p>
         </div>
@@ -233,11 +277,11 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
 
       {/* Error Messages */}
       {errors.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h4 className="text-sm font-semibold text-red-800 mb-2">Upload Errors:</h4>
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <h4 className="text-sm font-semibold text-destructive mb-2">Upload Errors:</h4>
           <ul className="list-disc list-inside space-y-1">
             {errors.map((error, index) => (
-              <li key={index} className="text-sm text-red-700">{error}</li>
+              <li key={index} className="text-sm text-destructive">{error}</li>
             ))}
           </ul>
         </div>
@@ -247,10 +291,10 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
       {selectedFiles.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-900">Selected Files ({selectedFiles.length})</h4>
+            <h4 className="font-medium text-foreground">Selected Files ({selectedFiles.length})</h4>
             <button
               onClick={startExtraction}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
             >
               Extract Data with AI
             </button>
@@ -259,14 +303,14 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
           {selectedFiles.map((fileData) => (
             <div
               key={fileData.id}
-              className="border border-gray-200 rounded-lg p-4 bg-white"
+              className="border border-border rounded-lg p-4 bg-card"
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-3">
                     {/* File Icon */}
                     <svg
-                      className="w-8 h-8 text-gray-400 flex-shrink-0"
+                      className="w-8 h-8 text-muted-foreground flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -278,10 +322,10 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
                     </svg>
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {fileData.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {formatFileSize(fileData.size)}
                       </p>
                     </div>
@@ -290,11 +334,11 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
                   {/* Upload Progress */}
                   {uploadProgress[fileData.id] !== undefined && (
                     <div className="mt-3">
-                      <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                         <span>Uploading...</span>
                         <span>{Math.round(uploadProgress[fileData.id])}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div
                           className="bg-primary h-2 rounded-full transition-all"
                           style={{ width: `${uploadProgress[fileData.id]}%` }}
@@ -316,7 +360,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className={`font-medium ${
                           extractionStatus[fileData.id].status === 'completed' ? 'text-green-600' :
-                          extractionStatus[fileData.id].status === 'failed' ? 'text-red-600' :
+                          extractionStatus[fileData.id].status === 'failed' ? 'text-destructive' :
                           'text-blue-600'
                         }`}>
                           {extractionStatus[fileData.id].status === 'completed' && '✓ Extraction Complete'}
@@ -325,11 +369,11 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
                           {extractionStatus[fileData.id].status === 'parsing' && '⟳ Parsing document...'}
                         </span>
                         {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
-                          <span className="text-gray-600">{Math.round(extractionStatus[fileData.id].progress)}%</span>
+                          <span className="text-muted-foreground">{Math.round(extractionStatus[fileData.id].progress)}%</span>
                         )}
                       </div>
                       {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-muted rounded-full h-2">
                           <div
                             className="bg-blue-500 h-2 rounded-full transition-all"
                             style={{ width: `${extractionStatus[fileData.id].progress}%` }}
@@ -337,23 +381,23 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
                         </div>
                       )}
                       {extractionStatus[fileData.id].error && (
-                        <p className="text-xs text-red-600 mt-1">{extractionStatus[fileData.id].error}</p>
+                        <p className="text-xs text-destructive mt-1">{extractionStatus[fileData.id].error}</p>
                       )}
                     </div>
                   )}
 
                   {/* Category Selection */}
                   <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-foreground mb-1">
                       Category
                     </label>
                     <select
                       value={fileData.category}
                       onChange={(e) => updateFileCategory(fileData.id, e.target.value)}
                       disabled={extractionStatus[fileData.id] && extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed'}
-                      className={`w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      className={`w-full px-3 py-1.5 text-sm border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent ${
                         extractionStatus[fileData.id] && extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed'
-                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                          ? 'opacity-50 cursor-not-allowed'
                           : ''
                       }`}
                     >
@@ -367,7 +411,7 @@ export default function DocumentUpload({ projectId, onFilesSelected, onExtractio
                 {/* Remove Button */}
                 <button
                   onClick={() => removeFile(fileData.id)}
-                  className="ml-4 p-1 text-gray-400 hover:text-red-600 transition-colors"
+                  className="ml-4 p-1 text-muted-foreground hover:text-destructive transition-colors"
                   aria-label="Remove file"
                 >
                   <svg

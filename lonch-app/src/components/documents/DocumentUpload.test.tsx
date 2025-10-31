@@ -28,7 +28,7 @@ describe('DocumentUpload Component', () => {
       <DocumentUpload
         projectId={mockProjectId}
         onFilesSelected={mockOnFilesSelected}
-        onUploadComplete={mockOnUploadComplete}
+        onExtractionComplete={mockOnUploadComplete}
       />
     );
 
@@ -55,7 +55,7 @@ describe('DocumentUpload Component', () => {
     );
 
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -80,7 +80,7 @@ describe('DocumentUpload Component', () => {
     const file = new File(['test content'], 'test.docx', {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -93,7 +93,7 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} onFilesSelected={mockOnFilesSelected} />);
 
     const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -105,7 +105,7 @@ describe('DocumentUpload Component', () => {
   it('should have correct file input attributes', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     expect(input).toHaveAttribute('accept');
     expect(input).toHaveAttribute('multiple');
     expect(input.accept).toContain('application/pdf');
@@ -123,7 +123,7 @@ describe('DocumentUpload Component', () => {
       }),
       new File(['content3'], 'file3.txt', { type: 'text/plain' })
     ];
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, files);
 
@@ -139,7 +139,7 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
     const file = new File(['x'.repeat(1024)], 'test.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -152,7 +152,7 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
     const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -160,7 +160,7 @@ describe('DocumentUpload Component', () => {
       expect(screen.getByText('contract.pdf')).toBeInTheDocument();
     });
 
-    const categorySelect = screen.getByRole('combobox');
+    const categorySelect = screen.getByRole('combobox') as HTMLSelectElement;
     expect(categorySelect.value).toBe('other');
 
     await userEvent.selectOptions(categorySelect, 'contract');
@@ -172,7 +172,7 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -192,12 +192,12 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
     await waitFor(() => {
-      const select = screen.getByRole('combobox');
+      const select = screen.getByRole('combobox') as HTMLSelectElement;
       expect(select).toBeInTheDocument();
 
       const options = Array.from(select.options).map(opt => opt.value);
@@ -215,7 +215,7 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     // Should not throw error
     await userEvent.upload(input, file);
@@ -235,7 +235,7 @@ describe('DocumentUpload Component', () => {
     render(<DocumentUpload projectId={mockProjectId} />);
 
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-    const input = document.querySelector('input[type="file"]');
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
 
     await userEvent.upload(input, file);
 
@@ -244,7 +244,7 @@ describe('DocumentUpload Component', () => {
     });
 
     // Progress bar structure exists (even if not actively showing progress yet)
-    const fileCard = screen.getByText('test.pdf').closest('div').closest('div').closest('div');
+    const fileCard = screen.getByText('test.pdf').closest('div')?.closest('div')?.closest('div');
     expect(fileCard).toBeInTheDocument();
   });
 });
