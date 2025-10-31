@@ -131,7 +131,73 @@ When `/lonchit` is triggered, Claude will execute the following steps:
 - [ ] Confirm push succeeded
 - [ ] Provide branch URL for reference
 
-### 10. Summary Report
+### 10. Update Session State
+
+Create or update `.claude/SESSION_STATE.md` with session summary:
+
+```markdown
+# Last Session: [Current Date]
+
+## What We Worked On
+- Feature/Bug: [Name] (Issue #XX)
+- Branch: [branch-name]
+- Completed: [What was finished]
+- Status: [Ready for PR / Needs more work / Blocked]
+
+## Changes Made
+- [List of files modified with brief description]
+- [Key implementation details]
+
+## Testing
+- Tests added: [Number] tests
+- Coverage: [Percentage]
+- Manual testing: [What was tested]
+
+## Blockers/Notes
+- [Any decisions pending]
+- [Technical debt created]
+- [Things to remember for next session]
+
+## Next Steps
+- [What should happen next]
+- [Follow-up tasks]
+- [Reminders]
+```
+
+Example:
+```markdown
+# Last Session: 2025-10-30
+
+## What We Worked On
+- Feature: Notification Preferences (Issue #50)
+- Branch: feature/50-notification-preferences
+- Completed: Tasks 1.1-1.4 (UI components and API integration)
+- Status: Ready for testing and PR
+
+## Changes Made
+- src/components/NotificationPrefs.jsx: User preference UI with toggles
+- src/services/notificationService.js: API integration with Firebase
+- src/hooks/useNotifications.js: Custom hook for notification state
+- tests/: 12 new unit tests, 3 integration tests
+
+## Testing
+- Tests added: 15 tests (12 unit, 3 integration)
+- Coverage: 92% on new code
+- Manual testing: Tested in browser with dev Firebase instance
+
+## Blockers/Notes
+- Need to decide: SendGrid vs AWS SES for email delivery
+- TODO: Test with production Firebase before PR
+- Note: Consider adding rate limiting for notifications
+
+## Next Steps
+- Manual testing with production Firebase
+- Create PR to main
+- Update documentation with notification setup
+- Consider adding notification analytics (future enhancement)
+```
+
+### 11. Summary Report
 
 Generate a summary including:
 - **Branch:** Name of the branch
@@ -143,6 +209,7 @@ Generate a summary including:
 - **Bugs Fixed:** Bullet points
 - **Breaking Changes:** Any breaking changes or migration notes
 - **Next Steps:** Create PR, merge to main, deploy, etc.
+- **Session State:** Confirm SESSION_STATE.md was updated
 
 ## Example Output
 

@@ -205,6 +205,33 @@ export async function getUserInvitations(email) {
 }
 
 /**
+ * Get all pending invitations for a project
+ * @param {string} projectId - Project ID
+ * @returns {Promise<Array>} Array of pending invitation documents
+ */
+export async function getProjectPendingInvitations(projectId) {
+  try {
+    const invitationsRef = collection(db, 'invitations');
+    const q = query(
+      invitationsRef,
+      where('projectId', '==', projectId),
+      where('status', '==', 'pending')
+    );
+    const querySnapshot = await getDocs(q);
+
+    const invitations = [];
+    querySnapshot.forEach((doc) => {
+      invitations.push(doc.data());
+    });
+
+    return invitations;
+  } catch (error) {
+    console.error('Error getting project pending invitations:', error);
+    throw new Error(`Failed to get project pending invitations: ${error.message}`);
+  }
+}
+
+/**
  * Accept an invitation and add user to project
  * @param {string} token - Invitation token
  * @param {string} userId - User ID accepting the invitation

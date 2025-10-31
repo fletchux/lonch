@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getInviteLink, acceptInviteLink } from '../../services/inviteLinkService';
+import { getInvitation, acceptInvitation } from '../../services/invitationService';
 import { getProject } from '../../services/projectService';
 import { getUser } from '../../services/userService';
 import RoleBadge from '../shared/RoleBadge';
@@ -27,8 +28,16 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
       setLoading(true);
       setError(null);
 
-      // Fetch link details
-      const linkData = await getInviteLink(token);
+      // Bug #16 fix: Handle both shareable link tokens and email invitation tokens
+      // Shareable links start with "link_", email invitations start with "inv_"
+      let linkData;
+      if (token.startsWith('inv_')) {
+        // Email invitation token - look in invitations collection
+        linkData = await getInvitation(token);
+      } else {
+        // Shareable link token - look in inviteLinks collection
+        linkData = await getInviteLink(token);
+      }
 
       if (!linkData) {
         setError('Invite link not found. It may have been deleted or is invalid.');
@@ -48,12 +57,16 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
       }
 
       // Fetch creator details
-      try {
-        const creatorData = await getUser(linkData.createdBy);
-        setCreator(creatorData);
-      } catch (err) {
-        console.error('Error fetching creator:', err);
-        // Continue even if creator fetch fails
+      // Bug #16 fix: Email invitations use 'invitedBy', shareable links use 'createdBy'
+      const creatorId = linkData.invitedBy || linkData.createdBy;
+      if (creatorId) {
+        try {
+          const creatorData = await getUser(creatorId);
+          setCreator(creatorData);
+        } catch (err) {
+          console.error('Error fetching creator:', err);
+          // Continue even if creator fetch fails
+        }
       }
 
       setLoading(false);
@@ -77,14 +90,21 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
       setAccepting(true);
       setError(null);
 
-      await acceptInviteLink(token, currentUser.uid);
+      // Bug #16 fix: Use correct acceptance method based on token type
+      if (token.startsWith('inv_')) {
+        // Email invitation - use invitation service
+        await acceptInvitation(token, currentUser.uid);
+      } else {
+        // Shareable link - use invite link service
+        await acceptInviteLink(token, currentUser.uid);
+      }
 
       // Notify parent component
       if (onAccepted) {
         onAccepted(link.projectId);
       }
     } catch (err) {
-      console.error('Error accepting invite link:', err);
+      console.error('Error accepting invite:', err);
       setError(err.message || 'Failed to accept invitation');
       setAccepting(false);
     }
@@ -182,10 +202,12 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
 
   // Show link status errors
   const linkExpired = isLinkExpired();
-  const linkUsed = link.status === 'used';
-  const linkRevoked = link.status === 'revoked';
+  // Bug #16 fix: Handle both status types - email invitations use 'pending'/'accepted', shareable links use 'active'/'used'
+  const linkUsed = link.status === 'used' || link.status === 'accepted';
+  const linkRevoked = link.status === 'revoked' || link.status === 'cancelled';
+  const linkInvalid = link.status === 'declined';
 
-  if (linkExpired || linkUsed || linkRevoked) {
+  if (linkExpired || linkUsed || linkRevoked || linkInvalid) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
@@ -193,14 +215,16 @@ export default function AcceptInviteLinkPage({ token, onAccepted, onNavigateToLo
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
             <p className="text-yellow-800 font-medium mb-2">
-              {linkExpired && 'This invite link has expired'}
-              {linkUsed && 'This invite link has already been used'}
-              {linkRevoked && 'This invite link has been revoked'}
+              {linkExpired && 'This invite has expired'}
+              {linkUsed && 'This invite has already been used'}
+              {linkRevoked && 'This invite has been revoked'}
+              {linkInvalid && 'This invite has been declined'}
             </p>
             <p className="text-yellow-700 text-sm">
               {linkExpired && `This link expired on ${formatExpirationDate(link.expiresAt)}`}
               {linkUsed && 'Someone has already accepted this invitation'}
               {linkRevoked && 'The link creator has revoked this invitation'}
+              {linkInvalid && 'This invitation was declined'}
             </p>
           </div>
 

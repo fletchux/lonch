@@ -184,7 +184,7 @@ describe('AcceptInviteLinkPage', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('This invite link has expired')).toBeInTheDocument();
+        expect(screen.getByText('This invite has expired')).toBeInTheDocument();
       });
     });
   });
@@ -205,7 +205,7 @@ describe('AcceptInviteLinkPage', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('This invite link has already been used')).toBeInTheDocument();
+        expect(screen.getByText('This invite has already been used')).toBeInTheDocument();
       });
     });
   });
@@ -226,7 +226,7 @@ describe('AcceptInviteLinkPage', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('This invite link has been revoked')).toBeInTheDocument();
+        expect(screen.getByText('This invite has been revoked')).toBeInTheDocument();
       });
     });
   });

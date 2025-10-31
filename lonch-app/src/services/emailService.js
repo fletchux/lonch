@@ -44,7 +44,7 @@ const DEFAULT_TEMPLATES = {
     subject: INVITATION_SUBJECT_TEMPLATE,
     html: INVITATION_HTML_TEMPLATE,
     text: INVITATION_TEXT_TEMPLATE,
-    variables: ['inviterName', 'projectName', 'role', 'group', 'acceptUrl', 'expiresAt', 'preferencesUrl']
+    variables: ['email', 'inviterName', 'projectName', 'role', 'group', 'acceptUrl', 'expiresAt', 'preferencesUrl']
   }
 };
 
@@ -191,6 +191,7 @@ export async function sendInvitationEmail(invitation, inviterName, projectName) 
 
     // Build template variables
     const variables = {
+      email: invitation.email,
       inviterName,
       projectName,
       role: invitation.role.charAt(0).toUpperCase() + invitation.role.slice(1), // Capitalize
@@ -228,6 +229,7 @@ export async function sendInvitationEmail(invitation, inviterName, projectName) 
 export async function sendTestEmail(recipientEmail, templateId = 'invitation') {
   try {
     const testVariables = {
+      email: recipientEmail,
       inviterName: 'Test User',
       projectName: 'Test Project',
       role: 'Editor',
