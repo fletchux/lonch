@@ -1,0 +1,135 @@
+Hi Claude! I'm a new developer on the Lonch project and need you to get fully set up with all context and capabilities.
+
+Please execute the following setup sequence:
+
+## 1. Load Project Context
+
+Navigate to the Lonch project and load all critical context files:
+
+cd /Users/cfletcher/Documents/lonch-project/lonch/lonch-app
+
+Read these files in parallel to understand the project:
+- .claude/lonch-preferences.md - Project configuration and preferences
+- .claude/session-startup.md - Session initialization workflow
+- .claude/commands/README.md - Slash command reference
+- .claude/commands/shazam.md - Feature automation workflow
+- .claude/commands/lonchit.md - Wrap-up and ship workflow
+- .claude/fixit-workflow.md - Bug fixing workflow
+- .github/GETTING_STARTED.md - Complete development workflow
+- README.md (first 100 lines) - Project overview
+- CHANGELOG.md (first 50 lines) - Recent changes
+- package.json - Dependencies and scripts
+- CLAUDE.md - AI-specific instructions
+
+## 2. Understand Git State
+
+Check the current git status and remind me about branch requirements:
+
+git branch --show-current
+git status
+git log --oneline -5
+
+**Critical:** Work should NEVER be done directly on main. All work requires a new branch first.
+
+## 3. Check Available Workflows
+
+List the available slash commands and workflows:
+
+ls -la .claude/commands/
+ls -la .claude/workflows/
+
+## 4. Verify Tools & Authentication
+
+Check that essential tools are set up:
+
+node --version
+npm --version
+gh auth status
+git remote -v
+
+## 5. Understand Active Work
+
+Check for any in-progress work in specs/ and calculate progress if found:
+
+ls -la specs/tasks-*.md
+
+## 6. Check Development Environment
+
+Verify the dev environment and check for background processes:
+
+ls -la node_modules > /dev/null 2>&1 && echo "Dependencies installed" || echo "Need to run: npm install"
+/bashes
+
+## 7. Load Notion Integration (if available)
+
+Check if Notion MCP is configured and test connection.
+
+## 8. Present Session Menu
+
+After loading all context, present me with the intelligent session startup menu showing:
+
+**Current Context:**
+- Working directory
+- Current git branch
+- Git status (clean/dirty)
+- Active tasks (if any)
+- Recent commits
+
+**Available Workflows:**
+1. 🚀 Start new feature (/shazam)
+2. 🔄 Resume existing work (/resume)
+3. 🔧 Fix a bug (fixit)
+4. 📋 Review PRDs/Specs
+5. ✅ Quick commit & push
+6. 🎨 Other
+
+## 9. Confirm Capabilities
+
+Confirm you understand:
+
+**Project Specifics:**
+- Tech stack: React 19, Vite, Tailwind CSS v3.4, Vitest, Firebase
+- Brand colors: Primary teal (#2D9B9B), Accent gold (#DBA507)
+- Brand name: always lowercase "lonch" in user-facing text
+- Dev server: npm run dev → http://localhost:5173/
+
+**Quality Requirements:**
+- Before committing: tests pass, eslint clean, build succeeds
+- Test coverage >80% for new code
+- TDD approach (write tests first)
+- Update CHANGELOG.md with all changes
+- Include Claude co-author tag in commits
+
+**Workflows Available:**
+- /shazam - Complete feature setup (PRD → Tasks → Issue → Branch)
+- /resume - Load context and continue work
+- /lonchit - Wrap up and ship (quality checks, commit, push)
+- /create-prd - Create PRD only
+- /generate-tasks - Generate tasks from PRD
+- /process-task-list - Implement tasks with TDD
+- fixit - Bug fixing workflow
+
+**Git Workflow:**
+- NEVER work on main branch directly
+- Always create branch: bug/XX-desc, feature/XX-name, or improve/desc
+- Use GitHub CLI for issues and PRs
+- Reference issue numbers in commits (#XX)
+- Keep only ONE dev server running
+
+**File Structure:**
+- /specs/ - PRDs and task lists
+- /bugs/ - Bug reports
+- /src/ - Source code
+- /.claude/ - Claude Code configuration
+- /.github/ - GitHub workflows and documentation
+
+**Communication Style:**
+- Concise, direct answers
+- Explain technical decisions when asked
+- Proactive but ask before major changes
+- Run tools in parallel when possible
+- Use TodoWrite tool for multi-step tasks
+
+## 10. Ask for Direction
+
+After confirming all of the above, ask me: "What would you like to work on today?" and wait for my response to select from the session menu.

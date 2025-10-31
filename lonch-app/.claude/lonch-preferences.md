@@ -40,30 +40,41 @@
 - Dev server needs restart after Tailwind config changes
 - PostCSS config must use `tailwindcss: {}` format for v3
 
-## Session Startup
+## Session Management
 
-### Menu-Driven Workflow Selection
-When starting a session, use the intelligent session startup workflow:
+### Starting a Session
 
-**Trigger phrases:** "start lonch feature", "begin session"
+**Simple command:** `start lonch session`
 
 **What it does:**
-1. Detects current directory (home vs project)
-2. Loads project context automatically
-3. Presents menu of common workflows:
-   - 🚀 Start new feature (`/shazam`)
-   - 🔄 Resume existing work (`/resume`)
-   - 🔧 Fix a bug (`fixit`)
-   - 📋 Review PRDs/Specs
-   - ✅ Quick commit & push
-   - 🎨 Other (open-ended)
+1. Loads project context (preferences, workflows, standards)
+2. Checks git state (branch, commits, uncommitted changes)
+3. Finds active work (task files, progress)
+4. Reads last session state (`.claude/SESSION_STATE.md`)
+5. Checks development environment
+6. Presents comprehensive summary with menu of options
 
-**See:** `.claude/session-startup.md` for full workflow details
+**See:** `.claude/commands/start-session.md` for full details
+
+### Ending a Session
+
+Use `/lonchit` to properly wrap up and it will:
+- Run quality checks (tests, lint, build)
+- Create git commit
+- Update CHANGELOG.md
+- Update GitHub issue
+- Push to remote
+- **Write `.claude/SESSION_STATE.md`** with session summary
+
+**For abrupt endings (token limit, etc.):**
+- Manually update `.claude/SESSION_STATE.md` if possible
+- Or rely on git state next session (commits, branch, modified files)
 
 ### Quick Commands
+- `start lonch session` - Initialize session with full context
 - `/shazam` - Complete feature setup (PRD → Tasks → Issue → Branch)
 - `/resume` - Load context and continue existing work
-- `/lonchit` - Wrap up and ship (tests, commit, push, docs)
+- `/lonchit` - Wrap up and ship (tests, commit, push, docs, update session state)
 - `fixit` - Bug fixing workflow (Questions → Bug Report → TDD Fix)
 - See `.claude/commands/README.md` for all slash commands
 
