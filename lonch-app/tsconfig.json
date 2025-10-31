@@ -54,8 +54,5 @@
     "dist",
     "build",
     "coverage"
-  ],
-  "references": [
-    { "path": "./tsconfig.node.json" }
   ]
 }
