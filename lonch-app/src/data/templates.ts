@@ -1,4 +1,35 @@
-export const templates = {
+export interface IntakeTemplate {
+  id: string;
+  name: string;
+  fields: string[];
+}
+
+export interface ChecklistTemplate {
+  id: string;
+  name: string;
+  items: string[];
+}
+
+export interface StakeholderTemplate {
+  id: string;
+  name: string;
+  roles: string[];
+}
+
+export interface TeamTemplate {
+  id: string;
+  name: string;
+  roles: string[];
+}
+
+export interface Templates {
+  intake: IntakeTemplate[];
+  checklist: ChecklistTemplate[];
+  stakeholder: StakeholderTemplate[];
+  team: TeamTemplate[];
+}
+
+export const templates: Templates = {
   intake: [
     {
       id: 'tech-startup',
