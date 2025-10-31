@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { getUserNotificationPreferences, updateNotificationPreferences } from '../../services/notificationService';
 import { useAuth } from '../../contexts/AuthContext';
+
+interface NotificationPrefs {
+  inAppNotifications: boolean;
+  emailNotifications: boolean;
+  notifyOnInvitation: boolean;
+  notifyOnRoleChange: boolean;
+  notifyOnGroupChange: boolean;
+  notifyOnMention: boolean;
+  [key: string]: boolean;
+}
 
 /**
  * NotificationPreferences Component
@@ -11,11 +20,11 @@ import { useAuth } from '../../contexts/AuthContext';
  */
 export default function NotificationPreferences() {
   const { currentUser } = useAuth();
-  const [preferences, setPreferences] = useState(null);
+  const [preferences, setPreferences] = useState<NotificationPrefs | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPreferences();
@@ -32,7 +41,7 @@ export default function NotificationPreferences() {
       setPreferences(prefs);
     } catch (err) {
       console.error('Error fetching notification preferences:', err);
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -52,17 +61,17 @@ export default function NotificationPreferences() {
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error('Error saving notification preferences:', err);
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setSaving(false);
     }
   }
 
-  function handleToggle(field) {
-    setPreferences(prev => ({
+  function handleToggle(field: keyof NotificationPrefs) {
+    setPreferences(prev => prev ? ({
       ...prev,
       [field]: !prev[field]
-    }));
+    }) : null);
   }
 
   if (loading) {
@@ -248,5 +257,3 @@ export default function NotificationPreferences() {
     </div>
   );
 }
-
-NotificationPreferences.propTypes = {};
