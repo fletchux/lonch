@@ -8,10 +8,12 @@ export const ROLES = {
   ADMIN: 'admin',
   EDITOR: 'editor',
   VIEWER: 'viewer'
-};
+} as const;
+
+export type Role = typeof ROLES[keyof typeof ROLES];
 
 // Role hierarchy (higher index = more permissions)
-const ROLE_HIERARCHY = [
+const ROLE_HIERARCHY: Role[] = [
   ROLES.VIEWER,
   ROLES.EDITOR,
   ROLES.ADMIN,
@@ -20,12 +22,9 @@ const ROLE_HIERARCHY = [
 
 /**
  * Check if a role has at least the same level as a required role
- * @param {string} userRole - User's current role
- * @param {string} requiredRole - Minimum required role
- * @returns {boolean} True if user has sufficient permissions
  */
-function hasRoleLevel(userRole, requiredRole) {
-  const userLevel = ROLE_HIERARCHY.indexOf(userRole);
+function hasRoleLevel(userRole: string, requiredRole: Role): boolean {
+  const userLevel = ROLE_HIERARCHY.indexOf(userRole as Role);
   const requiredLevel = ROLE_HIERARCHY.indexOf(requiredRole);
   return userLevel >= requiredLevel;
 }
@@ -33,30 +32,24 @@ function hasRoleLevel(userRole, requiredRole) {
 /**
  * Check if user can edit project content
  * Owner, Admin, and Editor can edit; Viewer cannot
- * @param {string} userRole - User's role in the project
- * @returns {boolean} True if user can edit project
  */
-export function canEditProject(userRole) {
+export function canEditProject(userRole: string): boolean {
   return hasRoleLevel(userRole, ROLES.EDITOR);
 }
 
 /**
  * Check if user can manage project members
  * Only Owner and Admin can manage members
- * @param {string} userRole - User's role in the project
- * @returns {boolean} True if user can manage members
  */
-export function canManageMembers(userRole) {
+export function canManageMembers(userRole: string): boolean {
   return hasRoleLevel(userRole, ROLES.ADMIN);
 }
 
 /**
  * Check if user can delete the project
  * Only Owner can delete the project
- * @param {string} userRole - User's role in the project
- * @returns {boolean} True if user can delete project
  */
-export function canDeleteProject(userRole) {
+export function canDeleteProject(userRole: string): boolean {
   return userRole === ROLES.OWNER;
 }
 
@@ -64,11 +57,8 @@ export function canDeleteProject(userRole) {
  * Check if user can change another user's role
  * Owner can change any role
  * Admin can change roles below Admin (Editor, Viewer)
- * @param {string} userRole - Current user's role
- * @param {string} targetRole - Role being changed
- * @returns {boolean} True if user can change the target role
  */
-export function canChangeRole(userRole, targetRole) {
+export function canChangeRole(userRole: string, targetRole: string): boolean {
   if (userRole === ROLES.OWNER) {
     return true; // Owner can change any role
   }
@@ -85,13 +75,13 @@ export function canChangeRole(userRole, targetRole) {
  * Check if user can remove another user from the project
  * Owner can remove anyone except themselves
  * Admin can remove Editor and Viewer, but not Owner or Admin
- * @param {string} userRole - Current user's role
- * @param {string} targetRole - Role of user being removed
- * @param {string} userId - Current user's ID
- * @param {string} targetUserId - ID of user being removed
- * @returns {boolean} True if user can remove the target user
  */
-export function canRemoveMember(userRole, targetRole, userId, targetUserId) {
+export function canRemoveMember(
+  userRole: string,
+  targetRole: string,
+  userId: string,
+  targetUserId: string
+): boolean {
   // Cannot remove yourself
   if (userId === targetUserId) {
     return false;
@@ -112,31 +102,25 @@ export function canRemoveMember(userRole, targetRole, userId, targetUserId) {
 /**
  * Check if user can invite new members
  * Owner and Admin can invite new members
- * @param {string} userRole - User's role in the project
- * @returns {boolean} True if user can invite members
  */
-export function canInviteMembers(userRole) {
+export function canInviteMembers(userRole: string): boolean {
   return hasRoleLevel(userRole, ROLES.ADMIN);
 }
 
 /**
  * Check if user can view project activity log
  * All roles can view activity log
- * @param {string} userRole - User's role in the project
- * @returns {boolean} True if user can view activity log
  */
-export function canViewActivityLog(userRole) {
-  return Object.values(ROLES).includes(userRole);
+export function canViewActivityLog(userRole: string): boolean {
+  return Object.values(ROLES).includes(userRole as Role);
 }
 
 /**
  * Get all available roles that a user can assign
  * Owner can assign any role
  * Admin can assign Editor and Viewer roles
- * @param {string} userRole - Current user's role
- * @returns {string[]} Array of roles that can be assigned
  */
-export function getAssignableRoles(userRole) {
+export function getAssignableRoles(userRole: string): Role[] {
   if (userRole === ROLES.OWNER) {
     return [ROLES.OWNER, ROLES.ADMIN, ROLES.EDITOR, ROLES.VIEWER];
   }
@@ -150,11 +134,9 @@ export function getAssignableRoles(userRole) {
 
 /**
  * Get human-readable role display name
- * @param {string} role - Role constant
- * @returns {string} Display name for the role
  */
-export function getRoleDisplayName(role) {
-  const displayNames = {
+export function getRoleDisplayName(role: string): string {
+  const displayNames: Record<string, string> = {
     [ROLES.OWNER]: 'Owner',
     [ROLES.ADMIN]: 'Admin',
     [ROLES.EDITOR]: 'Editor',
@@ -166,11 +148,9 @@ export function getRoleDisplayName(role) {
 
 /**
  * Get role color for UI display
- * @param {string} role - Role constant
- * @returns {string} Tailwind color class
  */
-export function getRoleColor(role) {
-  const colors = {
+export function getRoleColor(role: string): string {
+  const colors: Record<string, string> = {
     [ROLES.OWNER]: 'teal', // Teal for owner (matches lonch branding)
     [ROLES.ADMIN]: 'yellow', // Gold for admin (matches lonch accent)
     [ROLES.EDITOR]: 'blue', // Blue for editor

@@ -15,12 +15,22 @@
  * - {{preferencesUrl}} - URL to notification preferences page
  */
 
+export interface TemplateVariables {
+  email?: string;
+  inviterName?: string;
+  projectName?: string;
+  role?: string;
+  group?: string;
+  acceptUrl?: string;
+  expiresAt?: string;
+  preferencesUrl?: string;
+  [key: string]: string | undefined;
+}
+
 /**
  * Format a date as human-readable string
- * @param {Date|string} date - Date to format
- * @returns {string} Formatted date (e.g., "October 28, 2025")
  */
-export function formatExpirationDate(date) {
+export function formatExpirationDate(date: Date | string): string {
   const dateObj = date instanceof Date ? date : new Date(date);
   return dateObj.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -31,11 +41,8 @@ export function formatExpirationDate(date) {
 
 /**
  * Replace template variables with actual values
- * @param {string} template - Template string with {{variable}} placeholders
- * @param {Object} variables - Key-value pairs for replacement
- * @returns {string} Template with variables replaced
  */
-export function renderTemplate(template, variables) {
+export function renderTemplate(template: string, variables: TemplateVariables): string {
   let result = template;
 
   // First, replace all known variables
@@ -136,7 +143,7 @@ export const INVITATION_HTML_TEMPLATE = `
 
         <!-- Footer note -->
         <p style="margin: 20px 0 0 0; color: #a0aec0; font-size: 12px; text-align: center; line-height: 1.5;">
-          Â© 2025 lonch. All rights reserved.
+          © 2025 lonch. All rights reserved.
         </p>
       </td>
     </tr>
@@ -169,7 +176,7 @@ If you didn't expect this invitation, you can safely ignore this email.
 
 Manage notification preferences: {{preferencesUrl}}
 
-Â© 2025 lonch. All rights reserved.
+© 2025 lonch. All rights reserved.
 `;
 
 /**
