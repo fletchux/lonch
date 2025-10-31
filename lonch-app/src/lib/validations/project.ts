@@ -76,28 +76,3 @@ export const extractedDataSchema = z.record(z.unknown()).nullable();
  * Manually edited fields schema
  */
 export const manuallyEditedFieldsSchema = z.array(z.string()).default([]);
-
-/**
- * Role validation
- */
-export const roleSchema = z.enum(['owner', 'admin', 'editor', 'viewer'], {
-  errorMap: () => ({ message: 'Invalid role selected' }),
-});
-
-/**
- * Group validation
- */
-export const groupSchema = z.enum(['client', 'consulting'], {
-  errorMap: () => ({ message: 'Invalid group selected' }),
-});
-
-/**
- * Invite user form validation schema
- */
-export const inviteUserSchema = z.object({
-  email: emailSchema,
-  role: roleSchema,
-  group: groupSchema,
-});
-
-export type InviteUserFormData = z.infer<typeof inviteUserSchema>;

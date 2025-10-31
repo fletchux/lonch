@@ -7,7 +7,7 @@ import { useProjectPermissions } from '../../hooks/useProjectPermissions';
 import { getRoleDisplayName } from '../../utils/permissions';
 import { GROUP } from '../../utils/groupPermissions';
 import { logActivity } from '../../services/activityLogService';
-import { inviteUserSchema, type InviteUserFormData } from '@/lib/validations';
+import { inviteUserSchema, type InviteUserData } from '@/lib/validations';
 
 interface Invitation {
   id: string;
@@ -39,7 +39,7 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
     watch,
     reset,
     formState: { errors },
-  } = useForm<InviteUserFormData>({
+  } = useForm<InviteUserData>({
     resolver: zodResolver(inviteUserSchema),
     mode: 'onBlur',
     defaultValues: {
@@ -52,7 +52,7 @@ export default function InviteUserModal({ projectId, isOpen, onClose, onSuccess 
   const selectedGroup = watch('group');
 
   // Handle form submission
-  const handleInvite = async (data: InviteUserFormData) => {
+  const handleInvite = async (data: InviteUserData) => {
     // Validate group permissions (Task 3.3)
     // Only Owner/Admin can invite to Consulting Group
     if (data.group === GROUP.CONSULTING && !permissions.canMoveUserBetweenGroups()) {
