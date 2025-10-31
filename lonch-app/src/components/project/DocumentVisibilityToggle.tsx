@@ -1,5 +1,14 @@
-import PropTypes from 'prop-types';
 import { VISIBILITY } from '../../utils/groupPermissions';
+
+type VisibilityType = typeof VISIBILITY.CONSULTING_ONLY | typeof VISIBILITY.CLIENT_ONLY | typeof VISIBILITY.BOTH;
+type SizeType = 'sm' | 'md' | 'lg';
+
+interface DocumentVisibilityToggleProps {
+  visibility: VisibilityType;
+  onChange: (visibility: string) => void;
+  disabled?: boolean;
+  size?: SizeType;
+}
 
 /**
  * DocumentVisibilityToggle Component
@@ -12,14 +21,14 @@ export default function DocumentVisibilityToggle({
   onChange,
   disabled = false,
   size = 'md'
-}) {
-  const sizeClasses = {
+}: DocumentVisibilityToggleProps) {
+  const sizeClasses: Record<SizeType, string> = {
     sm: 'text-xs px-2 py-1',
     md: 'text-sm px-3 py-1.5',
     lg: 'text-base px-4 py-2'
   };
 
-  const getVisibilityColor = (vis) => {
+  const getVisibilityColor = (vis: VisibilityType): string => {
     switch (vis) {
       case VISIBILITY.CONSULTING_ONLY:
         return 'border-teal-300 bg-teal-50 text-teal-800';
@@ -65,14 +74,3 @@ export default function DocumentVisibilityToggle({
     </div>
   );
 }
-
-DocumentVisibilityToggle.propTypes = {
-  visibility: PropTypes.oneOf([
-    VISIBILITY.CONSULTING_ONLY,
-    VISIBILITY.CLIENT_ONLY,
-    VISIBILITY.BOTH
-  ]).isRequired,
-  onChange: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
-  size: PropTypes.oneOf(['sm', 'md', 'lg'])
-};

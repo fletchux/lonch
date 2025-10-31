@@ -1,14 +1,35 @@
 import { useState } from 'react';
 
+interface ExtractedFields {
+  [key: string]: string | string[] | number | null | undefined;
+}
+
+interface ExtractionLog {
+  id: string;
+  documentName?: string;
+  projectId?: string;
+  projectName?: string;
+  timestamp?: string | number | Date;
+  status?: 'success' | 'failed' | 'partial';
+  extractedFields?: ExtractedFields;
+  rawResponse?: string | object;
+  error?: string;
+}
+
+interface ExtractionLogsProps {
+  logs?: ExtractionLog[];
+  isAdmin?: boolean;
+}
+
 /**
  * ExtractionLogs Component
  * Admin interface for viewing and monitoring document extraction logs
  */
-export default function ExtractionLogs({ logs = [], isAdmin = false }) {
+export default function ExtractionLogs({ logs = [], isAdmin = false }: ExtractionLogsProps) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterProject, setFilterProject] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLog, setSelectedLog] = useState(null);
+  const [selectedLog, setSelectedLog] = useState<ExtractionLog | null>(null);
 
   // Don't render if user is not admin
   if (!isAdmin) {
@@ -50,7 +71,7 @@ export default function ExtractionLogs({ logs = [], isAdmin = false }) {
   const projectIds = [...new Set(logs.map(log => log.projectId).filter(Boolean))];
 
   // Format timestamp
-  const formatTimestamp = (timestamp) => {
+  const formatTimestamp = (timestamp?: string | number | Date): string => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp);
     return date.toLocaleString('en-US', {
@@ -63,7 +84,7 @@ export default function ExtractionLogs({ logs = [], isAdmin = false }) {
   };
 
   // Get status badge color
-  const getStatusColor = (status) => {
+  const getStatusColor = (status?: string): string => {
     switch (status) {
       case 'success':
         return 'bg-green-100 text-green-800';
@@ -77,7 +98,7 @@ export default function ExtractionLogs({ logs = [], isAdmin = false }) {
   };
 
   // Count extracted fields
-  const countExtractedFields = (extractedData) => {
+  const countExtractedFields = (extractedData?: ExtractedFields): number => {
     if (!extractedData) return 0;
     return Object.values(extractedData).filter(value =>
       value !== null && value !== undefined && value !== ''
