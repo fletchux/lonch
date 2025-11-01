@@ -70,6 +70,7 @@ function AppContent() {
   const [view, setView] = useState<View>('home');
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [step, setStep] = useState(1);
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const [projectData, setProjectData] = useState<ProjectData>({
@@ -99,6 +100,7 @@ function AppContent() {
   // Extracted as a separate function so it can be called after invite acceptance (Bug #14 fix)
   // Returns the fetched projects array to avoid race conditions with state updates (Bug #16 fix)
   const fetchProjects = useCallback(async (): Promise<Project[]> => {
+    setProjectsLoading(true);
     if (currentUser) {
       try {
         // Fetch projects where user is owner
@@ -127,14 +129,17 @@ function AppContent() {
         // Convert map to array
         const allProjects = Array.from(projectMap.values());
         setProjects(allProjects);
+        setProjectsLoading(false);
         return allProjects;
       } catch (error) {
         console.error('Error fetching projects:', error);
+        setProjectsLoading(false);
         return [];
       }
     } else {
       // Clear projects when user logs out
       setProjects([]);
+      setProjectsLoading(false);
       return [];
     }
   }, [currentUser]);
@@ -335,6 +340,7 @@ function AppContent() {
       {view === 'home' && (
         <Home
           projects={projects}
+          projectsLoading={projectsLoading}
           onNewProject={startNewProject}
           onSelectProject={selectProject}
           onLogin={() => setView('login')}

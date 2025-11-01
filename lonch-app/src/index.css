@@ -86,3 +86,27 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes gradient-swirl {
+    0% {
+      background-position: 0% 50%;
+    }
+    25% {
+      background-position: 25% 75%;
+    }
+    50% {
+      background-position: 50% 100%;
+    }
+    75% {
+      background-position: 75% 25%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .bg-gradient-radial {
+    background-image: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+  }
+}

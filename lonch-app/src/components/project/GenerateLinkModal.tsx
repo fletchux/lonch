@@ -111,14 +111,14 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-card border border-border rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-border">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Generate Shareable Invite Link</h2>
+            <h2 className="text-xl font-semibold text-foreground">Generate Shareable Invite Link</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Close modal"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,14 +134,14 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
             <>
               {/* Role Selection */}
               <div>
-                <label htmlFor="role-select" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="role-select" className="block text-sm font-medium text-foreground mb-2">
                   Role
                 </label>
                 <select
                   id="role-select"
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value as typeof ROLES[keyof typeof ROLES])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
                   data-testid="role-select"
                 >
                   {roles.map(role => (
@@ -154,14 +154,14 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
 
               {/* Group Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Group
                 </label>
                 <div className="space-y-2">
                   {groups.map(group => (
                     <label
                       key={group.value}
-                      className="flex items-center p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="flex items-center p-3 border border-border rounded-md cursor-pointer hover:bg-accent transition-colors"
                     >
                       <input
                         type="radio"
@@ -169,15 +169,15 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                         value={group.value}
                         checked={selectedGroup === group.value}
                         onChange={(e) => setSelectedGroup(e.target.value as typeof GROUP.CONSULTING | typeof GROUP.CLIENT)}
-                        className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                        className="w-4 h-4 text-primary focus:ring-primary"
                         data-testid={`group-radio-${group.value}`}
                       />
                       <div className="ml-3 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">{group.label}</span>
+                          <span className="text-sm font-medium text-foreground">{group.label}</span>
                           <GroupBadge group={group.value} />
                         </div>
-                        <span className="text-xs text-gray-500">{group.description}</span>
+                        <span className="text-xs text-muted-foreground">{group.description}</span>
                       </div>
                     </label>
                   ))}
@@ -185,9 +185,9 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
               </div>
 
               {/* Preview */}
-              <div className="bg-gray-50 rounded-md p-4 border border-gray-200">
-                <p className="text-sm font-medium text-gray-700 mb-2">Preview</p>
-                <p className="text-sm text-gray-600">
+              <div className="bg-muted/30 rounded-md p-4 border border-border">
+                <p className="text-sm font-medium text-foreground mb-2">Preview</p>
+                <p className="text-sm text-muted-foreground">
                   Recipients will join as{' '}
                   <span className="inline-flex items-center gap-1">
                     <RoleBadge role={selectedRole} size="sm" />
@@ -201,8 +201,8 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
             </>
@@ -210,12 +210,12 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
             <>
               {/* Generated Link Display */}
               <div className="space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-md p-3">
-                  <p className="text-sm text-green-700 font-medium">✓ Link generated successfully!</p>
+                <div className="bg-green-500/10 border border-green-500/20 rounded-md p-3">
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium">✓ Link generated successfully!</p>
                 </div>
 
                 <div>
-                  <label htmlFor="generated-link" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="generated-link" className="block text-sm font-medium text-foreground mb-2">
                     Shareable Link
                   </label>
                   <div className="flex gap-2">
@@ -224,7 +224,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                       type="text"
                       value={generatedLink.url}
                       readOnly
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+                      className="flex-1 px-3 py-2 border border-input rounded-md bg-muted/30 text-sm text-foreground"
                       data-testid="generated-link-input"
                     />
                     <button
@@ -237,29 +237,29 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-4 space-y-2">
-                  <p className="text-sm font-medium text-blue-900">Link Details</p>
-                  <div className="space-y-1 text-sm text-blue-700">
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-md p-4 space-y-2">
+                  <p className="text-sm font-medium text-foreground">Link Details</p>
+                  <div className="space-y-1 text-sm text-muted-foreground">
                     <p>
-                      <span className="font-medium">Role:</span>{' '}
+                      <span className="font-medium text-foreground">Role:</span>{' '}
                       <RoleBadge role={generatedLink.role} size="sm" />
                     </p>
                     <p>
-                      <span className="font-medium">Group:</span>{' '}
+                      <span className="font-medium text-foreground">Group:</span>{' '}
                       <GroupBadge group={generatedLink.group} />
                     </p>
                     <p>
-                      <span className="font-medium">Expires:</span>{' '}
+                      <span className="font-medium text-foreground">Expires:</span>{' '}
                       {formatExpirationDate(generatedLink.expiresAt)}
                     </p>
-                    <p className="text-xs text-blue-600 italic">
+                    <p className="text-xs italic">
                       This link will expire in 7 days
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                  <p className="text-xs text-yellow-700">
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3">
+                  <p className="text-xs text-foreground">
                     <strong>Note:</strong> This link is single-use. Once someone accepts it, the link will become invalid.
                   </p>
                 </div>
@@ -269,12 +269,12 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
           {!generatedLink ? (
             <>
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                className="px-4 py-2 text-foreground hover:bg-accent rounded-md transition-colors border border-border"
                 disabled={loading}
               >
                 Cancel
@@ -282,7 +282,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
               <button
                 onClick={handleGenerateLink}
                 disabled={loading}
-                className="px-6 py-2 bg-[#2D9B9B] text-white rounded-md hover:bg-[#267d7d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 data-testid="generate-button"
               >
                 {loading ? 'Generating...' : 'Generate Link'}
@@ -291,7 +291,7 @@ export default function GenerateLinkModal({ projectId, onClose, onLinkGenerated 
           ) : (
             <button
               onClick={handleDone}
-              className="px-6 py-2 bg-[#2D9B9B] text-white rounded-md hover:bg-[#267d7d] transition-colors"
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
             >
               Done
             </button>

@@ -54,8 +54,11 @@ export default function LoginPage({ onSuccess, onSwitchToSignup }: LoginPageProp
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-card border border-border rounded-lg shadow-lg p-8 min-h-[600px]">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Animated swirl background */}
+      <div className="absolute inset-0 bg-gradient-radial from-black via-[#1a5f5f] via-[#2D9B9B] via-[#1a5f5f] to-black bg-[length:400%_400%] animate-[gradient-swirl_20s_ease_infinite] opacity-90"></div>
+
+      <div className="max-w-md w-full bg-card border border-border rounded-lg shadow-lg p-8 min-h-[600px] relative z-10">
         {/* Logo */}
         <div className="flex flex-col items-center mb-6">
           <img src={lonchLogo} alt="lonch" className="h-16 mb-3" />
@@ -114,8 +117,8 @@ export default function LoginPage({ onSuccess, onSwitchToSignup }: LoginPageProp
             )}
           </div>
 
-          {/* Forgot password placeholder link */}
-          <div className="flex items-center justify-end">
+          {/* Spacer to match signup form height */}
+          <div className="h-[68px] flex items-center justify-end">
             <button
               type="button"
               className="text-sm text-primary hover:text-primary/80 focus:outline-none focus:underline"

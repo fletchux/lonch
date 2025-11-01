@@ -461,11 +461,11 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
           />
         )}
         <div className="flex gap-2">
-          <label className="text-sm font-medium text-card-foreground">Group:</label>
+          <label className="text-sm font-medium text-foreground">Group:</label>
           <select
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value as typeof groupFilter)}
-            className="px-3 py-1 border border-input rounded-md text-sm focus:ring-2 focus:ring-primary"
+            className="px-3 py-1 bg-background border border-input rounded-md text-sm text-foreground focus:ring-2 focus:ring-primary"
             data-testid="group-filter"
           >
             <option value="all">All Groups</option>

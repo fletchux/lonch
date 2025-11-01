@@ -578,7 +578,7 @@ export default function ProjectDashboard({
               </button>
               <button
                 onClick={handleUploadComplete}
-                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isUploading || isExtracting || uploadedFiles.length === 0}
               >
                 {isUploading ? 'Uploading...' : isExtracting ? 'Extracting...' : `Upload ${uploadedFiles.length} File${uploadedFiles.length !== 1 ? 's' : ''}`}

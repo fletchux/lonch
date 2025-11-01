@@ -223,19 +223,19 @@ export default function DocumentList({
 
       {/* Bulk actions toolbar */}
       {selectedDocuments.size > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-950/20 dark:border-blue-900">
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
           <div className="flex flex-col space-y-3">
-            <span className="text-sm font-medium text-blue-900 dark:text-blue-300">
+            <span className="text-sm font-medium text-foreground">
               {selectedDocuments.size} document{selectedDocuments.size > 1 ? 's' : ''} selected
             </span>
 
             {/* Category Update */}
             <div className="flex items-center space-x-3">
-              <label className="text-sm text-blue-800 dark:text-blue-300 font-medium min-w-[80px]">Category:</label>
+              <label className="text-sm text-foreground font-medium min-w-[80px]">Category:</label>
               <select
                 value={bulkCategory}
                 onChange={(e) => setBulkCategory(e.target.value)}
-                className="w-48 px-3 py-1.5 text-sm border border-blue-300 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
+                className="w-48 px-3 py-1.5 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
               >
                 <option value="">Select category...</option>
                 <option value="contract">Contract</option>
@@ -245,7 +245,7 @@ export default function DocumentList({
               <button
                 onClick={handleBulkCategoryUpdate}
                 disabled={!bulkCategory}
-                className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-muted disabled:cursor-not-allowed"
+                className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Update Category
               </button>
@@ -254,11 +254,11 @@ export default function DocumentList({
             {/* Visibility Update */}
             {permissions.canSetDocumentVisibility() && (
               <div className="flex items-center space-x-3">
-                <label className="text-sm text-blue-800 dark:text-blue-300 font-medium min-w-[80px]">Visibility:</label>
+                <label className="text-sm text-foreground font-medium min-w-[80px]">Visibility:</label>
                 <select
                   value={bulkVisibility}
                   onChange={(e) => setBulkVisibility(e.target.value)}
-                  className="w-48 px-3 py-1.5 text-sm border border-blue-300 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
+                  className="w-48 px-3 py-1.5 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 >
                   <option value="">Select visibility...</option>
                   <option value={VISIBILITY.BOTH}>🌐 All Groups</option>
@@ -268,7 +268,7 @@ export default function DocumentList({
                 <button
                   onClick={handleBulkVisibilityUpdate}
                   disabled={!bulkVisibility}
-                  className="px-4 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium disabled:bg-muted disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Update Visibility
                 </button>
@@ -279,7 +279,7 @@ export default function DocumentList({
             {onDelete && (
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="px-4 py-1.5 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm font-medium flex items-center gap-2"
+                className="self-start px-4 py-1.5 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm font-medium flex items-center gap-2"
                 title="Delete selected documents"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -18,6 +18,7 @@ interface Project {
 
 interface HomeProps {
   projects: Project[];
+  projectsLoading: boolean;
   onNewProject: () => void;
   onSelectProject: (project: Project) => void;
   onLogin: () => void;
@@ -28,6 +29,7 @@ interface HomeProps {
 
 export default function Home({
   projects,
+  projectsLoading,
   onNewProject,
   onSelectProject,
   onLogin,
@@ -36,14 +38,24 @@ export default function Home({
   onNavigateSettings
 }: HomeProps) {
   const { currentUser } = useAuth();
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header
-        onNavigateProfile={onNavigateProfile}
-        onNavigateSettings={onNavigateSettings}
-      />
 
-      <div className="flex-1 p-8">
+  // Show animated background when there are no projects (whether logged in or not)
+  const showAnimatedBackground = projects.length === 0 && !projectsLoading;
+
+  return (
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      {/* Animated swirl background - shown when no projects */}
+      {showAnimatedBackground && (
+        <div className="absolute inset-0 bg-gradient-radial from-black via-[#1a5f5f] via-[#2D9B9B] via-[#1a5f5f] to-black bg-[length:400%_400%] animate-[gradient-swirl_20s_ease_infinite] opacity-90"></div>
+      )}
+
+      <div className={`relative z-10 flex flex-col min-h-screen ${showAnimatedBackground ? 'bg-transparent' : 'bg-background'}`}>
+        <Header
+          onNavigateProfile={onNavigateProfile}
+          onNavigateSettings={onNavigateSettings}
+        />
+
+        <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
           {projects.length > 0 && (
             <div className="flex justify-end mb-8">
@@ -57,7 +69,14 @@ export default function Home({
             </div>
           )}
 
-        {projects.length === 0 ? (
+        {projectsLoading ? (
+          <div className="bg-card rounded-xl shadow-lg p-12 text-center border border-border">
+            <div className="animate-pulse">
+              <LonchO size={64} className="mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground">Loading your projects...</p>
+            </div>
+          </div>
+        ) : projects.length === 0 ? (
           <div className="bg-card rounded-xl shadow-lg p-12 text-center border border-border">
             <LonchO size={64} className="mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-foreground mb-2">Ready to lonch?</h2>
@@ -116,10 +135,11 @@ export default function Home({
             ))}
           </div>
         )}
-      </div>
-    </div>
+        </div>
+        </div>
 
-    <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }
