@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import {
   getUserProjects,
@@ -9,14 +9,17 @@ import {
 } from './services/projectService';
 import { logActivity } from './services/activityLogService';
 import Home from './components/pages/Home';
-import Wizard from './components/pages/Wizard';
-import ProjectDashboard from './components/pages/ProjectDashboard';
-import Profile from './components/pages/Profile';
-import Settings from './components/pages/Settings';
 import SignupPage from './components/auth/SignupPage';
 import LoginPage from './components/auth/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import AcceptInviteLinkPage from './components/project/AcceptInviteLinkPage';
+import LoadingSpinner from './components/common/LoadingSpinner';
+
+// Lazy load route components for better code splitting
+const Wizard = lazy(() => import('./components/pages/Wizard'));
+const ProjectDashboard = lazy(() => import('./components/pages/ProjectDashboard'));
+const Profile = lazy(() => import('./components/pages/Profile'));
+const Settings = lazy(() => import('./components/pages/Settings'));
+const AcceptInviteLinkPage = lazy(() => import('./components/project/AcceptInviteLinkPage'));
 
 interface Document {
   id: string;
@@ -362,16 +365,18 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <Wizard
-            projectData={projectData}
-            setProjectData={setProjectData}
-            step={step}
-            setStep={setStep}
-            onCancel={goHome}
-            onSave={saveProject}
-            onNavigateProfile={() => setView('profile')}
-            onNavigateSettings={() => setView('settings')}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Wizard
+              projectData={projectData}
+              setProjectData={setProjectData}
+              step={step}
+              setStep={setStep}
+              onCancel={goHome}
+              onSave={saveProject}
+              onNavigateProfile={() => setView('profile')}
+              onNavigateSettings={() => setView('settings')}
+            />
+          </Suspense>
         </ProtectedRoute>
       )}
       {/* Task 4.4: Wrap project dashboard with ProtectedRoute */}
@@ -380,16 +385,18 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <ProjectDashboard
-            project={currentProject}
-            onBack={goHome}
-            onDeleteDocument={handleDeleteDocument}
-            onUploadDocument={handleUploadDocument}
-            onUpdateDocumentCategories={handleUpdateDocumentCategories}
-            onUpdateDocumentVisibility={handleUpdateDocumentVisibility}
-            onNavigateProfile={() => setView('profile')}
-            onNavigateSettings={() => setView('settings')}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <ProjectDashboard
+              project={currentProject}
+              onBack={goHome}
+              onDeleteDocument={handleDeleteDocument}
+              onUploadDocument={handleUploadDocument}
+              onUpdateDocumentCategories={handleUpdateDocumentCategories}
+              onUpdateDocumentVisibility={handleUpdateDocumentVisibility}
+              onNavigateProfile={() => setView('profile')}
+              onNavigateSettings={() => setView('settings')}
+            />
+          </Suspense>
         </ProtectedRoute>
       )}
       {/* Profile page */}
@@ -398,10 +405,12 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <Profile
-            onNavigateHome={goHome}
-            onNavigateSettings={() => setView('settings')}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Profile
+              onNavigateHome={goHome}
+              onNavigateSettings={() => setView('settings')}
+            />
+          </Suspense>
         </ProtectedRoute>
       )}
       {/* Settings page with notification preferences */}
@@ -410,17 +419,20 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <Settings
-            onNavigateHome={goHome}
-            onNavigateProfile={() => setView('profile')}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Settings
+              onNavigateHome={goHome}
+              onNavigateProfile={() => setView('profile')}
+            />
+          </Suspense>
         </ProtectedRoute>
       )}
       {/* Task 3.1: Accept invite link page */}
       {view === 'acceptInvite' && inviteToken && (
-        <AcceptInviteLinkPage
-          token={inviteToken}
-          onAccepted={async (projectId: string) => {
+        <Suspense fallback={<LoadingSpinner />}>
+          <AcceptInviteLinkPage
+            token={inviteToken}
+            onAccepted={async (projectId: string) => {
             // Bug #14/#16 fix: Refetch projects to include the newly joined project
             // Use the return value to avoid race condition with state updates
             const freshProjects = await fetchProjects();
@@ -436,7 +448,8 @@ function AppContent() {
           }}
           onNavigateToLogin={() => setView('login')}
           onNavigateToHome={goHome}
-        />
+          />
+        </Suspense>
       )}
     </>
   );

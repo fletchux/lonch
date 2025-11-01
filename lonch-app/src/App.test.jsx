@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 import * as AuthContext from './contexts/AuthContext';
 
@@ -34,9 +34,11 @@ describe('Lonch App', () => {
     });
   });
 
-  it('renders the home page with welcome message', () => {
+  it('renders the home page with welcome message', async () => {
     render(<App />);
-    expect(screen.getByText('Ready to lonch?')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Ready to lonch?')).toBeInTheDocument();
+    });
     expect(screen.getByText('Start your first client project with our template-driven approach')).toBeInTheDocument();
   });
 
@@ -46,34 +48,45 @@ describe('Lonch App', () => {
     expect(screen.getByText('Consultant project kickoff made simple')).toBeInTheDocument();
   });
 
-  it('shows Create Your First Project button when no projects exist', () => {
+  it('shows Create Your First Project button when no projects exist', async () => {
     render(<App />);
-    expect(screen.getByText('Create Your First Project')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Create Your First Project')).toBeInTheDocument();
+    });
   });
 
-  it('navigates to wizard when Create Your First Project is clicked', () => {
+  it('navigates to wizard when Create Your First Project is clicked', async () => {
     render(<App />);
-    const newProjectButton = screen.getByText('Create Your First Project');
+    const newProjectButton = await screen.findByText('Create Your First Project');
 
     fireEvent.click(newProjectButton);
 
-    expect(screen.getByText('New Project Setup')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('New Project Setup')).toBeInTheDocument();
+    });
     expect(screen.getByText('Step 1 of 6')).toBeInTheDocument();
   });
 
-  it('wizard shows document upload in step 1', () => {
+  it('wizard shows document upload in step 1', async () => {
     render(<App />);
-    const newProjectButton = screen.getByText('Create Your First Project');
+    const newProjectButton = await screen.findByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
-    expect(screen.getByText(/Upload your project contracts/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Upload your project contracts/i)).toBeInTheDocument();
+    });
     expect(screen.getByText('Choose Files')).toBeInTheDocument();
   });
 
-  it('wizard navigates to step 2 (Project Basics) when Next is clicked', () => {
+  it('wizard navigates to step 2 (Project Basics) when Next is clicked', async () => {
     render(<App />);
-    const newProjectButton = screen.getByText('Create Your First Project');
+    const newProjectButton = await screen.findByText('Create Your First Project');
     fireEvent.click(newProjectButton);
+
+    // Wait for wizard to load
+    await waitFor(() => {
+      expect(screen.getByText('New Project Setup')).toBeInTheDocument();
+    });
 
     // Click Next to go to Step 2
     const nextButton = screen.getByText('Next');
@@ -84,7 +97,7 @@ describe('Lonch App', () => {
     expect(screen.getByPlaceholderText('e.g., Acme Corp - Product Redesign')).toBeInTheDocument();
   });
 
-  it('project data includes new fields for document extraction', () => {
+  it('project data includes new fields for document extraction', async () => {
     const { container } = render(<App />);
 
     // The App component initializes projectData with new fields
@@ -92,17 +105,24 @@ describe('Lonch App', () => {
     // and that the wizard works correctly with the new state structure
     expect(container).toBeTruthy();
 
-    const newProjectButton = screen.getByText('Create Your First Project');
+    const newProjectButton = await screen.findByText('Create Your First Project');
     fireEvent.click(newProjectButton);
 
     // Verify wizard renders with new state structure
-    expect(screen.getByText('New Project Setup')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('New Project Setup')).toBeInTheDocument();
+    });
   });
 
-  it('wizard step 2 shows extraction indicator placeholder when data is extracted', () => {
+  it('wizard step 2 shows extraction indicator placeholder when data is extracted', async () => {
     render(<App />);
-    const newProjectButton = screen.getByText('Create Your First Project');
+    const newProjectButton = await screen.findByText('Create Your First Project');
     fireEvent.click(newProjectButton);
+
+    // Wait for wizard to load
+    await waitFor(() => {
+      expect(screen.getByText('New Project Setup')).toBeInTheDocument();
+    });
 
     // Navigate to Step 2
     const nextButton = screen.getByText('Next');
@@ -110,6 +130,8 @@ describe('Lonch App', () => {
 
     // The ExtractionIndicator should not be visible when there's no extracted data
     // (We can't easily test the extracted data flow without mocking the extraction service)
-    expect(screen.getByText('Project Basics')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Project Basics')).toBeInTheDocument();
+    });
   });
 });
