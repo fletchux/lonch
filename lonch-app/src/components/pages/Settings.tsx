@@ -1,4 +1,5 @@
 import Header from '../layout/Header';
+import ProfileSettings from '../settings/ProfileSettings';
 import NotificationPreferences from '../settings/NotificationPreferences';
 
 interface SettingsProps {
@@ -33,11 +34,13 @@ export default function Settings({ onNavigateHome }: SettingsProps) {
 
         {/* Settings Content */}
         <div className="space-y-6">
+          {/* Profile Section */}
+          <ProfileSettings />
+
           {/* Notification Preferences Section */}
           <NotificationPreferences />
 
           {/* Future sections can be added here */}
-          {/* <ProfileSettings /> */}
           {/* <PrivacySettings /> */}
           {/* <SecuritySettings /> */}
         </div>
