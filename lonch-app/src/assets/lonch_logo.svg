@@ -5,13 +5,7 @@
       <circle cx="115" cy="72" r="14" fill="white"/>
     </mask>
   </defs>
-  
-  <!-- White background -->
-  <rect width="400" height="150" fill="#ffffff"/>
-  
-  <!-- Box around the logo -->
-  <rect x="60" y="30" width="280" height="90" fill="none" stroke="#2D9B9B" stroke-width="2" rx="5"/>
-  
+
   <!-- Letter "l" -->
   <text x="85" y="95" font-family="Arial, sans-serif" font-size="70" font-weight="300" 
         fill="#2D9B9B">l</text>
