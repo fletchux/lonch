@@ -76,19 +76,19 @@ export default function NotificationPreferences() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">Loading notification preferences...</p>
+      <div className="bg-card rounded-lg shadow p-6 border border-border">
+        <p className="text-muted-foreground">Loading notification preferences...</p>
       </div>
     );
   }
 
   if (error && !preferences) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-red-600">Error loading preferences: {error}</p>
+      <div className="bg-card rounded-lg shadow p-6 border border-border">
+        <p className="text-destructive">Error loading preferences: {error}</p>
         <button
           onClick={fetchPreferences}
-          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
         >
           Retry
         </button>
@@ -99,31 +99,31 @@ export default function NotificationPreferences() {
   if (!preferences) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Notification Preferences</h2>
+    <div className="bg-card rounded-lg shadow p-6 border border-border">
+      <h2 className="text-2xl font-bold text-card-foreground mb-6">Notification Preferences</h2>
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800" data-testid="success-message">
+        <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg text-primary" data-testid="success-message">
           {successMessage}
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800" data-testid="error-message">
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive" data-testid="error-message">
           {error}
         </div>
       )}
 
       {/* Global Notification Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Channels</h3>
+        <h3 className="text-lg font-semibold text-card-foreground mb-4">Notification Channels</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">In-App Notifications</h4>
-              <p className="text-sm text-gray-600">Receive notifications within the application</p>
+              <h4 className="font-medium text-card-foreground">In-App Notifications</h4>
+              <p className="text-sm text-muted-foreground">Receive notifications within the application</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -133,14 +133,14 @@ export default function NotificationPreferences() {
                 className="sr-only peer"
                 data-testid="toggle-inAppNotifications"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Email Notifications</h4>
-              <p className="text-sm text-gray-600">Receive notifications via email</p>
+              <h4 className="font-medium text-card-foreground">Email Notifications</h4>
+              <p className="text-sm text-muted-foreground">Receive notifications via email</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -150,7 +150,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer"
                 data-testid="toggle-emailNotifications"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
         </div>
@@ -158,12 +158,12 @@ export default function NotificationPreferences() {
 
       {/* Notification Type Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Types</h3>
+        <h3 className="text-lg font-semibold text-card-foreground mb-4">Notification Types</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Project Invitations</h4>
-              <p className="text-sm text-gray-600">When you're invited to a project</p>
+              <h4 className="font-medium text-card-foreground">Project Invitations</h4>
+              <p className="text-sm text-muted-foreground">When you're invited to a project</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -174,14 +174,14 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnInvitation"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Role Changes</h4>
-              <p className="text-sm text-gray-600">When your role in a project changes</p>
+              <h4 className="font-medium text-card-foreground">Role Changes</h4>
+              <p className="text-sm text-muted-foreground">When your role in a project changes</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -192,14 +192,14 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnRoleChange"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Group Changes</h4>
-              <p className="text-sm text-gray-600">When you're moved between Consulting and Client groups</p>
+              <h4 className="font-medium text-card-foreground">Group Changes</h4>
+              <p className="text-sm text-muted-foreground">When you're moved between Consulting and Client groups</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -210,14 +210,14 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnGroupChange"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Mentions</h4>
-              <p className="text-sm text-gray-600">When someone mentions you (future feature)</p>
+              <h4 className="font-medium text-card-foreground">Mentions</h4>
+              <p className="text-sm text-muted-foreground">When someone mentions you (future feature)</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -228,7 +228,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnMention"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function NotificationPreferences() {
 
       {/* Disabled State Warning */}
       {!preferences.inAppNotifications && !preferences.emailNotifications && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
+        <div className="mb-6 p-4 bg-secondary border border-secondary-foreground/20 rounded-lg text-secondary-foreground">
           <p className="text-sm">
             <strong>Note:</strong> All notifications are currently disabled. Enable at least one notification channel above to receive alerts.
           </p>
@@ -248,7 +248,7 @@ export default function NotificationPreferences() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors"
           data-testid="save-button"
         >
           {saving ? 'Saving...' : 'Save Preferences'}

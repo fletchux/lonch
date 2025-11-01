@@ -397,21 +397,21 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
   }
 
   if (error && activeTab === 'members') {
-    return <div className="text-center py-8 text-red-600">Error: {error}</div>;
+    return <div className="text-center py-8 text-destructive">Error: {error}</div>;
   }
 
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-border">
         <nav className="-mb-px flex space-x-8" data-testid="members-tabs">
           <button
             onClick={() => setActiveTab('members')}
             className={`
               py-2 px-1 border-b-2 font-medium text-sm
               ${activeTab === 'members'
-                ? 'border-teal-600 text-teal-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               }
             `}
             data-testid="members-tab"
@@ -423,8 +423,8 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             className={`
               py-2 px-1 border-b-2 font-medium text-sm
               ${activeTab === 'shareLinks'
-                ? 'border-teal-600 text-teal-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               }
             `}
             data-testid="share-links-tab"
@@ -442,7 +442,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             <button
               onClick={fetchMembers}
               disabled={loading}
-              className="px-3 py-1 text-sm text-teal-600 hover:bg-teal-50 border border-teal-200 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm text-primary hover:bg-primary/10 border border-primary/20 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="refresh-members-button"
             >
               {loading ? 'Refreshing...' : '↻ Refresh'}
@@ -457,15 +457,15 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             placeholder="Search members by name, email, or role..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         )}
         <div className="flex gap-2">
-          <label className="text-sm font-medium text-gray-700">Group:</label>
+          <label className="text-sm font-medium text-card-foreground">Group:</label>
           <select
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value as typeof groupFilter)}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+            className="px-3 py-1 border border-input rounded-md text-sm focus:ring-2 focus:ring-primary"
             data-testid="group-filter"
           >
             <option value="all">All Groups</option>
@@ -478,7 +478,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Members List */}
       <div className="space-y-2">
         {filteredMembers.length === 0 && filteredPendingInvitations.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             {searchTerm ? 'No members found matching your search' : 'No members yet'}
           </div>
         ) : (
@@ -493,11 +493,11 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             return (
               <div
                 key={member.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted"
               >
                 <div className="flex items-center space-x-4 flex-1">
                   {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                     {userDetails?.displayName?.[0]?.toUpperCase() ||
                      userDetails?.email?.[0]?.toUpperCase() || '?'}
                   </div>
@@ -505,16 +505,16 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                   {/* User Info */}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900">
+                      <h4 className="font-medium text-card-foreground">
                         {userDetails?.displayName || 'Unknown User'}
                         {isCurrentUser && (
-                          <span className="text-sm text-gray-500 ml-2">(You)</span>
+                          <span className="text-sm text-muted-foreground ml-2">(You)</span>
                         )}
                       </h4>
                       <GroupBadge group={member.group || 'consulting'} />
                     </div>
-                    <p className="text-sm text-gray-500">{userDetails?.email || 'No email'}</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground">{userDetails?.email || 'No email'}</p>
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
                       Last active: {formatLastActive(member.lastActiveAt)}
                     </p>
                   </div>
@@ -525,7 +525,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                       <select
                         value={member.role}
                         onChange={(e) => handleRoleChange(member, e.target.value)}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+                        className="px-3 py-1 border border-input rounded-md text-sm focus:ring-2 focus:ring-primary bg-background"
                         data-testid="role-select"
                       >
                         {permissions.assignableRoles.map((role: string) => (
@@ -543,7 +543,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                       <select
                         value={member.group || 'consulting'}
                         onChange={(e) => handleGroupChange(member, e.target.value)}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+                        className="px-3 py-1 border border-input rounded-md text-sm focus:ring-2 focus:ring-primary bg-background"
                         data-testid="group-select"
                       >
                         <option value={GROUP.CONSULTING}>Consulting</option>
@@ -556,7 +556,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                   {canRemoveThis && !isCurrentUser && (
                     <button
                       onClick={() => handleRemoveMember(member)}
-                      className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 border border-red-200 rounded-md"
+                      className="px-3 py-1 text-sm text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-md"
                       data-testid="remove-button"
                     >
                       Remove
@@ -571,18 +571,18 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
           {filteredPendingInvitations.map(invitation => (
             <div
               key={invitation.id}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50"
+              className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted"
             >
               <div className="flex items-center space-x-4 flex-1">
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold">
                   {invitation.email[0].toUpperCase()}
                 </div>
 
                 {/* Invitation Info */}
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-medium text-gray-900">
+                    <h4 className="font-medium text-card-foreground">
                       {invitation.email}
                     </h4>
                     <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
@@ -590,10 +590,10 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                     </span>
                     <GroupBadge group={invitation.group || 'consulting'} />
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Invited {new Date(invitation.createdAt?.seconds * 1000 || invitation.createdAt).toLocaleDateString()}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Expires: {invitation.expiresAt?.seconds
                       ? new Date(invitation.expiresAt.seconds * 1000).toLocaleDateString()
                       : invitation.expiresAt instanceof Date
@@ -611,7 +611,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                 {permissions.canInvite && (
                   <button
                     onClick={() => handleCancelInvite(invitation)}
-                    className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 border border-gray-300 rounded-md"
+                    className="px-3 py-1 text-sm text-gray-600 dark:text-muted-foreground hover:bg-muted dark:hover:bg-gray-700 border border-input rounded-md"
                     data-testid="cancel-invite-button"
                   >
                     Cancel
@@ -627,9 +627,9 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Role Change Confirmation Dialog */}
       {confirmRoleChange && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Role Change</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Change {memberDetails[confirmRoleChange.member.userId]?.displayName}'s role from{' '}
               <strong>{getRoleDisplayName(confirmRoleChange.member.role)}</strong> to{' '}
               <strong>{getRoleDisplayName(confirmRoleChange.newRole)}</strong>?
@@ -637,13 +637,13 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmRoleChange(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+                className="px-4 py-2 text-card-foreground hover:bg-muted border border-input rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmRoleChangeAction}
-                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
                 data-testid="confirm-role-change"
               >
                 Confirm
@@ -656,22 +656,22 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Remove Confirmation Dialog */}
       {confirmRemove && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Removal</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Remove <strong>{memberDetails[confirmRemove.userId]?.displayName}</strong> from this project?
               They will lose all access immediately.
             </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmRemove(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+                className="px-4 py-2 text-card-foreground hover:bg-muted border border-input rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmRemoveAction}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90"
                 data-testid="confirm-remove"
               >
                 Remove
@@ -684,9 +684,9 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Group Change Confirmation Dialog */}
       {confirmGroupChange && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Group Change</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Move <strong>{memberDetails[confirmGroupChange.member.userId]?.displayName}</strong> from{' '}
               <strong>{confirmGroupChange.member.group === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong> to{' '}
               <strong>{confirmGroupChange.newGroup === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong>?
@@ -695,13 +695,13 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmGroupChange(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+                className="px-4 py-2 text-card-foreground hover:bg-muted border border-input rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmGroupChangeAction}
-                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
                 data-testid="confirm-group-change"
               >
                 Confirm
@@ -721,22 +721,22 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Cancel Invitation Confirmation Dialog */}
       {confirmCancelInvite && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Cancel Invitation</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Cancel invitation for <strong>{confirmCancelInvite.email}</strong>?
               They will no longer be able to use this invitation link.
             </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmCancelInvite(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 border border-gray-300 rounded-lg"
+                className="px-4 py-2 text-card-foreground hover:bg-muted border border-input rounded-lg"
               >
                 Keep Invitation
               </button>
               <button
                 onClick={confirmCancelInviteAction}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90"
                 data-testid="confirm-cancel-invite"
               >
                 Cancel Invitation

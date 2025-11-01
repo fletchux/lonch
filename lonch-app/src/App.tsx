@@ -11,6 +11,7 @@ import { logActivity } from './services/activityLogService';
 import Home from './components/pages/Home';
 import Wizard from './components/pages/Wizard';
 import ProjectDashboard from './components/pages/ProjectDashboard';
+import Profile from './components/pages/Profile';
 import Settings from './components/pages/Settings';
 import SignupPage from './components/auth/SignupPage';
 import LoginPage from './components/auth/LoginPage';
@@ -61,7 +62,7 @@ interface Project {
   [key: string]: any;
 }
 
-type View = 'home' | 'wizard' | 'project' | 'settings' | 'signup' | 'login' | 'acceptInvite';
+type View = 'home' | 'wizard' | 'project' | 'profile' | 'settings' | 'signup' | 'login' | 'acceptInvite';
 
 // Separate component for app content so we can use useAuth
 function AppContent() {
@@ -338,6 +339,7 @@ function AppContent() {
           onSelectProject={selectProject}
           onLogin={() => setView('login')}
           onSignup={() => setView('signup')}
+          onNavigateProfile={() => setView('profile')}
           onNavigateSettings={() => setView('settings')}
         />
       )}
@@ -367,6 +369,7 @@ function AppContent() {
             setStep={setStep}
             onCancel={goHome}
             onSave={saveProject}
+            onNavigateProfile={() => setView('profile')}
             onNavigateSettings={() => setView('settings')}
           />
         </ProtectedRoute>
@@ -384,6 +387,19 @@ function AppContent() {
             onUploadDocument={handleUploadDocument}
             onUpdateDocumentCategories={handleUpdateDocumentCategories}
             onUpdateDocumentVisibility={handleUpdateDocumentVisibility}
+            onNavigateProfile={() => setView('profile')}
+            onNavigateSettings={() => setView('settings')}
+          />
+        </ProtectedRoute>
+      )}
+      {/* Profile page */}
+      {view === 'profile' && (
+        <ProtectedRoute
+          onSwitchToSignup={() => setView('signup')}
+          onLoginSuccess={() => setView('home')}
+        >
+          <Profile
+            onNavigateHome={goHome}
             onNavigateSettings={() => setView('settings')}
           />
         </ProtectedRoute>
@@ -394,7 +410,10 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <Settings onNavigateHome={goHome} />
+          <Settings
+            onNavigateHome={goHome}
+            onNavigateProfile={() => setView('profile')}
+          />
         </ProtectedRoute>
       )}
       {/* Task 3.1: Accept invite link page */}

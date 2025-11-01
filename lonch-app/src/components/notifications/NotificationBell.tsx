@@ -129,7 +129,7 @@ export default function NotificationBell() {
       {/* Bell Icon Button */}
       <button
         onClick={handleBellClick}
-        className="relative p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors"
+        className="relative p-2 text-muted-foreground hover:text-primary hover:bg-muted rounded-full transition-colors"
         data-testid="notification-bell"
         aria-label="Notifications"
       >
@@ -152,7 +152,7 @@ export default function NotificationBell() {
         {/* Unread Count Badge */}
         {unreadCount > 0 && (
           <span
-            className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+            className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground transform translate-x-1/2 -translate-y-1/2 bg-destructive rounded-full"
             data-testid="unread-badge"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -163,22 +163,22 @@ export default function NotificationBell() {
       {/* Dropdown Panel */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto"
+          className="absolute right-0 mt-2 w-80 bg-card rounded-lg shadow-lg border border-border z-50 max-h-96 overflow-y-auto"
           data-testid="notification-dropdown"
         >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+          <div className="px-4 py-3 border-b border-border">
+            <h3 className="text-lg font-semibold text-card-foreground">Notifications</h3>
           </div>
 
           {/* Notifications List */}
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-border">
             {loading ? (
-              <div className="px-4 py-8 text-center text-gray-500">
+              <div className="px-4 py-8 text-center text-muted-foreground">
                 Loading notifications...
               </div>
             ) : notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-gray-500">
+              <div className="px-4 py-8 text-center text-muted-foreground">
                 No notifications yet
               </div>
             ) : (
@@ -186,25 +186,25 @@ export default function NotificationBell() {
                 <button
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-                    !notification.read ? 'bg-teal-50' : ''
+                  className={`w-full px-4 py-3 text-left hover:bg-muted transition-colors ${
+                    !notification.read ? 'bg-secondary' : ''
                   }`}
                   data-testid="notification-item"
                 >
                   <div className="flex items-start gap-3">
                     {/* Unread Indicator Dot */}
                     {!notification.read && (
-                      <div className="mt-1.5 w-2 h-2 bg-teal-600 rounded-full flex-shrink-0" />
+                      <div className="mt-1.5 w-2 h-2 bg-primary rounded-full flex-shrink-0" />
                     )}
 
                     <div className="flex-1 min-w-0">
                       {/* Message */}
-                      <p className={`text-sm ${!notification.read ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                      <p className={`text-sm ${!notification.read ? 'font-semibold text-card-foreground' : 'text-muted-foreground'}`}>
                         {notification.message}
                       </p>
 
                       {/* Timestamp */}
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {formatTimestamp(notification.createdAt)}
                       </p>
                     </div>
@@ -216,10 +216,10 @@ export default function NotificationBell() {
 
           {/* Footer - View All Link */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-200 text-center">
+            <div className="px-4 py-3 border-t border-border text-center">
               <a
                 href="/notifications"
-                className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+                className="text-sm text-primary hover:opacity-90 font-medium"
               >
                 View all notifications
               </a>

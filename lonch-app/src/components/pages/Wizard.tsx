@@ -47,6 +47,7 @@ interface WizardProps {
   setStep: (step: number) => void;
   onCancel: () => void;
   onSave: () => void;
+  onNavigateProfile?: () => void;
   onNavigateSettings?: () => void;
 }
 
@@ -57,6 +58,7 @@ export default function Wizard({
   setStep,
   onCancel,
   onSave,
+  onNavigateProfile,
   onNavigateSettings
 }: WizardProps) {
   const handleNext = () => {
@@ -96,7 +98,10 @@ export default function Wizard({
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header onNavigateSettings={onNavigateSettings} />
+      <Header
+        onNavigateProfile={onNavigateProfile}
+        onNavigateSettings={onNavigateSettings}
+      />
 
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">

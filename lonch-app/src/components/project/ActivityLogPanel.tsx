@@ -287,25 +287,25 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-600">Error: {error}</div>;
+    return <div className="text-center py-8 text-destructive">Error: {error}</div>;
   }
 
   return (
     <div className="space-y-4">
       {/* Filter Controls (Task 6.3: Add group filter) */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Filters</h3>
+      <div className="bg-card border border-border rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-card-foreground mb-3">Filters</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Filter by User */}
           <div>
-            <label htmlFor="filter-user" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-user" className="block text-xs font-medium text-muted-foreground mb-1">
               User
             </label>
             <select
               id="filter-user"
               value={filterUser}
               onChange={(e) => setFilterUser(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-input bg-background text-foreground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               data-testid="filter-user"
             >
               <option value="">All users</option>
@@ -322,14 +322,14 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* Filter by Action */}
           <div>
-            <label htmlFor="filter-action" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-action" className="block text-xs font-medium text-muted-foreground mb-1">
               Action
             </label>
             <select
               id="filter-action"
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-input bg-background text-foreground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               data-testid="filter-action"
             >
               <option value="">All actions</option>
@@ -343,14 +343,14 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* Filter by Group (Task 6.3) */}
           <div>
-            <label htmlFor="filter-group" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-group" className="block text-xs font-medium text-muted-foreground mb-1">
               Group
             </label>
             <select
               id="filter-group"
               value={filterGroup}
               onChange={(e) => setFilterGroup(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-input bg-background text-foreground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               data-testid="filter-group"
             >
               <option value="">All Groups</option>
@@ -361,7 +361,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* Start Date */}
           <div>
-            <label htmlFor="filter-start-date" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-start-date" className="block text-xs font-medium text-muted-foreground mb-1">
               Start Date
             </label>
             <input
@@ -369,14 +369,14 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
               id="filter-start-date"
               value={filterStartDate}
               onChange={(e) => setFilterStartDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-input bg-background text-foreground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               data-testid="filter-start-date"
             />
           </div>
 
           {/* End Date */}
           <div>
-            <label htmlFor="filter-end-date" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-end-date" className="block text-xs font-medium text-muted-foreground mb-1">
               End Date
             </label>
             <input
@@ -384,7 +384,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
               id="filter-end-date"
               value={filterEndDate}
               onChange={(e) => setFilterEndDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-input bg-background text-foreground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
               data-testid="filter-end-date"
             />
           </div>
@@ -394,7 +394,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
         {hasActiveFilters && (
           <button
             onClick={handleClearFilters}
-            className="mt-3 px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 border border-teal-200 rounded-md"
+            className="mt-3 px-4 py-2 text-sm text-primary hover:bg-primary/10 border border-primary/20 rounded-md transition-colors"
             data-testid="clear-filters"
           >
             Clear Filters
@@ -405,7 +405,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
       {/* Activity Timeline */}
       <div className="space-y-2">
         {activities.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             {hasActiveFilters ? 'No activities match your filters' : 'No activity yet'}
           </div>
         ) : (
@@ -415,11 +415,11 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
             return (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start gap-3 p-3 border border-border rounded-lg hover:bg-muted transition-colors"
                 data-testid="activity-item"
               >
                 {/* User Avatar */}
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold text-sm">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                   {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
                 </div>
 
@@ -427,7 +427,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-lg">{getActionIcon(activity.action)}</span>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-card-foreground">
                       {getActionDescription(activity)}
                     </p>
                     {/* Task 6.5: Show group badge where relevant */}
@@ -435,7 +435,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
                       <GroupBadge group={activity.groupContext} />
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {formatTimestamp(activity.timestamp)}
                   </p>
                 </div>
@@ -451,7 +451,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
           <button
             onClick={handleLoadMore}
             disabled={loading}
-            className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             data-testid="load-more"
           >
             {loading ? 'Loading...' : 'Load More'}

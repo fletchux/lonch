@@ -22,6 +22,7 @@ interface HomeProps {
   onSelectProject: (project: Project) => void;
   onLogin: () => void;
   onSignup: () => void;
+  onNavigateProfile?: () => void;
   onNavigateSettings?: () => void;
 }
 
@@ -31,12 +32,16 @@ export default function Home({
   onSelectProject,
   onLogin,
   onSignup,
+  onNavigateProfile,
   onNavigateSettings
 }: HomeProps) {
   const { currentUser } = useAuth();
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header onNavigateSettings={onNavigateSettings} />
+      <Header
+        onNavigateProfile={onNavigateProfile}
+        onNavigateSettings={onNavigateSettings}
+      />
 
       <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
