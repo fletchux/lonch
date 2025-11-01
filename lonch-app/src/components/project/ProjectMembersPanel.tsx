@@ -493,7 +493,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
             return (
               <div
                 key={member.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <div className="flex items-center space-x-4 flex-1">
                   {/* Avatar */}
@@ -505,7 +505,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                   {/* User Info */}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">
                         {userDetails?.displayName || 'Unknown User'}
                         {isCurrentUser && (
                           <span className="text-sm text-gray-500 ml-2">(You)</span>
@@ -513,8 +513,8 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                       </h4>
                       <GroupBadge group={member.group || 'consulting'} />
                     </div>
-                    <p className="text-sm text-gray-500">{userDetails?.email || 'No email'}</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{userDetails?.email || 'No email'}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                       Last active: {formatLastActive(member.lastActiveAt)}
                     </p>
                   </div>
@@ -525,7 +525,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                       <select
                         value={member.role}
                         onChange={(e) => handleRoleChange(member, e.target.value)}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+                        className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700"
                         data-testid="role-select"
                       >
                         {permissions.assignableRoles.map((role: string) => (
@@ -543,7 +543,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                       <select
                         value={member.group || 'consulting'}
                         onChange={(e) => handleGroupChange(member, e.target.value)}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-teal-500"
+                        className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700"
                         data-testid="group-select"
                       >
                         <option value={GROUP.CONSULTING}>Consulting</option>
@@ -571,7 +571,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
           {filteredPendingInvitations.map(invitation => (
             <div
               key={invitation.id}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50"
+              className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700"
             >
               <div className="flex items-center space-x-4 flex-1">
                 {/* Avatar */}
@@ -611,7 +611,7 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
                 {permissions.canInvite && (
                   <button
                     onClick={() => handleCancelInvite(invitation)}
-                    className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 border border-gray-300 rounded-md"
+                    className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md"
                     data-testid="cancel-invite-button"
                   >
                     Cancel
@@ -627,9 +627,9 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Role Change Confirmation Dialog */}
       {confirmRoleChange && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Role Change</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Change {memberDetails[confirmRoleChange.member.userId]?.displayName}'s role from{' '}
               <strong>{getRoleDisplayName(confirmRoleChange.member.role)}</strong> to{' '}
               <strong>{getRoleDisplayName(confirmRoleChange.newRole)}</strong>?
@@ -656,9 +656,9 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Remove Confirmation Dialog */}
       {confirmRemove && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Removal</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Remove <strong>{memberDetails[confirmRemove.userId]?.displayName}</strong> from this project?
               They will lose all access immediately.
             </p>
@@ -684,9 +684,9 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Group Change Confirmation Dialog */}
       {confirmGroupChange && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Group Change</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Move <strong>{memberDetails[confirmGroupChange.member.userId]?.displayName}</strong> from{' '}
               <strong>{confirmGroupChange.member.group === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong> to{' '}
               <strong>{confirmGroupChange.newGroup === GROUP.CONSULTING ? 'Consulting' : 'Client'} Group</strong>?
@@ -721,9 +721,9 @@ export default function ProjectMembersPanel({ projectId }: ProjectMembersPanelPr
       {/* Cancel Invitation Confirmation Dialog */}
       {confirmCancelInvite && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Cancel Invitation</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Cancel invitation for <strong>{confirmCancelInvite.email}</strong>?
               They will no longer be able to use this invitation link.
             </p>

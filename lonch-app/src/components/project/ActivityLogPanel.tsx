@@ -293,12 +293,12 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
   return (
     <div className="space-y-4">
       {/* Filter Controls (Task 6.3: Add group filter) */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Filters</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Filter by User */}
           <div>
-            <label htmlFor="filter-user" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-user" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               User
             </label>
             <select
@@ -322,7 +322,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* Filter by Action */}
           <div>
-            <label htmlFor="filter-action" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-action" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               Action
             </label>
             <select
@@ -343,7 +343,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* Filter by Group (Task 6.3) */}
           <div>
-            <label htmlFor="filter-group" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-group" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               Group
             </label>
             <select
@@ -361,7 +361,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* Start Date */}
           <div>
-            <label htmlFor="filter-start-date" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-start-date" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               Start Date
             </label>
             <input
@@ -376,7 +376,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
 
           {/* End Date */}
           <div>
-            <label htmlFor="filter-end-date" className="block text-xs font-medium text-gray-600 mb-1">
+            <label htmlFor="filter-end-date" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               End Date
             </label>
             <input
@@ -415,7 +415,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
             return (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 data-testid="activity-item"
               >
                 {/* User Avatar */}
@@ -427,7 +427,7 @@ export default function ActivityLogPanel({ projectId }: ActivityLogPanelProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-lg">{getActionIcon(activity.action)}</span>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
                       {getActionDescription(activity)}
                     </p>
                     {/* Task 6.5: Show group badge where relevant */}
