@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface UserProfileDropdownProps {
+  onNavigateProfile?: () => void;
   onNavigateSettings?: () => void;
 }
 
-export default function UserProfileDropdown({ onNavigateSettings }: UserProfileDropdownProps) {
+export default function UserProfileDropdown({ onNavigateProfile, onNavigateSettings }: UserProfileDropdownProps) {
   const { currentUser, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -100,7 +101,9 @@ export default function UserProfileDropdown({ onNavigateSettings }: UserProfileD
           <button
             onClick={() => {
               setIsOpen(false);
-              alert('Profile page coming soon!');
+              if (onNavigateProfile) {
+                onNavigateProfile();
+              }
             }}
             className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent focus:outline-none focus:bg-accent transition-colors"
           >

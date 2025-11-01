@@ -6,10 +6,11 @@ import NotificationBell from '../notifications/NotificationBell';
 const TAGLINE = 'Consultant project kickoff made simple';
 
 interface HeaderProps {
+  onNavigateProfile?: () => void;
   onNavigateSettings?: () => void;
 }
 
-export default function Header({ onNavigateSettings }: HeaderProps) {
+export default function Header({ onNavigateProfile, onNavigateSettings }: HeaderProps) {
   const { currentUser } = useAuth();
 
   return (
@@ -24,7 +25,10 @@ export default function Header({ onNavigateSettings }: HeaderProps) {
           {currentUser && (
             <div className="flex items-center gap-4">
               <NotificationBell />
-              <UserProfileDropdown onNavigateSettings={onNavigateSettings} />
+              <UserProfileDropdown
+                onNavigateProfile={onNavigateProfile}
+                onNavigateSettings={onNavigateSettings}
+              />
             </div>
           )}
         </div>

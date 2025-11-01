@@ -79,6 +79,7 @@ interface ProjectDashboardProps {
   onDeleteDocument?: (docId: string) => void;
   onUpdateDocumentCategories?: (docIds: string[], category: string) => void;
   onUpdateDocumentVisibility?: (docId: string, visibility: string) => void;
+  onNavigateProfile?: () => void;
   onNavigateSettings?: () => void;
 }
 
@@ -90,6 +91,7 @@ export default function ProjectDashboard({
   onDeleteDocument,
   onUpdateDocumentCategories,
   onUpdateDocumentVisibility,
+  onNavigateProfile,
   onNavigateSettings
 }: ProjectDashboardProps) {
   const { currentUser } = useAuth();
@@ -268,7 +270,10 @@ export default function ProjectDashboard({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <Header onNavigateSettings={onNavigateSettings} />
+      <Header
+        onNavigateProfile={onNavigateProfile}
+        onNavigateSettings={onNavigateSettings}
+      />
 
       <div className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
