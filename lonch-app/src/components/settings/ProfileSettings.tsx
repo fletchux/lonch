@@ -94,11 +94,11 @@ export default function ProfileSettings() {
           <img
             src={currentUser.photoURL}
             alt={userData.displayName}
-            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+            className="w-20 h-20 rounded-full object-cover border-2 border-border"
           />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center border-2 border-gray-200">
-            <span className="text-2xl font-semibold text-teal-700">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
+            <span className="text-2xl font-semibold text-primary">
               {userData.displayName.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -145,8 +145,8 @@ export default function ProfileSettings() {
       </div>
 
       {/* Info Notice */}
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg">
-        <p className="text-sm text-blue-800 dark:text-blue-400">
+      <div className="mt-6 p-4 bg-secondary border border-secondary-foreground/20 rounded-lg">
+        <p className="text-sm text-secondary-foreground">
           <strong>Note:</strong> Profile editing is not currently available. Contact support if you need to update your information.
         </p>
       </div>

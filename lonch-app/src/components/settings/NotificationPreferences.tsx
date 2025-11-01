@@ -77,7 +77,7 @@ export default function NotificationPreferences() {
   if (loading) {
     return (
       <div className="bg-card rounded-lg shadow p-6 border border-border">
-        <p className="text-gray-600 dark:text-gray-400">Loading notification preferences...</p>
+        <p className="text-muted-foreground">Loading notification preferences...</p>
       </div>
     );
   }
@@ -85,10 +85,10 @@ export default function NotificationPreferences() {
   if (error && !preferences) {
     return (
       <div className="bg-card rounded-lg shadow p-6 border border-border">
-        <p className="text-red-600 dark:text-red-400">Error loading preferences: {error}</p>
+        <p className="text-destructive">Error loading preferences: {error}</p>
         <button
           onClick={fetchPreferences}
-          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600"
+          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
         >
           Retry
         </button>
@@ -99,19 +99,19 @@ export default function NotificationPreferences() {
   if (!preferences) return null;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="bg-card rounded-lg shadow p-6 border border-border">
       <h2 className="text-2xl font-bold text-card-foreground mb-6">Notification Preferences</h2>
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800" data-testid="success-message">
+        <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg text-primary" data-testid="success-message">
           {successMessage}
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800" data-testid="error-message">
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive" data-testid="error-message">
           {error}
         </div>
       )}
@@ -133,7 +133,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer"
                 data-testid="toggle-inAppNotifications"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
 
@@ -150,7 +150,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer"
                 data-testid="toggle-emailNotifications"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnInvitation"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
 
@@ -192,7 +192,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnRoleChange"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
 
@@ -210,7 +210,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnGroupChange"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
 
@@ -228,7 +228,7 @@ export default function NotificationPreferences() {
                 className="sr-only peer disabled:opacity-50"
                 data-testid="toggle-notifyOnMention"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600 peer-disabled:bg-gray-300 peer-disabled:cursor-not-allowed"></div>
+              <div className="w-11 h-6 bg-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-disabled:bg-muted peer-disabled:cursor-not-allowed"></div>
             </label>
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function NotificationPreferences() {
 
       {/* Disabled State Warning */}
       {!preferences.inAppNotifications && !preferences.emailNotifications && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
+        <div className="mb-6 p-4 bg-secondary border border-secondary-foreground/20 rounded-lg text-secondary-foreground">
           <p className="text-sm">
             <strong>Note:</strong> All notifications are currently disabled. Enable at least one notification channel above to receive alerts.
           </p>
@@ -248,7 +248,7 @@ export default function NotificationPreferences() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors"
           data-testid="save-button"
         >
           {saving ? 'Saving...' : 'Save Preferences'}
