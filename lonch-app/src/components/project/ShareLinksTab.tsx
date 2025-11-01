@@ -173,7 +173,7 @@ export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
     <div className="space-y-4">
       {/* Header with Generate Button */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Share invite links with specific roles and groups. Links are single-use and expire in 7 days.
         </p>
         <button
@@ -187,7 +187,7 @@ export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
 
       {/* Links Table */}
       {links.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
           <p className="text-gray-500 mb-4">No invite links yet. Generate one to get started.</p>
           <button
             onClick={() => setShowGenerateModal(true)}
@@ -200,14 +200,14 @@ export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" data-testid="links-table">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Role</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Group</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Created By</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Created</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Expires</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Status</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Actions</th>
+              <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Role</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Group</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Created By</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Created</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Expires</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Status</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -216,7 +216,7 @@ export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
                 const isCurrentUser = link.createdBy === currentUser?.uid;
 
                 return (
-                  <tr key={link.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={link.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="py-3 px-4">
                       <RoleBadge role={link.role} />
                     </td>
@@ -230,17 +230,17 @@ export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
                            creator?.email?.[0]?.toUpperCase() || '?'}
                         </div>
                         <div>
-                          <p className="text-sm text-gray-900">
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
                             {creator?.displayName || 'Unknown'}
                             {isCurrentUser && <span className="text-gray-500 ml-1">(You)</span>}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">
+                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
                       {formatRelativeTime(link.createdAt)}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">
+                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
                       {formatExpirationDate(link.expiresAt)}
                     </td>
                     <td className="py-3 px-4">
@@ -277,12 +277,12 @@ export default function ShareLinksTab({ projectId }: ShareLinksTabProps) {
       {/* Revoke Confirmation Dialog */}
       {confirmRevoke && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Revocation</h3>
             <p className="text-gray-600 mb-4">
               Revoke this invite link? It will no longer be usable.
             </p>
-            <div className="mb-4 p-3 bg-gray-50 rounded-md">
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
               <div className="flex items-center gap-2 mb-2">
                 <RoleBadge role={confirmRevoke.role} />
                 <span className="text-gray-400">in</span>

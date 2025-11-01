@@ -398,7 +398,10 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <Profile onNavigateHome={goHome} />
+          <Profile
+            onNavigateHome={goHome}
+            onNavigateSettings={() => setView('settings')}
+          />
         </ProtectedRoute>
       )}
       {/* Settings page with notification preferences */}
@@ -407,7 +410,10 @@ function AppContent() {
           onSwitchToSignup={() => setView('signup')}
           onLoginSuccess={() => setView('home')}
         >
-          <Settings onNavigateHome={goHome} />
+          <Settings
+            onNavigateHome={goHome}
+            onNavigateProfile={() => setView('profile')}
+          />
         </ProtectedRoute>
       )}
       {/* Task 3.1: Accept invite link page */}

@@ -3,6 +3,7 @@ import NotificationPreferences from '../settings/NotificationPreferences';
 
 interface SettingsProps {
   onNavigateHome: () => void;
+  onNavigateProfile?: () => void;
 }
 
 /**
@@ -11,10 +12,10 @@ interface SettingsProps {
  * User settings page for preferences and configurations.
  * Includes notification preferences, and future: billing, privacy, security.
  */
-export default function Settings({ onNavigateHome }: SettingsProps) {
+export default function Settings({ onNavigateHome, onNavigateProfile }: SettingsProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header onNavigateSettings={() => {}} />
+      <Header onNavigateProfile={onNavigateProfile} onNavigateSettings={() => {}} />
 
       <div className="max-w-4xl mx-auto px-8 py-12">
         {/* Page Header */}

@@ -3,6 +3,7 @@ import ProfileSettings from '../settings/ProfileSettings';
 
 interface ProfileProps {
   onNavigateHome: () => void;
+  onNavigateSettings?: () => void;
 }
 
 /**
@@ -11,10 +12,10 @@ interface ProfileProps {
  * Dedicated page for viewing user profile information.
  * Read-only display of user details.
  */
-export default function Profile({ onNavigateHome }: ProfileProps) {
+export default function Profile({ onNavigateHome, onNavigateSettings }: ProfileProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header onNavigateProfile={() => {}} />
+      <Header onNavigateProfile={() => {}} onNavigateSettings={onNavigateSettings} />
 
       <div className="max-w-4xl mx-auto px-8 py-12">
         {/* Page Header */}
