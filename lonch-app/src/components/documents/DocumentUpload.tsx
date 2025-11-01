@@ -352,16 +352,16 @@ export default function DocumentUpload({
                     <div className="mt-3">
                       {/* Magic Message - Only show during extraction */}
                       {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
-                        <p className="text-sm font-medium text-blue-600 mb-2">
+                        <p className="text-sm font-medium text-primary mb-2">
                           ✨ Just a moment, Magic at work!!!
                         </p>
                       )}
 
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className={`font-medium ${
-                          extractionStatus[fileData.id].status === 'completed' ? 'text-green-600' :
+                          extractionStatus[fileData.id].status === 'completed' ? 'text-primary' :
                           extractionStatus[fileData.id].status === 'failed' ? 'text-destructive' :
-                          'text-blue-600'
+                          'text-primary'
                         }`}>
                           {extractionStatus[fileData.id].status === 'completed' && '✓ Extraction Complete'}
                           {extractionStatus[fileData.id].status === 'failed' && '✗ Extraction Failed'}
@@ -375,7 +375,7 @@ export default function DocumentUpload({
                       {extractionStatus[fileData.id].status !== 'completed' && extractionStatus[fileData.id].status !== 'failed' && (
                         <div className="w-full bg-muted rounded-full h-2">
                           <div
-                            className="bg-blue-500 h-2 rounded-full transition-all"
+                            className="bg-primary h-2 rounded-full transition-all"
                             style={{ width: `${extractionStatus[fileData.id].progress}%` }}
                           />
                         </div>

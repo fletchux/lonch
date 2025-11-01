@@ -120,7 +120,7 @@ export default function NotificationPreferences() {
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-card-foreground mb-4">Notification Channels</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
               <h4 className="font-medium text-card-foreground">In-App Notifications</h4>
               <p className="text-sm text-muted-foreground">Receive notifications within the application</p>
@@ -137,7 +137,7 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
               <h4 className="font-medium text-card-foreground">Email Notifications</h4>
               <p className="text-sm text-muted-foreground">Receive notifications via email</p>
@@ -160,7 +160,7 @@ export default function NotificationPreferences() {
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-card-foreground mb-4">Notification Types</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
               <h4 className="font-medium text-card-foreground">Project Invitations</h4>
               <p className="text-sm text-muted-foreground">When you're invited to a project</p>
@@ -178,7 +178,7 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
               <h4 className="font-medium text-card-foreground">Role Changes</h4>
               <p className="text-sm text-muted-foreground">When your role in a project changes</p>
@@ -196,7 +196,7 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
               <h4 className="font-medium text-card-foreground">Group Changes</h4>
               <p className="text-sm text-muted-foreground">When you're moved between Consulting and Client groups</p>
@@ -214,7 +214,7 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
             <div>
               <h4 className="font-medium text-card-foreground">Mentions</h4>
               <p className="text-sm text-muted-foreground">When someone mentions you (future feature)</p>

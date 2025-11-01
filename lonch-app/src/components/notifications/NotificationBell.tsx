@@ -152,7 +152,7 @@ export default function NotificationBell() {
         {/* Unread Count Badge */}
         {unreadCount > 0 && (
           <span
-            className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+            className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground transform translate-x-1/2 -translate-y-1/2 bg-destructive rounded-full"
             data-testid="unread-badge"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -219,7 +219,7 @@ export default function NotificationBell() {
             <div className="px-4 py-3 border-t border-border text-center">
               <a
                 href="/notifications"
-                className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+                className="text-sm text-primary hover:opacity-90 font-medium"
               >
                 View all notifications
               </a>

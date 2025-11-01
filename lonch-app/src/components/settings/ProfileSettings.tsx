@@ -62,7 +62,7 @@ export default function ProfileSettings() {
     return (
       <div className="bg-card rounded-lg shadow p-6 border border-border">
         <h2 className="text-2xl font-bold text-card-foreground mb-6">Profile</h2>
-        <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
+        <p className="text-muted-foreground">Loading profile...</p>
       </div>
     );
   }
@@ -71,10 +71,10 @@ export default function ProfileSettings() {
     return (
       <div className="bg-card rounded-lg shadow p-6 border border-border">
         <h2 className="text-2xl font-bold text-card-foreground mb-6">Profile</h2>
-        <p className="text-red-600 dark:text-red-400">Error loading profile: {error}</p>
+        <p className="text-destructive">Error loading profile: {error}</p>
         <button
           onClick={fetchUserData}
-          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600"
+          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
           Retry
         </button>
@@ -86,8 +86,6 @@ export default function ProfileSettings() {
 
   return (
     <div className="bg-card rounded-lg shadow p-6 border border-border">
-      <h2 className="text-2xl font-bold text-card-foreground mb-6">Profile</h2>
-
       {/* Profile Photo */}
       <div className="mb-6 flex items-center gap-4">
         {currentUser.photoURL ? (
@@ -112,7 +110,7 @@ export default function ProfileSettings() {
       {/* Profile Information */}
       <div className="space-y-4">
         {/* Email */}
-        <div className="p-4 bg-muted rounded-lg">
+        <div className="p-4 border border-border rounded-lg">
           <label className="block text-sm font-medium text-muted-foreground mb-1">
             Email Address
           </label>
@@ -120,7 +118,7 @@ export default function ProfileSettings() {
         </div>
 
         {/* Display Name */}
-        <div className="p-4 bg-muted rounded-lg">
+        <div className="p-4 border border-border rounded-lg">
           <label className="block text-sm font-medium text-muted-foreground mb-1">
             Display Name
           </label>
@@ -128,7 +126,7 @@ export default function ProfileSettings() {
         </div>
 
         {/* Auth Provider */}
-        <div className="p-4 bg-muted rounded-lg">
+        <div className="p-4 border border-border rounded-lg">
           <label className="block text-sm font-medium text-muted-foreground mb-1">
             Authentication Method
           </label>
@@ -136,7 +134,7 @@ export default function ProfileSettings() {
         </div>
 
         {/* Account Created */}
-        <div className="p-4 bg-muted rounded-lg">
+        <div className="p-4 border border-border rounded-lg">
           <label className="block text-sm font-medium text-muted-foreground mb-1">
             Member Since
           </label>
