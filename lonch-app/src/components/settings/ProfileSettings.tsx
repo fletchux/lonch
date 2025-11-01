@@ -60,8 +60,8 @@ export default function ProfileSettings() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
+      <div className="bg-card rounded-lg shadow p-6 border border-border">
+        <h2 className="text-2xl font-bold text-card-foreground mb-6">Profile</h2>
         <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
       </div>
     );
@@ -69,8 +69,8 @@ export default function ProfileSettings() {
 
   if (error && !userData) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
+      <div className="bg-card rounded-lg shadow p-6 border border-border">
+        <h2 className="text-2xl font-bold text-card-foreground mb-6">Profile</h2>
         <p className="text-red-600 dark:text-red-400">Error loading profile: {error}</p>
         <button
           onClick={fetchUserData}
@@ -85,8 +85,8 @@ export default function ProfileSettings() {
   if (!userData || !currentUser) return null;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
+    <div className="bg-card rounded-lg shadow p-6 border border-border">
+      <h2 className="text-2xl font-bold text-card-foreground mb-6">Profile</h2>
 
       {/* Profile Photo */}
       <div className="mb-6 flex items-center gap-4">
@@ -104,43 +104,43 @@ export default function ProfileSettings() {
           </div>
         )}
         <div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{userData.displayName}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Lonch User</p>
+          <h3 className="text-xl font-semibold text-card-foreground">{userData.displayName}</h3>
+          <p className="text-sm text-muted-foreground">Lonch User</p>
         </div>
       </div>
 
       {/* Profile Information */}
       <div className="space-y-4">
         {/* Email */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div className="p-4 bg-muted rounded-lg">
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Email Address
           </label>
-          <p className="text-gray-900 dark:text-gray-100">{userData.email}</p>
+          <p className="text-card-foreground">{userData.email}</p>
         </div>
 
         {/* Display Name */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div className="p-4 bg-muted rounded-lg">
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Display Name
           </label>
-          <p className="text-gray-900 dark:text-gray-100">{userData.displayName}</p>
+          <p className="text-card-foreground">{userData.displayName}</p>
         </div>
 
         {/* Auth Provider */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div className="p-4 bg-muted rounded-lg">
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Authentication Method
           </label>
-          <p className="text-gray-900 dark:text-gray-100">{getAuthProviderLabel(userData.authProvider)}</p>
+          <p className="text-card-foreground">{getAuthProviderLabel(userData.authProvider)}</p>
         </div>
 
         {/* Account Created */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div className="p-4 bg-muted rounded-lg">
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Member Since
           </label>
-          <p className="text-gray-900 dark:text-gray-100">{formatDate(userData.createdAt)}</p>
+          <p className="text-card-foreground">{formatDate(userData.createdAt)}</p>
         </div>
       </div>
 
