@@ -231,7 +231,7 @@ export default function DocumentUpload({
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragActive
             ? 'border-primary bg-primary/10'
-            : 'border-input hover:border-primary/50 hover:bg-accent'
+            : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted'
         }`}
       >
         <input {...getInputProps()} />
