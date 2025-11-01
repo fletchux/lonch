@@ -269,7 +269,7 @@ export default function ProjectDashboard({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header
         onNavigateProfile={onNavigateProfile}
         onNavigateSettings={onNavigateSettings}
@@ -286,8 +286,8 @@ export default function ProjectDashboard({
           </button>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{project.name}</h1>
-              <p className="text-gray-600 dark:text-gray-400">{project.clientType}</p>
+              <h1 className="text-3xl font-bold text-foreground mb-2">{project.name}</h1>
+              <p className="text-muted-foreground">{project.clientType}</p>
             </div>
             {permissions.canInvite && (
               <button
@@ -301,14 +301,14 @@ export default function ProjectDashboard({
           </div>
 
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200 dark:border-gray-700">
+          <div className="border-b border-border">
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'overview'
-                    ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 Overview
@@ -317,8 +317,8 @@ export default function ProjectDashboard({
                 onClick={() => setActiveTab('members')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'members'
-                    ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 Members
@@ -327,8 +327,8 @@ export default function ProjectDashboard({
                 onClick={() => setActiveTab('activity')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'activity'
-                    ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 Activity
@@ -341,44 +341,44 @@ export default function ProjectDashboard({
         {activeTab === 'overview' && (
         <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <div className="flex items-center gap-3 mb-4">
               <FileText className="text-accent" size={24} />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Client Intake</h3>
+              <h3 className="text-xl font-bold text-card-foreground">Client Intake</h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Template: {project.intakeTemplate?.name}
             </p>
             <div className="space-y-3">
               {/* Show extracted client data if available */}
               {project.extractedData?.clientName && (
                 <div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Client Name</div>
-                  <div className="text-sm text-gray-900 dark:text-gray-100">{project.extractedData.clientName}</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Client Name</div>
+                  <div className="text-sm text-card-foreground">{project.extractedData.clientName}</div>
                 </div>
               )}
               {project.extractedData?.budget && (
                 <div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Budget</div>
-                  <div className="text-sm text-gray-900 dark:text-gray-100">{project.extractedData.budget}</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Budget</div>
+                  <div className="text-sm text-card-foreground">{project.extractedData.budget}</div>
                 </div>
               )}
               {project.extractedData?.timeline && (
                 <div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Timeline</div>
-                  <div className="text-sm text-gray-900 dark:text-gray-100">{project.extractedData.timeline}</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Timeline</div>
+                  <div className="text-sm text-card-foreground">{project.extractedData.timeline}</div>
                 </div>
               )}
               {project.extractedData?.scope && (
                 <div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Scope of Work</div>
-                  <div className="text-sm text-gray-900 dark:text-gray-100">{project.extractedData.scope}</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Scope of Work</div>
+                  <div className="text-sm text-card-foreground">{project.extractedData.scope}</div>
                 </div>
               )}
 
               {/* Fallback to template fields if no extracted data */}
               {!project.extractedData?.clientName && project.intakeTemplate?.fields?.slice(0, 5).map((field, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <div key={idx} className="flex items-center gap-2 text-sm text-card-foreground">
                   <div className="w-2 h-2 bg-accent rounded-full"></div>
                   {field}
                 </div>
@@ -391,12 +391,12 @@ export default function ProjectDashboard({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <div className="flex items-center gap-3 mb-4">
               <CheckSquare className="text-accent" size={24} />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Deliverables</h3>
+              <h3 className="text-xl font-bold text-card-foreground">Deliverables</h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {project.extractedData?.deliverables && project.extractedData.deliverables.length > 0
                 ? 'Extracted from documents'
                 : `Template: ${project.checklistTemplate?.name}`}
@@ -406,13 +406,13 @@ export default function ProjectDashboard({
               {project.extractedData?.deliverables && project.extractedData.deliverables.length > 0 ? (
                 <>
                   {project.extractedData.deliverables.slice(0, 5).map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <div key={idx} className="flex items-center gap-2 text-sm text-card-foreground">
                       <input type="checkbox" className="w-4 h-4 text-accent" />
                       {item}
                     </div>
                   ))}
                   {project.extractedData.deliverables.length > 5 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                    <p className="text-sm text-muted-foreground italic">
                       +{project.extractedData.deliverables.length - 5} more deliverables
                     </p>
                   )}
@@ -420,13 +420,13 @@ export default function ProjectDashboard({
               ) : (
                 <>
                   {project.checklistTemplate?.items?.slice(0, 5).map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <div key={idx} className="flex items-center gap-2 text-sm text-card-foreground">
                       <input type="checkbox" className="w-4 h-4 text-accent" />
                       {item}
                     </div>
                   ))}
                   {project.checklistTemplate?.items && project.checklistTemplate.items.length > 5 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                    <p className="text-sm text-muted-foreground italic">
                       +{project.checklistTemplate.items.length - 5} more tasks
                     </p>
                   )}
@@ -435,12 +435,12 @@ export default function ProjectDashboard({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <div className="flex items-center gap-3 mb-4">
               <Users className="text-accent" size={24} />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Client Stakeholders</h3>
+              <h3 className="text-xl font-bold text-card-foreground">Client Stakeholders</h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {project.extractedData?.stakeholders && project.extractedData.stakeholders.length > 0
                 ? 'Extracted from documents'
                 : `Template: ${project.stakeholderTemplate?.name}`}
@@ -454,21 +454,21 @@ export default function ProjectDashboard({
                       <Users size={16} className="text-accent" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div className="text-sm font-medium text-card-foreground">
                         {typeof stakeholder === 'object' && stakeholder.name ? stakeholder.name : String(stakeholder)}
                       </div>
                       {typeof stakeholder === 'object' && stakeholder.role && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{stakeholder.role}</div>
+                        <div className="text-xs text-muted-foreground">{stakeholder.role}</div>
                       )}
                       {typeof stakeholder === 'object' && stakeholder.email && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{stakeholder.email}</div>
+                        <div className="text-xs text-muted-foreground">{stakeholder.email}</div>
                       )}
                     </div>
                   </div>
                 ))
               ) : (
                 project.stakeholderTemplate?.roles?.map((role, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                  <div key={idx} className="flex items-center gap-2 text-sm text-card-foreground">
                     <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
                       <Users size={16} className="text-accent" />
                     </div>
@@ -479,17 +479,17 @@ export default function ProjectDashboard({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <div className="flex items-center gap-3 mb-4">
               <Users className="text-accent" size={24} />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Your Team</h3>
+              <h3 className="text-xl font-bold text-card-foreground">Your Team</h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Template: {project.teamTemplate?.name}
             </p>
             <div className="space-y-2">
               {project.teamTemplate?.roles?.map((role, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <div key={idx} className="flex items-center gap-2 text-sm text-card-foreground">
                   <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                     <Users size={16} className="text-green-600 dark:text-green-400" />
                   </div>
@@ -502,7 +502,7 @@ export default function ProjectDashboard({
 
         {/* Documents Section */}
         <div className="mt-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <DocumentList
               documents={localDocuments}
               onDownload={handleDownload}
@@ -519,14 +519,14 @@ export default function ProjectDashboard({
 
         {/* Members Tab */}
         {activeTab === 'members' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <ProjectMembersPanel projectId={project.id} />
           </div>
         )}
 
         {/* Activity Tab */}
         {activeTab === 'activity' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-card rounded-xl shadow-lg p-6 border border-border">
             <ActivityLogPanel projectId={project.id} />
           </div>
         )}
@@ -550,12 +550,12 @@ export default function ProjectDashboard({
       {/* Document Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="upload-modal">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-border">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Upload Documents</h3>
+              <h3 className="text-xl font-bold text-card-foreground">Upload Documents</h3>
               <button
                 onClick={handleCloseUploadModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none"
+                className="text-muted-foreground hover:text-foreground text-2xl leading-none"
                 aria-label="Close modal"
               >
                 ×
@@ -571,7 +571,7 @@ export default function ProjectDashboard({
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={handleCloseUploadModal}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
                 disabled={isUploading}
               >
                 Cancel
