@@ -38,23 +38,7 @@ service cloud.firestore {
     function getUserGroup(projectId) {
       let memberId = projectId + '_' + request.auth.uid;
       let member = get(/databases/$(database)/documents/projectMembers/$(memberId)).data;
-      return member.get('group', 'consulting'); // Default to 'consulting' for backwards compatibility
-    }
-
-    // Helper function to check if user can view a document based on visibility
-    function canViewDocument(projectId, documentVisibility) {
-      let userGroup = getUserGroup(projectId);
-      let userRole = getUserRole(projectId);
-
-      // Owner can always see everything
-      if (userRole == 'owner') {
-        return true;
-      }
-
-      // Check group-based visibility
-      return documentVisibility == 'both' ||
-             (documentVisibility == 'consulting_only' && userGroup == 'consulting') ||
-             (documentVisibility == 'client_only' && userGroup == 'client');
+      return member.get('group', 'consulting');
     }
 
     // Users collection rules
@@ -76,7 +60,11 @@ service cloud.firestore {
     // ProjectMembers collection rules
     match /projectMembers/{memberId} {
       allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isMember(resource.data.projectId));
-      allow create: if isSignedIn() && isAdminOrOwner(request.resource.data.projectId);
+      // Allow creating if you're adding yourself as owner OR if you're already an admin/owner
+      allow create: if isSignedIn() && (
+        (request.resource.data.userId == request.auth.uid && request.resource.data.role == 'owner') ||
+        isAdminOrOwner(request.resource.data.projectId)
+      );
       allow update: if isSignedIn() && isAdminOrOwner(resource.data.projectId);
       allow delete: if isSignedIn() && isAdminOrOwner(resource.data.projectId);
     }
