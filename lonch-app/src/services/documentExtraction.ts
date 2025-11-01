@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { extractTextFromDocument, cleanExtractedText } from '../utils/documentParser';
 
 /**
@@ -6,11 +5,19 @@ import { extractTextFromDocument, cleanExtractedText } from '../utils/documentPa
  * Uses Claude AI to extract structured data from project documents
  */
 
-// Initialize Anthropic client
-const anthropic = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
-  dangerouslyAllowBrowser: true // Note: In production, this should be done server-side
-});
+// Lazy load Anthropic SDK to reduce initial bundle size
+let anthropicClient: any = null;
+
+async function getAnthropicClient() {
+  if (!anthropicClient) {
+    const Anthropic = (await import('@anthropic-ai/sdk')).default;
+    anthropicClient = new Anthropic({
+      apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
+      dangerouslyAllowBrowser: true // Note: In production, this should be done server-side
+    });
+  }
+  return anthropicClient;
+}
 
 export interface ExtractedData {
   projectName?: string | null;
@@ -124,6 +131,9 @@ export const extractDataFromDocument = async (
     if (onProgress) onProgress({ status: 'extracting', progress: 50 });
 
     const prompt = generateExtractionPrompt(cleanedText, file.name);
+
+    // Lazy load Anthropic client
+    const anthropic = await getAnthropicClient();
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
