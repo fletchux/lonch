@@ -60,21 +60,21 @@ export default function ProfileSettings() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
-        <p className="text-gray-600">Loading profile...</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
+        <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
       </div>
     );
   }
 
   if (error && !userData) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
-        <p className="text-red-600">Error loading profile: {error}</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
+        <p className="text-red-600 dark:text-red-400">Error loading profile: {error}</p>
         <button
           onClick={fetchUserData}
-          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600"
         >
           Retry
         </button>
@@ -85,8 +85,8 @@ export default function ProfileSettings() {
   if (!userData || !currentUser) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
 
       {/* Profile Photo */}
       <div className="mb-6 flex items-center gap-4">
@@ -104,49 +104,49 @@ export default function ProfileSettings() {
           </div>
         )}
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">{userData.displayName}</h3>
-          <p className="text-sm text-gray-500">Lonch User</p>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{userData.displayName}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Lonch User</p>
         </div>
       </div>
 
       {/* Profile Information */}
       <div className="space-y-4">
         {/* Email */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Email Address
           </label>
-          <p className="text-gray-900">{userData.email}</p>
+          <p className="text-gray-900 dark:text-gray-100">{userData.email}</p>
         </div>
 
         {/* Display Name */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Display Name
           </label>
-          <p className="text-gray-900">{userData.displayName}</p>
+          <p className="text-gray-900 dark:text-gray-100">{userData.displayName}</p>
         </div>
 
         {/* Auth Provider */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Authentication Method
           </label>
-          <p className="text-gray-900">{getAuthProviderLabel(userData.authProvider)}</p>
+          <p className="text-gray-900 dark:text-gray-100">{getAuthProviderLabel(userData.authProvider)}</p>
         </div>
 
         {/* Account Created */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Member Since
           </label>
-          <p className="text-gray-900">{formatDate(userData.createdAt)}</p>
+          <p className="text-gray-900 dark:text-gray-100">{formatDate(userData.createdAt)}</p>
         </div>
       </div>
 
       {/* Info Notice */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-800">
+      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-400">
           <strong>Note:</strong> Profile editing is not currently available. Contact support if you need to update your information.
         </p>
       </div>

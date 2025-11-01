@@ -76,19 +76,19 @@ export default function NotificationPreferences() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">Loading notification preferences...</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <p className="text-gray-600 dark:text-gray-400">Loading notification preferences...</p>
       </div>
     );
   }
 
   if (error && !preferences) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-red-600">Error loading preferences: {error}</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <p className="text-red-600 dark:text-red-400">Error loading preferences: {error}</p>
         <button
           onClick={fetchPreferences}
-          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600"
         >
           Retry
         </button>
@@ -99,8 +99,8 @@ export default function NotificationPreferences() {
   if (!preferences) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Notification Preferences</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Notification Preferences</h2>
 
       {/* Success Message */}
       {successMessage && (
@@ -118,12 +118,12 @@ export default function NotificationPreferences() {
 
       {/* Global Notification Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Channels</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Notification Channels</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">In-App Notifications</h4>
-              <p className="text-sm text-gray-600">Receive notifications within the application</p>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">In-App Notifications</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Receive notifications within the application</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -137,10 +137,10 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Email Notifications</h4>
-              <p className="text-sm text-gray-600">Receive notifications via email</p>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Receive notifications via email</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -158,12 +158,12 @@ export default function NotificationPreferences() {
 
       {/* Notification Type Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Types</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Notification Types</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Project Invitations</h4>
-              <p className="text-sm text-gray-600">When you're invited to a project</p>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Project Invitations</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">When you're invited to a project</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -178,10 +178,10 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Role Changes</h4>
-              <p className="text-sm text-gray-600">When your role in a project changes</p>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Role Changes</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">When your role in a project changes</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -196,10 +196,10 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Group Changes</h4>
-              <p className="text-sm text-gray-600">When you're moved between Consulting and Client groups</p>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Group Changes</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">When you're moved between Consulting and Client groups</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -214,10 +214,10 @@ export default function NotificationPreferences() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Mentions</h4>
-              <p className="text-sm text-gray-600">When someone mentions you (future feature)</p>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Mentions</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">When someone mentions you (future feature)</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
